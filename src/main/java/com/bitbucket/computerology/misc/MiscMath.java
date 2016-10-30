@@ -30,7 +30,7 @@ public class MiscMath {
      * (a value that is determined by the number of frames skipped before updating an entity again).
      * @return The amount to add per frame.
      */
-    public static double get24HourConstant(double amount_to_add, double per_ingame_minutes, boolean frame_skip_multiplier) {
+    public static double get24HourConstant(double amount_to_add, double per_ingame_minutes) {
         //divides the second parameter by 1.6 because each minute in game takes 1/1.6 seconds in real life
         return MiscMath.getConstant(amount_to_add, per_ingame_minutes/1.6);
     }

@@ -1,7 +1,5 @@
 package com.bitbucket.computerology.world;
 
-import com.bitbucket.computerology.gui.states.GameScreen;
-
 public class Camera {
     
     private static double x = Chunk.SIZE_PIXELS/2, y = Chunk.SIZE_PIXELS/2;

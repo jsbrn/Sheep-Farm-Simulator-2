@@ -2,6 +2,7 @@ package com.bitbucket.computerology.world;
 
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.world.events.EventHandler;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,6 +28,9 @@ public class World {
     
     private Player player;
     
+    private ArrayList<EventHandler> event_handlers;
+    private double time;
+    
     private World(int seed) {
         this.seed = seed;
         init();
@@ -42,6 +46,9 @@ public class World {
         this.sectors = new ArrayList<Sector>();
         this.active_sectors = new ArrayList<Sector>();
         this.player = new Player();
+        this.time = 0;
+        this.event_handlers = new ArrayList<EventHandler>();
+        this.event_handlers.add(new EventHandler());
     }
     
     public static World getWorld() {
@@ -69,8 +76,15 @@ public class World {
     }
     
     public void update() {
-
+        for (EventHandler e: event_handlers) { e.update(); }
+        time+=MiscMath.get24HourConstant(1, 1);
     }
+    
+    /** Returns the current time since world creation (in minutes).**/
+    public int getTime() { return (int)time; }
+    
+    /** Returns the hour in 24-hour format **/
+    public int getHour() { return (int)(time % 1440) / 60; }
     
     public int sectorCount() { return sectors.size(); }
     public int activeSectorCount() { return active_sectors.size(); }
@@ -212,6 +226,7 @@ public class World {
             bw.write("s: sector\n");
             bw.write("c: chunk\n");
             bw.write("--------------------------------\n");
+            bw.write("t="+world.time);
             world.player.save(bw);
             for (Sector s: world.sectors) s.save(bw);
             bw.close();
@@ -221,6 +236,10 @@ public class World {
 
     }
     
+    /**
+     * "Destroys" the world by setting it to null, thus dereferencing
+     * EVERYTHING in it (thanks, GC). This is probably the worst way to do it.
+     */
     public static void destroy() {
         world = null;
     }
@@ -237,6 +256,7 @@ public class World {
                 String line = br.readLine();
                 if (line == null) break;
                 line = line.replace("", "");
+                if (line.contains("t=")) world.time = Long.parseLong(line.replace("t=", ""));
                 if (line.equals("s")) {
                     Sector s = new Sector(0, 0, world);
                     if (s.load(br)) world.addSector(s, SECTOR_LIST);
