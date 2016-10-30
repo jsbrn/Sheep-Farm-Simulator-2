@@ -2,9 +2,7 @@ package com.bitbucket.computerology.world.entities;
 
 import com.bitbucket.computerology.world.entities.components.*;
 import com.bitbucket.computerology.world.entities.systems.*;
-import java.io.BufferedWriter;
 import java.util.LinkedList;
-import java.util.Properties;
 import org.newdawn.slick.Graphics;
 
 public class Entity {

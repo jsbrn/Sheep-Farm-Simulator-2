@@ -256,14 +256,12 @@ public class World {
                 String line = br.readLine();
                 if (line == null) break;
                 line = line.replace("", "");
-                if (line.contains("t=")) world.time = Long.parseLong(line.replace("t=", ""));
+                if (line.contains("t=")) world.time = Double.parseDouble(line.replace("t=", ""));
                 if (line.equals("s")) {
                     Sector s = new Sector(0, 0, world);
                     if (s.load(br)) world.addSector(s, SECTOR_LIST);
                 }
-                if (line.equals("p")) {
-                    world.player.load(br);
-                }
+                if (line.equals("p")) world.player.load(br);
             }
             br.close();
         } catch (IOException ex) {
