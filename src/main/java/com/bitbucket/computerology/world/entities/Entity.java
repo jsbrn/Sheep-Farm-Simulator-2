@@ -1,15 +1,16 @@
 package com.bitbucket.computerology.world.entities;
 
-import com.bitbucket.computerology.world.entities.components.*;
-import com.bitbucket.computerology.world.entities.systems.*;
 import java.util.LinkedList;
+import java.util.Random;
 import org.newdawn.slick.Graphics;
 
 public class Entity {
     
     LinkedList<ComponentSystem> systems;
     LinkedList<Component> components;
-    String name;
+    LinkedList<Flow> flows;
+    String name, type, texture;
+    int id;
     
     /**
      * Creates a new entity.
@@ -20,40 +21,29 @@ public class Entity {
      * @param name The name of the entity.
      * @return The created entity instance.
      */
-    public static Entity create(int x, int y, int id) {
+    public static Entity create(int x, int y, String type) {
         Entity e = new Entity();
         e.name = "";
+        e.type = type;
+        e.id = Math.abs(new Random().nextInt() % 100000);
         e.systems = new LinkedList<ComponentSystem>();
         e.components = new LinkedList<Component>();
         return e;
     }
     
-    public Entity() {
-        
-    }
+    public Entity() {}
     
-    public void clearVelocity() {
-
-    }
+    public String getType() { return type; }
     
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String n) {
-        name = n;
-    }
+    public String getName() { return name; }
+    public void setName(String n) { name = n; }
     
     public void update() {
-        for (ComponentSystem s: systems) {
-            s.update();
-        }
+        for (ComponentSystem s: systems) s.update();
     }
     
     public void draw(Graphics g) {
-        for (ComponentSystem s: systems) {
-            s.draw(g);
-        }
+        for (ComponentSystem s: systems) s.draw(g);
     }
     
     public void addComponent(Component c) {components.remove(c);components.add(c);c.setParent(this);}

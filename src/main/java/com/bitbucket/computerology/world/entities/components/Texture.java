@@ -1,6 +1,6 @@
-package com.bitbucket.computerology.world.entities.components.types;
+package com.bitbucket.computerology.world.entities.components;
 
-import com.bitbucket.computerology.world.entities.components.Component;
+import com.bitbucket.computerology.world.entities.Component;
 import org.newdawn.slick.Image;
 
 public class Texture extends Component {

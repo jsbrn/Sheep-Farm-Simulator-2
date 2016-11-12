@@ -1,4 +1,4 @@
-package com.bitbucket.computerology.world.entities.systems;
+package com.bitbucket.computerology.world.entities;
 
 import com.bitbucket.computerology.world.entities.Entity;
 import org.newdawn.slick.Graphics;

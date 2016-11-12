@@ -4,10 +4,10 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.bitbucket.computerology</groupId>
-  <artifactId>sheep-farm-simulator</artifactId>
+  <artifactId>sheep-farm-simulator-2.0</artifactId>
   <packaging>jar</packaging>
   <version>0.0.1-alpha</version>
-  <name>Sheep Farm Simulator 2.0</name>
+  <name>sheep-farm-simulator-2.0</name>
   <url>http://bit.ly/SheepFarmSimulator</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

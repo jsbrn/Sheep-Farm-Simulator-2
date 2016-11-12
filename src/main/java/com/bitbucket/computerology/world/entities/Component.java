@@ -1,20 +1,27 @@
-package com.bitbucket.computerology.world.entities.components;
+package com.bitbucket.computerology.world.entities;
 
-import com.bitbucket.computerology.world.entities.Entity;
-import com.bitbucket.computerology.world.entities.components.types.Position;
-import com.bitbucket.computerology.world.entities.components.types.Texture;
+import com.bitbucket.computerology.world.entities.components.Position;
+import com.bitbucket.computerology.world.entities.components.Texture;
 
 public class Component {
     
-    String id;
+    String id, params;
     Entity parent;
     
-    public Component() {setID("");}
+    public Component() {setID("");params = "";}
     
     public final void setID(String id) {this.id = id;}
     public final String getID() {return id;}
     public final void setParent(Entity e) {parent = e;}
     public final Entity getParent() {return parent;}
+    
+    /**
+     * Takes param string and parses the values, assigning each to
+     * an appropriate variable. Can be overridden.
+     */
+    public void initParams() {
+        
+    }
     
     public static Component create(String s) {
         Component c = null;
