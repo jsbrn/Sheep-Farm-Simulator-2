@@ -1,8 +1,13 @@
 package com.bitbucket.computerology.world.entities;
 
 import com.bitbucket.computerology.world.entities.components.Position;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.newdawn.slick.Graphics;
 
 public class Entity {
@@ -43,6 +48,47 @@ public class Entity {
         this.id = -1;
     }
     
+    public void save(BufferedWriter bw) {
+        try {
+            bw.write("e\n");
+            bw.write("t="+type+"\n");
+            bw.write("n="+name+"\n");
+            bw.write("id="+id+"\n");
+            for (Component c: components) c.save(bw);
+            bw.write("/e\n");
+        } catch (IOException ex) {
+            Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public final boolean load(BufferedReader br) {
+        try {
+            while (true) {
+                String line = br.readLine();
+                if (line == null) break;
+                line = line.replace("", "").trim();
+                if (line.equals("/e")) return true;
+                if (line.indexOf("t=") == 0) {
+                    Entity copy = Entity.create(line.replace("t=", "").trim());
+                    if (copy != null) copy.copyTo(this);
+                }
+                if (line.indexOf("n=") == 0) name = line.replace("n=", "").trim();
+                if (line.indexOf("id=") == 0) id = Integer.parseInt(line.replace("n=", "").trim());
+                if (line.indexOf("c - ") == 0) {
+                    //takes the component that already exists (because of entity.copy()) and
+                    //calls the custom load on it
+                    Component c = this.getComponent(line.replace("c - ", "").trim());
+                    if (c != null) {
+                        c.customLoad(br);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+    
     public int getWorldX() {
         Component p = getComponent("Position");
         if (p != null) {
@@ -60,17 +106,17 @@ public class Entity {
     }
     
     public void setWorldX(int w_x) {
-        Component p = getComponent("Position");
-        if (p != null) {
-            ((Position)p).setWorldX(w_x);
-        }
+        Component c = getComponent("Position");
+        if (c == null) return;
+        Position p = ((Position)c);
+        p.setWorldX(w_x);
     }
     
     public void setWorldY(int w_y) {
-        Component p = getComponent("Position");
-        if (p != null) {
-            ((Position)p).setWorldY(w_y);
-        }
+        Component c = getComponent("Position");
+        if (c == null) return;
+        Position p = ((Position)c);
+        p.setWorldY(w_y);
     }
     
     public String getType() { return type; }
@@ -82,6 +128,7 @@ public class Entity {
     }
     
     public void draw(Graphics g) {
+        System.out.println("Drawing "+type+" "+this);
         for (ComponentSystem s: systems) s.draw(g);
     }
     
@@ -90,6 +137,8 @@ public class Entity {
     public Component getComponent(String s) {
         for (Component c: components) {
             if (c.getID().equals(s)) {
+                if (c instanceof Position) System.out.println("Found position component!"); else 
+                    System.out.println(c.getID()+" is a match for "+s);
                 return c;
             }
         }
@@ -123,13 +172,13 @@ public class Entity {
         e.name = this.name;
         e.components.clear();
         for (Component c: components) {
-            Component nc = new Component();
+            Component nc = Component.create(c.id);
             c.copyTo(nc);
             e.addComponent(nc);
         }
         e.systems.clear();
         for (ComponentSystem c: systems) {
-            ComponentSystem nc = new ComponentSystem();
+            ComponentSystem nc = ComponentSystem.create(c.id);
             c.copyTo(nc);
             e.addSystem(nc);
         }

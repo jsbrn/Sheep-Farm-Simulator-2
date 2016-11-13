@@ -16,15 +16,25 @@ public class Texture extends Component {
     
     public void initParams(ArrayList<String> p) {
         for (String s: p) {
-            if (s.indexOf("texture=") == 0) texture_url = s.replace("texture=", "").trim();
+            if (s.indexOf("texture=") == 0) { 
+                texture_url = s.replace("texture=", "").trim(); 
+                System.out.println("Texture string = "+texture_url);
+            }
         }
-        if (texture_url.length() == 0) {
+        if (texture_url.length() > 0) {
             try {
                 texture = new Image("images/entities/"+texture_url, false, Image.FILTER_NEAREST);
             } catch (SlickException ex) {
                 Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+    
+    public void copyTo(Component c) {
+        super.copyTo(c);
+        if (c instanceof Texture == false) return;
+        ((Texture)c).texture = this.texture.getScaledCopy(1);
+        ((Texture)c).texture_url = this.texture_url;
     }
     
     public Image getTexture() { return texture; }

@@ -4,7 +4,12 @@ import com.bitbucket.computerology.misc.MiscString;
 import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.entities.components.Position;
 import com.bitbucket.computerology.world.entities.components.Texture;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Component {
     
@@ -18,6 +23,17 @@ public class Component {
     public final void setParent(Entity e) {parent = e;}
     public final Entity getParent() {return parent;}
     
+    public static Component create(String s) {
+        Component c = null;
+        if ("Texture".equals(s)) c = new Texture();
+        if ("Position".equals(s)) c = new Position();
+        if ("Hitbox".equals(s)) c = new Hitbox();
+        if (c != null) { 
+            c.setID(s); 
+            System.out.println("Created component "+c.getID());
+        } else { System.err.println("Failed to create component "+s+"!"); }
+        return c;
+    }
     
     /**
      * Takes the param string and splits it into a String array, passing along
@@ -33,18 +49,6 @@ public class Component {
      */
     public void initParams(ArrayList<String> p) {}
     
-    public static Component create(String s) {
-        Component c = null;
-        if ("Texture".equals(s)) c = new Texture();
-        if ("Position".equals(s)) c = new Position();
-        if ("Hitbox".equals(s)) c = new Hitbox();
-        if (c != null) { 
-            c.setID(s); 
-            System.out.println("Created component "+c.getID());
-        } else { System.err.println("Failed to create component "+s+"!"); }
-        return c;
-    }
-    
     /**
      * Copies the component data to the specified component c.
      * Will copy the param string as well as the id and the parent entity.
@@ -52,10 +56,25 @@ public class Component {
      * three.
      * @param c Component specified.
      */
-    public final void copyTo(Component c) {
+    public void copyTo(Component c) {
         c.id = this.id;
         c.params = this.params;
         c.parent = this.parent;
     }
+    
+    public void customSave(BufferedWriter bw) {}
+    
+    public final void save(BufferedWriter bw) {
+        try {
+            bw.write("c - "+id+"\n");
+            bw.write("id="+id+"\n");
+            customSave(bw);
+            bw.write("/c\n");
+        } catch (IOException ex) {
+            Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public boolean customLoad(BufferedReader br) { return true; }
     
 }

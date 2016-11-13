@@ -56,7 +56,10 @@ public class EntityList {
                 }
                 if (line.equals("s")) {
                     ComponentSystem c = loadSystem(br);
-                    if (c != null) e.addSystem(c);
+                    if (c != null) { 
+                        System.out.println(c.getID());
+                        e.addSystem(c); 
+                    }
                 }
                 /*if (line.equals("a")) {
                     Animation c = new Animation();

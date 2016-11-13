@@ -23,8 +23,10 @@ public class ComponentSystem {
         if ("Render".equals(s)) c = new Render();
         if ("Movement".equals(s)) c = new Movement();
 
-        if (c != null) c.setID(s); else System.err.println("Failed to create component system "+s+"!");
-        return null;
+        if (c != null) { 
+            c.setID(s); 
+        } else { System.err.println("Failed to create component system "+s+"!"); }
+        return c;
     }
     
     public void copyTo(ComponentSystem c) {

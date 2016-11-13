@@ -86,8 +86,9 @@ public class World {
         Sector s = getSector(sc[0], sc[1]);
         if (s == null) return false;
         if (s.addEntity(e)) { 
-            this.addSector(s, ACTIVE_SECTOR_LIST); 
-            s.addEntity(e);
+            activateSector(s);
+            System.out.println("Added entity "+e.getType()+" to world! "+e.getWorldX()+", "+e.getWorldY());
+            return true;
         }
         return false;
     }
@@ -108,7 +109,7 @@ public class World {
      * @return A Sector instance, or null if not found.
      */
     public Sector getSector(int x, int y) {
-        Sector s = getSector(x, y, 0, sectors.size()-1, active_sectors);
+        Sector s = getSector(x, y, 0, active_sectors.size()-1, active_sectors);
         if (s == null) {
             s = getSector(x, y, 0, sectors.size()-1, sectors);
         }
@@ -158,6 +159,14 @@ public class World {
         if (list == SECTOR_LIST) return addSector(s, 0, sectors.size()-1, sectors);
         if (list == ACTIVE_SECTOR_LIST) return addSector(s, 0, active_sectors.size()-1, active_sectors);
         return false;
+    }
+    
+    public boolean activateSector(Sector s) {
+        return addSector(s, ACTIVE_SECTOR_LIST);
+    }
+    
+    public boolean deactivateSector(Sector s) {
+        return active_sectors.remove(s);
     }
     
     private boolean addSector(Sector s, int l, int u, ArrayList<Sector> list) {
@@ -223,12 +232,12 @@ public class World {
                 if (c != null) { c.draw(g); }
             }
         }
+        Assets.CHUNK_TERRAIN.endUse();
         for (Sector s: active_sectors) {
             for (int i = 0; i != s.entityCount(); i++) {
                 s.getEntity(i).draw(g);
             }
         }
-        Assets.CHUNK_TERRAIN.endUse();
     }
     
     public static void save() {
