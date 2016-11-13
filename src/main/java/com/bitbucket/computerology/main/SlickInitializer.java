@@ -3,6 +3,8 @@ package com.bitbucket.computerology.main;
 import com.bitbucket.computerology.gui.states.*;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.Window;
+import com.bitbucket.computerology.world.entities.BlockList;
+import com.bitbucket.computerology.world.entities.EntityList;
 
 import java.io.IOException;
 import org.newdawn.slick.AppGameContainer;
@@ -37,6 +39,8 @@ public class SlickInitializer extends StateBasedGame {
         
         Assets.createRootDirectory();
         Assets.setLocalVersion();
+        BlockList.loadBlockList();
+        EntityList.loadEntityList();
         
         //initialize the window
         try {

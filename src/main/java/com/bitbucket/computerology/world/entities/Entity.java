@@ -21,17 +21,23 @@ public class Entity {
      * @param name The name of the entity.
      * @return The created entity instance.
      */
-    public static Entity create(int x, int y, String type) {
-        Entity e = new Entity();
-        e.name = "";
+    public static Entity create(String type) {
+        Entity e = new Entity(), clone = EntityList.getEntity(type);
+        if (clone == null) return null;
+        clone.copyTo(e);
         e.type = type;
         e.id = Math.abs(new Random().nextInt() % 100000);
-        e.systems = new LinkedList<ComponentSystem>();
-        e.components = new LinkedList<Component>();
         return e;
     }
     
-    public Entity() {}
+    public Entity() {
+        this.systems = new LinkedList<ComponentSystem>();
+        this.components = new LinkedList<Component>();
+        this.flows = new LinkedList<Flow>();
+        this.name = "";
+        this.type = "";
+        this.id = -1;
+    }
     
     public String getType() { return type; }
     
@@ -66,6 +72,27 @@ public class Entity {
             }
         }
         return null;
+    }
+    
+    public void copyTo(Entity e) {
+        e.texture = this.texture;
+        e.type = this.type;
+        e.name = this.name;
+        for (Component c: components) {
+            Component nc = new Component();
+            c.copyTo(nc);
+            e.components.add(nc);
+        }
+        for (ComponentSystem c: systems) {
+            ComponentSystem nc = new ComponentSystem();
+            c.copyTo(nc);
+            e.systems.add(nc);
+        }
+        for (Flow f: flows) {
+            Flow nf = new Flow();
+            f.copyTo(nf);
+            e.flows.add(nf);
+        }
     }
     
 }

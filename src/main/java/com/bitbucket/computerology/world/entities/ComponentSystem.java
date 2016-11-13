@@ -19,8 +19,12 @@ public class ComponentSystem {
     public void draw(Graphics g) {}
     
     public static ComponentSystem create(String s) {
-        
         return null;
+    }
+    
+    public void copyTo(ComponentSystem c) {
+        c.id = this.id;
+        c.parent = this.parent;
     }
     
 }

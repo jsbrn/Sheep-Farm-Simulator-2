@@ -31,4 +31,17 @@ public class Component {
         return c;
     }
     
+    /**
+     * Copies the component data to the specified component c.
+     * Will copy the param string as well as the id and the parent entity.
+     * Override to copy other, custom variables, but call super for the aforementioned
+     * three.
+     * @param c Component specified.
+     */
+    public final void copyTo(Component c) {
+        c.id = this.id;
+        c.params = this.params;
+        c.parent = this.parent;
+    }
+    
 }

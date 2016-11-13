@@ -1,15 +1,8 @@
 package com.bitbucket.computerology.world.entities;
 
-import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.misc.MiscString;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Block {
     
@@ -178,6 +171,10 @@ public class Block {
         return title;
     }
     
+    public void setDots(boolean in, boolean out, boolean yes, boolean no, boolean ok) {
+        dots = new boolean[]{in, out, yes, no, ok};
+    }
+    
     public void copyTo(Block b) {
         b.title = title;
         b.type = type;
@@ -196,25 +193,5 @@ public class Block {
             b.param_conns[i] = param_conns[i];
         }
     }
-    
-    public boolean equalTo(Block b) {
-        if (!b.title.equals(title)) return false;
-        if (!b.type.equals(type)) return false;
-        if (b.id != id) return false;
-        for (int i = 0; i != dots.length; i++) {
-            if (b.dots[i] != dots[i]) return false;
-            if (b.dot_conns[i] != (dot_conns[i])) return false;
-        }
-        for (int i = 0; i != values.length; i++) {
-            if (!b.values[i][0].equals(values[i][0]) 
-                    || !b.values[i][1].equals(values[i][1])
-                    || !b.values[i][2].equals(values[i][2])) return false;
-            if (b.param_conns[i] != (param_conns[i])) return false;
-        }
-        return true;
-    }
-    
-    public void setDots(boolean in, boolean out, boolean yes, boolean no, boolean ok) {
-        dots = new boolean[]{in, out, yes, no, ok};
-    }
+
 }

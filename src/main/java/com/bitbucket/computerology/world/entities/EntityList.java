@@ -6,18 +6,26 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EntityList {
+    
     static ArrayList<Entity> ENTITIES;
+    
+    public static Entity getEntity(String type) {
+        for (Entity e: ENTITIES) if (e.type.equals(type)) return e;
+        return null;
+    }
     
     public static void loadEntityList() {
         ENTITIES = new ArrayList<Entity>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(
-                        new File(System.getProperty("user.home")+"/Desktop/entity_list.txt")));
+            InputStream in = EntityList.class.getResourceAsStream("/misc/entity_list.txt"); 
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
             while (true) {
                 String line = br.readLine();
                 if (line == null) break;
@@ -140,7 +148,12 @@ public class EntityList {
                 if (line.indexOf("t=") == 0) { 
                     b.type = line.trim().replace("t=", "");
                     Block copy = BlockList.getBlock(b.type);
-                    if (copy != null) copy.copyTo(b);
+                    if (copy != null) {
+                        copy.copyTo(b); 
+                    } else { 
+                        System.err.println("Block "+b.type+" does not exist in BLOCK_LIST!");
+                        return false;
+                    }
                 }
                 if (line.indexOf("dconns=") == 0) {
                     ArrayList<String> bs = MiscString.parseString(line.trim().replace("dconns=", "").replace(" ", "\n"));
