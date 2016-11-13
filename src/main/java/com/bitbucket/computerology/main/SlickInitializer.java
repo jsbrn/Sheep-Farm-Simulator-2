@@ -26,21 +26,19 @@ public class SlickInitializer extends StateBasedGame {
 
     @Override
     public void initStatesList(GameContainer gc) throws SlickException {
-            //initialize states
-            getState(Assets.GAME_SCREEN).init(gc, this);
-            getState(Assets.MAIN_MENU).init(gc, this);
-            getState(Assets.LOADING_SCREEN).init(gc, this);
+        //initialize states
+        getState(Assets.GAME_SCREEN).init(gc, this);
+        getState(Assets.MAIN_MENU).init(gc, this);
+        getState(Assets.LOADING_SCREEN).init(gc, this);
 
-            //load "menu" state on startup
-            this.enterState(Assets.LOADING_SCREEN);
+        //load "menu" state on startup
+        this.enterState(Assets.LOADING_SCREEN);
     }
 
     public static void main(String args[]) throws IOException {
         
         Assets.createRootDirectory();
         Assets.setLocalVersion();
-        BlockList.loadBlockList();
-        EntityList.loadEntityList();
         
         //initialize the window
         try {

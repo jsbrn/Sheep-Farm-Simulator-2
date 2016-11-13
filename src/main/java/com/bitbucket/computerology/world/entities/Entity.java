@@ -91,20 +91,23 @@ public class Entity {
         e.texture = this.texture;
         e.type = this.type;
         e.name = this.name;
+        e.components.clear();
         for (Component c: components) {
             Component nc = new Component();
             c.copyTo(nc);
-            e.components.add(nc);
+            e.addComponent(nc);
         }
+        e.systems.clear();
         for (ComponentSystem c: systems) {
             ComponentSystem nc = new ComponentSystem();
             c.copyTo(nc);
-            e.systems.add(nc);
+            e.addSystem(nc);
         }
+        e.flows.clear();
         for (Flow f: flows) {
             Flow nf = new Flow();
             f.copyTo(nf);
-            e.flows.add(nf);
+            e.addFlow(nf);
         }
     }
     
