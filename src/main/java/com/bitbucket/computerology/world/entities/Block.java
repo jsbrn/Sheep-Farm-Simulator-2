@@ -6,20 +6,17 @@ import java.util.Random;
 
 public class Block {
     
-    public static ArrayList<Block> BLOCK_LIST = new ArrayList<Block>();
-    
     boolean[] dots; //in, out, yes, no, ok
     int[] dot_conns, param_conns; //the actual connections
     
     String[][] values; //parametres use this. a value is {value, name, type}
     String output_type; //the type of value that the OUT connection supplies
     
-    String title, type;
+    String type;
     int id;
     
     public Block() {
         this.id = Math.abs(new Random().nextInt());
-        this.title = "";
         this.type = "";
         this.dots = new boolean[5];
         this.dot_conns = new int[5];
@@ -29,10 +26,7 @@ public class Block {
     }
     
     public static Block create(String type) {
-        Block get = null, new_b = new Block();
-        for (Block b: BLOCK_LIST) {
-            if (type.equals(b.type)) { get = b; break; }
-        }
+        Block get = BlockList.getBlock(type), new_b = new Block();
         if (get != null) get.copyTo(new_b);
         return get;
     }
@@ -66,14 +60,7 @@ public class Block {
         return values.length;
     }
     
-    public String getTitle() { return title; }
     public String getType() { return type; }
-    
-    public int[] dimensions() {
-        int b_width = (title().length()*5), b_height = 25 + (20*paramCount());
-        if (b_width < 100) b_width = 100;
-        return new int[]{b_width, b_height};
-    }
     
     /**
      * Creates a new flowchart block for the list of template blocks.
@@ -83,13 +70,12 @@ public class Block {
      * @param input_map A String that describes which I/Os are active (ex. fffft means only the OK output is active).
      * @param param_count How many parametres does this block have?
      */
-    public Block(String title, String type, String input_map, String output_type, String[][] values) {
+    public Block(String type, String input_map, String output_type, String[][] values) {
         
         this.id = Math.abs(new Random().nextInt());
-        this.title = title;
         this.type = type;
         if (input_map.length() != 5) {
-            System.err.println("Block "+title+": input map "+input_map+" must be 5 chars in length,"
+            System.err.println("Block "+type+": input map "+input_map+" must be 5 chars in length,"
                     + " and must consist of characters t and f only!");
             this.dots = new boolean[]{false, false, false, false, false};
         } else {
@@ -105,11 +91,6 @@ public class Block {
         this.param_conns = new int[values.length];
         this.values = values;
         
-    }
-    
-    public static Block getBlock(String type) {
-        for (Block b: BLOCK_LIST) if (b.type.equals(type)) return b;
-        return null;
     }
     
     public String getOutputType() {
@@ -167,16 +148,11 @@ public class Block {
         values[pindex][dindex] = new_val;
     }
     
-    public String title() {
-        return title;
-    }
-    
     public void setDots(boolean in, boolean out, boolean yes, boolean no, boolean ok) {
         dots = new boolean[]{in, out, yes, no, ok};
     }
     
     public void copyTo(Block b) {
-        b.title = title;
         b.type = type;
         b.id = id;
         b.output_type = output_type;

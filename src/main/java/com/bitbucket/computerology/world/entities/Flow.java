@@ -24,6 +24,8 @@ public class Flow {
         this.parent_object = null;
     }
     
+    public String getID() { return id; }
+    
     public Block getBlock(int index) {
         return blocks.get(index);
     }

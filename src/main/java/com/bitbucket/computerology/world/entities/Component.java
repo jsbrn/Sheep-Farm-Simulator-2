@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.entities;
 
+import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.entities.components.Position;
 import com.bitbucket.computerology.world.entities.components.Texture;
 
@@ -25,9 +26,10 @@ public class Component {
     
     public static Component create(String s) {
         Component c = null;
-        if ("texture".equals(s)) c = new Texture();
-        if ("position".equals(s)) c = new Position();
-        if (c != null) c.setID(s);
+        if ("Texture".equals(s)) c = new Texture();
+        if ("Position".equals(s)) c = new Position();
+        if ("Hitbox".equals(s)) c = new Hitbox();
+        if (c != null) c.setID(s); else System.err.println("Failed to create component "+s+"!");
         return c;
     }
     

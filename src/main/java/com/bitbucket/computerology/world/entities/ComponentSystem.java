@@ -1,6 +1,6 @@
 package com.bitbucket.computerology.world.entities;
 
-import com.bitbucket.computerology.world.entities.Entity;
+import com.bitbucket.computerology.world.entities.systems.*;
 import org.newdawn.slick.Graphics;
 
 public class ComponentSystem {
@@ -19,6 +19,11 @@ public class ComponentSystem {
     public void draw(Graphics g) {}
     
     public static ComponentSystem create(String s) {
+        ComponentSystem c = null;
+        if ("Render".equals(s)) c = new Render();
+        if ("Movement".equals(s)) c = new Movement();
+
+        if (c != null) c.setID(s); else System.err.println("Failed to create component system "+s+"!");
         return null;
     }
     

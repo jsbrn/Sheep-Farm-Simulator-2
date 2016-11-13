@@ -6,9 +6,9 @@ import org.newdawn.slick.Graphics;
 
 public class Entity {
     
-    LinkedList<ComponentSystem> systems;
-    LinkedList<Component> components;
-    LinkedList<Flow> flows;
+    private LinkedList<ComponentSystem> systems;
+    private LinkedList<Component> components;
+    private LinkedList<Flow> flows;
     String name, type, texture;
     int id;
     
@@ -69,6 +69,17 @@ public class Entity {
         for (ComponentSystem c: systems) {
             if (c.getID().equals(s)) {
                 return c;
+            }
+        }
+        return null;
+    }
+    
+    public void addFlow(Flow f) {if (!flows.contains(f)) {flows.add(f);f.setParent(this);}}
+    public void removeFlow(Flow f) {if (!flows.contains(f)) flows.remove(f);}
+    public Flow getFlow(String s) {
+        for (Flow f: flows) {
+            if (f.getID().equals(s)) {
+                return f;
             }
         }
         return null;
