@@ -32,6 +32,8 @@ public class World {
     private ArrayList<EventHandler> event_handlers;
     private double time;
     
+    private ArrayList<Entity> entities;
+    
     private World(int seed) {
         this.seed = seed;
         init();
@@ -50,6 +52,7 @@ public class World {
         this.time = 0;
         this.event_handlers = new ArrayList<EventHandler>();
         this.event_handlers.add(new EventHandler());
+        this.entities = new ArrayList<Entity>();
     }
     
     public static World getWorld() {
@@ -79,6 +82,8 @@ public class World {
     public void update() {
         for (EventHandler e: event_handlers) { e.update(); }
         time+=MiscMath.get24HourConstant(1, 1);
+        
+        for (Sector s: active_sectors) s.update();
     }
     
     public boolean addEntity(Entity e) {
@@ -86,7 +91,6 @@ public class World {
         Sector s = getSector(sc[0], sc[1]);
         if (s == null) return false;
         if (s.addEntity(e)) { 
-            activateSector(s);
             System.out.println("Added entity "+e.getType()+" to world! "+e.getWorldX()+", "+e.getWorldY());
             return true;
         }

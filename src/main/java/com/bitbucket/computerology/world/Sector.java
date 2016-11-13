@@ -19,6 +19,8 @@ public class Sector {
     private int x, y, biome;
     private boolean generated;
     
+    int chunk_update_index = 0;
+    
     private ArrayList<Entity> entities;
     
     public Sector(int x, int y, World parent) {
@@ -50,6 +52,28 @@ public class Sector {
         if (this.y < y) return -1;
         return 0;
     }
+    
+    public void update() {
+        for (int i = 0; i != 10; i++) {
+            //get the next chunk to update
+            Chunk c = getChunk(chunk_update_index % SIZE_CHUNKS, chunk_update_index / SIZE_CHUNKS);
+            //update the chunk then add 1 to the chunk index OR set it to 0 if it is >= the
+            //total chunk count
+            if (c != null) { c.update(); chunk_update_index = 
+                    chunk_update_index >= SIZE_CHUNKS*SIZE_CHUNKS ? 0 : chunk_update_index + 1; }
+            else { chunk_update_index = 0; }
+        }
+    }
+    
+    public boolean removeEntity(Entity e) {
+        if (entities.remove(e)) {
+            parent.deactivateSector(this);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean containsEntity(Entity e) { return entities.contains(e); }
     
     public boolean generated() {
         return generated;
@@ -110,7 +134,7 @@ public class Sector {
         int cc[] = parent.getChunkCoords(osc[0], osc[1]);
         Chunk c = getChunk(cc[0], cc[1]);
         if (c == null) return false;
-        if (c.addEntity(e)) { entities.add(e); return true; } else { return false; }
+        if (c.addEntity(e)) { entities.add(e); parent.activateSector(this); return true; } else { return false; }
     }
     
     public int entityCount() { return entities.size(); }

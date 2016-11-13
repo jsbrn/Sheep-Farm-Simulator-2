@@ -37,6 +37,19 @@ public class Chunk {
         return false;
     }
     
+    public void update() {
+        //remove the first entity you find in the list that does not intersect anymore
+        //or is not in the parent sector
+        for (Entity e: entities) {
+            if (e.intersects(worldCoords()[0], worldCoords()[1], Chunk.SIZE_PIXELS, Chunk.SIZE_PIXELS)
+                    || !parent.containsEntity(e)) {
+                entities.remove(e);
+                parent.removeEntity(e);
+                break;
+            }
+        }
+    }
+    
     /**
      * Returns a Chunk array of size 8.
      * @param diag Whether or not to include chunks diagonal to the parent.

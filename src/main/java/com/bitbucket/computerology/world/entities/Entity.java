@@ -48,6 +48,14 @@ public class Entity {
         this.id = -1;
     }
     
+    /**
+     * Checks if the entity intersects the world coordinates and the specified dimensions.
+     * @return A boolean. Returns true always, for now. Needs to be implemented.
+     */
+    public boolean intersects(int x, int y, int w, int h) {
+        return true;
+    }
+    
     public void save(BufferedWriter bw) {
         try {
             bw.write("e\n");
