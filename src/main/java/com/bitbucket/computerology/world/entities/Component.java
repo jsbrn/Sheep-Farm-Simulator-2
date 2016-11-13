@@ -1,8 +1,10 @@
 package com.bitbucket.computerology.world.entities;
 
+import com.bitbucket.computerology.misc.MiscString;
 import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.entities.components.Position;
 import com.bitbucket.computerology.world.entities.components.Texture;
+import java.util.ArrayList;
 
 public class Component {
     
@@ -16,13 +18,20 @@ public class Component {
     public final void setParent(Entity e) {parent = e;}
     public final Entity getParent() {return parent;}
     
+    
     /**
-     * Takes param string and parses the values, assigning each to
+     * Takes the param string and splits it into a String array, passing along
+     * the array to the other initParams function.
+     */
+    public final void initParams() {
+        initParams(MiscString.parseString(params));
+    }
+    
+    /**
+     * Parses the values in the given string arrays, assigning each to
      * an appropriate variable. Can be overridden.
      */
-    public void initParams() {
-        
-    }
+    public void initParams(ArrayList<String> p) {}
     
     public static Component create(String s) {
         Component c = null;

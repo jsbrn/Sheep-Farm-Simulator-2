@@ -23,7 +23,10 @@ public class Entity {
      */
     public static Entity create(String type) {
         Entity e = new Entity(), clone = EntityList.getEntity(type);
-        if (clone == null) return null;
+        if (clone == null) {
+            System.err.println("Could not find entity of type "+type+" in ENTITY_LIST");
+            return null;
+        }
         clone.copyTo(e);
         e.type = type;
         e.id = Math.abs(new Random().nextInt() % 100000);
@@ -40,7 +43,6 @@ public class Entity {
     }
     
     public String getType() { return type; }
-    
     public String getName() { return name; }
     public void setName(String n) { name = n; }
     

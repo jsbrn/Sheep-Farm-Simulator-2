@@ -1,0 +1,38 @@
+e
+id=new_entity_3410
+t=
+c=false
+c
+id=Position
+x = 10
+y = 234
+/c
+a
+id=Anim3
+t=
+dur=100
+dim=16
+/a
+f
+id=onclick
+r=false
+b
+t=move
+id=668341736
+dconns=0 0 1243515513 0 0
+pconns=0 0
+vals=5	33
+x=254
+y=242
+/b
+b
+t=move
+id=1243515513
+dconns=0 668341736 0 0 0
+pconns=0 0
+vals=78	45
+x=275
+y=416
+/b
+/f
+/e
