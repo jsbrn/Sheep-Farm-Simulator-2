@@ -1,5 +1,7 @@
 package com.bitbucket.computerology.world;
 
+import com.bitbucket.computerology.world.entities.Entity;
+import com.bitbucket.computerology.world.entities.components.Position;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -94,6 +96,16 @@ public class Sector {
     
     public World getWorld() {
         return parent;
+    }
+    
+    public boolean addEntity(Entity e) {
+        if (e.getComponent("Position") == null) return false;
+        int osc[] = parent.getOnscreenCoords(((Position)e.getComponent("Position")).getWorldX(),
+                ((Position)e.getComponent("Position")).getWorldY());
+        int cc[] = parent.getChunkCoords(osc[0], osc[1]);
+        Chunk c = getChunk(cc[0], cc[1]);
+        if (c == null) return false;
+        return c.addEntity(e);
     }
     
     /**

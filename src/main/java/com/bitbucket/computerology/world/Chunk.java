@@ -1,6 +1,7 @@
 package com.bitbucket.computerology.world;
 
 import com.bitbucket.computerology.misc.Assets;
+import com.bitbucket.computerology.world.entities.Entity;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -18,6 +19,8 @@ public class Chunk {
     private int terrain, x, y, rot;
     private Sector parent;
     
+    ArrayList<Entity> entities;
+    
     public static Color[] COLORS = {Color.green, Color.green.darker(), Color.yellow, Color.blue, Color.white};
     
     public Chunk(int x, int y, Sector parent) {
@@ -26,6 +29,12 @@ public class Chunk {
         this.x = x;
         this.y = y;
         this.parent = parent;
+        this.entities = new ArrayList<Entity>();
+    }
+    
+    public boolean addEntity(Entity e) {
+        if (!entities.contains(e)) { entities.add(e); return true; }
+        return false;
     }
     
     /**
