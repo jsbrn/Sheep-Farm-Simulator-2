@@ -38,7 +38,10 @@ public class Component {
         if ("Texture".equals(s)) c = new Texture();
         if ("Position".equals(s)) c = new Position();
         if ("Hitbox".equals(s)) c = new Hitbox();
-        if (c != null) c.setID(s); else System.err.println("Failed to create component "+s+"!");
+        if (c != null) { 
+            c.setID(s); 
+            System.out.println("Created component "+c.getID());
+        } else { System.err.println("Failed to create component "+s+"!"); }
         return c;
     }
     

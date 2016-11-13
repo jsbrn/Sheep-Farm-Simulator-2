@@ -85,20 +85,20 @@ public class GameScreen extends BasicGameState {
         };
         menu_button.setHeight(24);
         menu_button.autoWidth(true);
-        menu_button.setIcon("images/menu.png");
+        menu_button.setIcon("images/gui/menu.png");
         menu_button.setXOffsetMode(GUIElement.ORIGIN_RIGHT);
         menu_button.setX(-menu_button.getWidth());
         menu_button.showBackground(false);
         
         final Panel navigator_menu = new Panel();
         navigator_menu.setTitle("Menus");
-        navigator_menu.setBackground("images/menu_panel.png");
+        navigator_menu.setBackground("images/gui/menu_panel.png");
         navigator_menu.setX(0);
         navigator_menu.setY(-navigator_menu.getHeight());
         navigator_menu.setYOffsetMode(GUIElement.ORIGIN_BOTTOM);
         
         Button finances = new Button();
-        finances.setIcon("images/money_32.png");
+        finances.setIcon("images/gui/money_32.png");
         finances.autoWidth(true);
         finances.setHeight(finances.getWidth());
         finances.setBackgroundColor(Color.green.darker());

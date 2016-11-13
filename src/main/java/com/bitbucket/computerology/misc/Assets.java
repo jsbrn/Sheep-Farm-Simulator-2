@@ -55,7 +55,7 @@ public class Assets {
     
     private static void loadMenuBackground() {
         try {
-            Assets.MAIN_MENU_BACKGROUND = new Image("images/background.png", false, Image.FILTER_NEAREST)
+            Assets.MAIN_MENU_BACKGROUND = new Image("images/gui/background.png", false, Image.FILTER_NEAREST)
                     .getScaledCopy(Window.getScreenWidth(), Window.getScreenHeight());
         } catch (SlickException e) {
             e.printStackTrace();
@@ -64,7 +64,7 @@ public class Assets {
     
     private static void loadTerrainSprite() {
         try {
-            Assets.CHUNK_TERRAIN = new Image("images/terrain.png", false, Image.FILTER_NEAREST).getScaledCopy(2);
+            Assets.CHUNK_TERRAIN = new Image("images/gui/terrain.png", false, Image.FILTER_NEAREST).getScaledCopy(2);
         } catch (SlickException e) {
             e.printStackTrace();
         }

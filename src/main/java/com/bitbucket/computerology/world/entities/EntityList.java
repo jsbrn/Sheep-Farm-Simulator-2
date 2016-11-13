@@ -47,7 +47,6 @@ public class EntityList {
                 if (line == null) break;
                 if (line.equals("/e")) return true;
                 if (line.indexOf("id=") == 0) e.type = line.trim().replace("id=", "");
-                if (line.indexOf("t=") == 0) e.texture = line.trim().replace("t=", "");
                 if (line.equals("c")) {
                     Component c = loadComponent(br);
                     if (c != null) {

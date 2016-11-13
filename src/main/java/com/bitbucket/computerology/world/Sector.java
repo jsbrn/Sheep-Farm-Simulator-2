@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world;
 
+import com.bitbucket.computerology.world.entities.Component;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.entities.components.Position;
 import java.io.BufferedReader;
@@ -18,6 +19,8 @@ public class Sector {
     private int x, y, biome;
     private boolean generated;
     
+    private ArrayList<Entity> entities;
+    
     public Sector(int x, int y, World parent) {
         this.x = x; this.y = y;
         this.parent = parent;
@@ -29,6 +32,7 @@ public class Sector {
                 chunks[w][h] = new Chunk(w, h, this);
             }
         }
+        this.entities = new ArrayList<Entity>();
     }
     
     /**
@@ -99,13 +103,20 @@ public class Sector {
     }
     
     public boolean addEntity(Entity e) {
-        if (e.getComponent("Position") == null) return false;
-        int osc[] = parent.getOnscreenCoords(((Position)e.getComponent("Position")).getWorldX(),
-                ((Position)e.getComponent("Position")).getWorldY());
+        Component p = e.getComponent("Position");
+        if (p == null) return false;
+        int osc[] = parent.getOnscreenCoords(((Position)p).getWorldX(),
+                ((Position)p).getWorldY());
         int cc[] = parent.getChunkCoords(osc[0], osc[1]);
         Chunk c = getChunk(cc[0], cc[1]);
         if (c == null) return false;
-        return c.addEntity(e);
+        if (c.addEntity(e)) { entities.add(e); return true; } else { return false; }
+    }
+    
+    public int entityCount() { return entities.size(); }
+    public Entity getEntity(int index) { 
+        if (index > -1 && index < entities.size()) return entities.get(index);
+        return null;
     }
     
     /**

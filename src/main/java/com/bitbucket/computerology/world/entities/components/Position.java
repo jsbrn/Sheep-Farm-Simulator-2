@@ -20,8 +20,8 @@ public class Position extends Component {
         }
     }
     
-    public void setX(int x) { this.x = x; }
-    public void setY(int y) { this.y = y; }
+    public void setWorldX(int x) { this.x = x; }
+    public void setWorldY(int y) { this.y = y; }
     public void setRotation(int r) { this.rotation = r % 360; }
     
     public int getWorldX() { return x; }

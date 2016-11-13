@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.entities;
 
+import com.bitbucket.computerology.world.entities.components.Position;
 import java.util.LinkedList;
 import java.util.Random;
 import org.newdawn.slick.Graphics;
@@ -9,7 +10,7 @@ public class Entity {
     private LinkedList<ComponentSystem> systems;
     private LinkedList<Component> components;
     private LinkedList<Flow> flows;
-    String name, type, texture;
+    String name, type;
     int id;
     
     /**
@@ -40,6 +41,36 @@ public class Entity {
         this.name = "";
         this.type = "";
         this.id = -1;
+    }
+    
+    public int getWorldX() {
+        Component p = getComponent("Position");
+        if (p != null) {
+            return ((Position)p).getWorldX();
+        }
+        return 0;
+    }
+    
+    public int getWorldY() {
+        Component p = getComponent("Position");
+        if (p != null) {
+            return ((Position)p).getWorldY();
+        }
+        return 0;
+    }
+    
+    public void setWorldX(int w_x) {
+        Component p = getComponent("Position");
+        if (p != null) {
+            ((Position)p).setWorldX(w_x);
+        }
+    }
+    
+    public void setWorldY(int w_y) {
+        Component p = getComponent("Position");
+        if (p != null) {
+            ((Position)p).setWorldY(w_y);
+        }
     }
     
     public String getType() { return type; }
@@ -88,7 +119,6 @@ public class Entity {
     }
     
     public void copyTo(Entity e) {
-        e.texture = this.texture;
         e.type = this.type;
         e.name = this.name;
         e.components.clear();

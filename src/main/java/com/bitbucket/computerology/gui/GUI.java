@@ -22,7 +22,7 @@ public class GUI {
     public GUI() {
         this.components = new ArrayList<GUIElement>();
         try {
-            this.dialog_shadow = new Image("images/dialog_shadow.png", false, Image.FILTER_LINEAR);
+            this.dialog_shadow = new Image("images/gui/dialog_shadow.png", false, Image.FILTER_LINEAR);
         } catch (SlickException ex) {
             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
         }

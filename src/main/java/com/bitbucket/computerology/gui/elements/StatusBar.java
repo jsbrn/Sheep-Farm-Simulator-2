@@ -18,10 +18,10 @@ public class StatusBar extends GUIElement {
     
     public StatusBar() {
         try {
-            overhang = new Image("images/overhang.png", false, Image.FILTER_LINEAR);
-            bar = new Image("images/statusbar.png", false, Image.FILTER_NEAREST);
-            sundial = new Image("images/sundial.png", false, Image.FILTER_LINEAR);
-            frame = new Image("images/sundial_frame.png", false, Image.FILTER_LINEAR);
+            overhang = new Image("images/gui/overhang.png", false, Image.FILTER_LINEAR);
+            bar = new Image("images/gui/statusbar.png", false, Image.FILTER_NEAREST);
+            sundial = new Image("images/gui/sundial.png", false, Image.FILTER_LINEAR);
+            frame = new Image("images/gui/sundial_frame.png", false, Image.FILTER_LINEAR);
         } catch (SlickException ex) {
             Logger.getLogger(StatusBar.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -33,12 +33,12 @@ public class StatusBar extends GUIElement {
         };
         money.setX(5);
         money.setText("$0");
-        money.setIcon("images/money_16.png");
+        money.setIcon("images/gui/money_16.png");
         money.setHeight(24);
         sheep = new Label();
         sheep.setX(50);
         sheep.setText("0 sheep");
-        sheep.setIcon("images/sheep_icon.png");
+        sheep.setIcon("images/gui/sheep_icon.png");
         sheep.setHeight(24);
         this.addComponent(money);
         this.addComponent(sheep);

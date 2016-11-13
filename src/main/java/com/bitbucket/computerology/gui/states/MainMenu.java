@@ -166,7 +166,7 @@ public class MainMenu extends BasicGameState {
                         }
                     };
                     r.setWidth(24);
-                    r.setIcon("images/rename.png");
+                    r.setIcon("images/gui/rename.png");
                     r.setTextColor(Color.white);
                     r.setBackgroundColor(Color.black);
                     r.setX(2*(-10-r.getWidth()));
@@ -190,7 +190,7 @@ public class MainMenu extends BasicGameState {
                         }
                     };
                     d.setWidth(24);
-                    d.setIcon("images/delete_save.png");
+                    d.setIcon("images/gui/delete_save.png");
                     d.setTextColor(Color.white);
                     d.setBackgroundColor(Color.red);
                     d.setX(-10-d.getWidth());

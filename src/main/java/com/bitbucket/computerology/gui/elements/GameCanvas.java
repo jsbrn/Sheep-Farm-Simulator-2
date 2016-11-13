@@ -4,6 +4,7 @@ import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.states.GameScreen;
 import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
+import com.bitbucket.computerology.world.entities.Entity;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Graphics;
@@ -56,7 +57,12 @@ public class GameCanvas extends GUIElement {
     
     @Override
     public void onKeyPress(char c) {
-
+        if (!(c == 'x' && GameScreen.DEBUG_MODE)) return;
+        int wc[] = World.getWorld().getWorldCoords(last_x, last_y);
+        Entity e = Entity.create("Sheep");
+        e.setWorldX(wc[0]);
+        e.setWorldY(wc[1]);
+        World.getWorld().addEntity(e);
     }
     
     @Override

@@ -2,6 +2,7 @@ package com.bitbucket.computerology.world;
 
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.events.EventHandler;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -78,6 +79,17 @@ public class World {
     public void update() {
         for (EventHandler e: event_handlers) { e.update(); }
         time+=MiscMath.get24HourConstant(1, 1);
+    }
+    
+    public boolean addEntity(Entity e) {
+        int sc[] = getSectorCoords(e.getWorldX(), e.getWorldY());
+        Sector s = getSector(sc[0], sc[1]);
+        if (s == null) return false;
+        if (s.addEntity(e)) { 
+            this.addSector(s, ACTIVE_SECTOR_LIST); 
+            s.addEntity(e);
+        }
+        return false;
     }
     
     /** Returns the current time since world creation (in minutes).**/
@@ -211,6 +223,11 @@ public class World {
                 if (c != null) { c.draw(g); }
             }
         }
+        for (Sector s: active_sectors) {
+            for (int i = 0; i != s.entityCount(); i++) {
+                s.getEntity(i).draw(g);
+            }
+        }
         Assets.CHUNK_TERRAIN.endUse();
     }
     
@@ -226,7 +243,7 @@ public class World {
             bw.write("s: sector\n");
             bw.write("c: chunk\n");
             bw.write("--------------------------------\n");
-            bw.write("t="+world.time);
+            bw.write("t="+world.time+"\n");
             world.player.save(bw);
             for (Sector s: world.sectors) s.save(bw);
             bw.close();
