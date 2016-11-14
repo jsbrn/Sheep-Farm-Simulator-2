@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.misc;
 
+import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.entities.BlockList;
 import com.bitbucket.computerology.world.entities.EntityList;
 import java.awt.Font;
@@ -20,7 +21,8 @@ public class Assets {
     public static String STATUS = ""; //a description of what is being loaded currently
     
     //assets
-    public static Image CHUNK_TERRAIN, MAIN_MENU_BACKGROUND;
+    static Image[] CHUNK_TERRAIN = new Image[3];
+    public static Image MAIN_MENU_BACKGROUND;
     static TrueTypeFont[] FONTS;
     static TrueTypeFont placeholder_font;
     
@@ -62,9 +64,15 @@ public class Assets {
         }
     }
     
+    public static Image getTerrainSprite() { return Assets.CHUNK_TERRAIN[Camera.getZoom()-1]; }
+    
     private static void loadTerrainSprite() {
         try {
-            Assets.CHUNK_TERRAIN = new Image("images/gui/terrain.png", false, Image.FILTER_NEAREST).getScaledCopy(2);
+            for (int i = 0; i != 3; i++) {
+                Assets.CHUNK_TERRAIN[i] 
+                        = new Image("images/gui/terrain.png", false, Image.FILTER_NEAREST)
+                        .getScaledCopy(i+1);
+            }
         } catch (SlickException e) {
             e.printStackTrace();
         }

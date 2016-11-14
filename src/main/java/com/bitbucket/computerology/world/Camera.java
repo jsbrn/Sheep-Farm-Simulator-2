@@ -2,15 +2,17 @@ package com.bitbucket.computerology.world;
 
 public class Camera {
     
-    private static double x = Chunk.SIZE_PIXELS/2, y = Chunk.SIZE_PIXELS/2;
-    private static int zoom = 2;
+    private static double x = 0, y = 0;
+    private static int zoom = 1;
     
-    public static int getX() {
-        return (int)x;
-    }
+    public static int getX() { return (int)x; }
+    public static int getY() { return (int)y; }
+    public static int getZoom() { return zoom; }
     
-    public static int getY() {
-        return (int)y;
+    public static void zoom(int delta) { 
+        zoom += delta;
+        if (zoom < 1) zoom = 1;
+        if (zoom > 3) zoom = 1;
     }
     
     public static void move(double dx, double dy) {

@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world;
 
+import com.bitbucket.computerology.gui.states.GameScreen;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.world.entities.Entity;
 import java.io.BufferedReader;
@@ -12,10 +13,10 @@ import java.util.logging.Logger;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 public class Chunk {
     
     public static int BIOME_COUNT = 5, GRASS_FIELD = 0, GRASS_FOREST = 1, SAND = 2, WATER = 3, SNOW = 4;
-    public static int SIZE_PIXELS = 64;
     private int terrain, x, y, rot;
     private Sector parent;
     
@@ -32,6 +33,9 @@ public class Chunk {
         this.entities = new ArrayList<Entity>();
     }
     
+    public static int size() { return 32; }
+    public static int onScreenSize() { return size()*Camera.getZoom(); }
+    
     public boolean addEntity(Entity e) {
         if (!entities.contains(e)) { entities.add(e); return true; }
         return false;
@@ -41,7 +45,7 @@ public class Chunk {
         //remove the first entity you find in the list that does not intersect anymore
         //or is not in the parent sector
         for (Entity e: entities) {
-            if (e.intersects(worldCoords()[0], worldCoords()[1], Chunk.SIZE_PIXELS, Chunk.SIZE_PIXELS)
+            if (e.intersects(worldCoords()[0], worldCoords()[1], size(), size())
                     || !parent.containsEntity(e)) {
                 entities.remove(e);
                 parent.removeEntity(e);
@@ -61,16 +65,16 @@ public class Chunk {
         for (int h = -1; h != 2; h++) {
             for (int w = -1; w != 2; w++) {
                 if ((w == 0 && h == 0)) continue;
-                s_x = (x+w < 0 ? -1 : (x+w >= Sector.SIZE_CHUNKS ? 1 : 0));
-                s_y = (y+h < 0 ? -1 : (y+h >= Sector.SIZE_CHUNKS ? 1 : 0));
+                s_x = (x+w < 0 ? -1 : (x+w >= Sector.sizeChunks() ? 1 : 0));
+                s_y = (y+h < 0 ? -1 : (y+h >= Sector.sizeChunks() ? 1 : 0));
                 //if s_x and s_y are the parent sector's coords, then s = parent
                 //else, s is the sector at (parent x + s_x, parent y + s_y)
                 s = (s_x+w == parent.offsets()[0] && s_y+h == parent.offsets()[1] ? parent : 
                         parent.getWorld().getSector(parent.offsets()[0] + s_x, parent.offsets()[1] + s_y));
                 //the Ith element in d is the chunk (cx, cy) in s, where (cx, cy) is the chunk coordinates relative
                 //to this chunk's parent sector's origin, mod Sector.SIZE (which right now is 32)
-                d[i] = (s != null ? s.getChunk((x+w+Sector.SIZE_CHUNKS) % Sector.SIZE_CHUNKS, 
-                        (y+h+Sector.SIZE_CHUNKS) % Sector.SIZE_CHUNKS) : null);
+                d[i] = (s != null ? s.getChunk((x+w+Sector.sizeChunks()) % Sector.sizeChunks(), 
+                        (y+h+Sector.sizeChunks()) % Sector.sizeChunks()) : null);
                 if (((w != 0 && h != 0) && !diag)) d[i] = null;
                 i++;
             }
@@ -105,7 +109,7 @@ public class Chunk {
     }
     
     public int[] worldCoords() {
-        return new int[]{parent.worldCoords()[0] + (x*SIZE_PIXELS), parent.worldCoords()[1] + (y*SIZE_PIXELS)};
+        return new int[]{parent.worldCoords()[0] + (x*size()), parent.worldCoords()[1] + (y*size())};
     }
     
     public int getTerrain() {
@@ -113,7 +117,8 @@ public class Chunk {
     }
     
     public int[] onScreenCoords() {
-        double shift_x = (Camera.getX())-(Display.getWidth()/2), shift_y = (Camera.getY())-(Display.getHeight()/2);
+        double shift_x = (Camera.getX())-(Display.getWidth()/2)*Camera.getZoom(), 
+                shift_y = (Camera.getY())-(Display.getHeight()/2)*Camera.getZoom();
         return new int[]{(int)((worldCoords()[0])-shift_x), (int)((worldCoords()[1])-shift_y)};
     }
     
@@ -186,11 +191,21 @@ public class Chunk {
     
     public void draw(Graphics g) {
         if (terrain < 0 || terrain >= Chunk.BIOME_COUNT) return;
-        Assets.CHUNK_TERRAIN.drawEmbedded(onScreenCoords()[0]-((Assets.CHUNK_TERRAIN.getHeight()-SIZE_PIXELS)/2), 
-                onScreenCoords()[1]-((Assets.CHUNK_TERRAIN.getHeight()-SIZE_PIXELS)/2), 
-                onScreenCoords()[0]-((Assets.CHUNK_TERRAIN.getHeight()-SIZE_PIXELS)/2)+Assets.CHUNK_TERRAIN.getHeight(), 
-                onScreenCoords()[1]-((Assets.CHUNK_TERRAIN.getHeight()-SIZE_PIXELS)/2)+Assets.CHUNK_TERRAIN.getHeight(),
-                Assets.CHUNK_TERRAIN.getHeight()*terrain, 0, (Assets.CHUNK_TERRAIN.getHeight()*terrain)+Assets.CHUNK_TERRAIN.getHeight(), Assets.CHUNK_TERRAIN.getHeight());
+        Image img = Assets.getTerrainSprite();
+        img.drawEmbedded(onScreenCoords()[0]-((img.getHeight()-onScreenSize())/2), 
+                onScreenCoords()[1]-((img.getHeight()-onScreenSize())/2), 
+                onScreenCoords()[0]-((img.getHeight()-onScreenSize())/2)+img.getHeight(), 
+                onScreenCoords()[1]-((img.getHeight()-onScreenSize())/2)+img.getHeight(),
+                img.getHeight()*terrain, 0, (img.getHeight()*terrain)+img.getHeight(), img.getHeight());
+        
+        if (GameScreen.DEBUG_MODE) {
+            g.setColor(Color.red);
+            g.drawRect(onScreenCoords()[0], onScreenCoords()[0], onScreenSize(), onScreenSize());
+            g.setLineWidth(2);
+            g.setColor(Color.black);
+            g.drawRect(parent.onScreenCoords()[0], parent.onScreenCoords()[0], Sector.onScreenSize(), Sector.onScreenSize());
+            g.setLineWidth(1);
+        }
         
     }
     

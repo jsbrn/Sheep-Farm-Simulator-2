@@ -34,7 +34,7 @@ public class MiniMap extends GUIElement {
             int x, y;
             for (x = -getWidth()/(zoom); x < getWidth()/(zoom); x+=1) {
                 for (y = -getHeight()/(zoom); y < getHeight()/(zoom); y+=1) {
-                    int[] osc = {Display.getWidth()/2 + (x*Chunk.SIZE_PIXELS), Display.getHeight()/2 + (y*Chunk.SIZE_PIXELS)};
+                    int[] osc = {Display.getWidth()/2 + (x*Chunk.size()), Display.getHeight()/2 + (y*Chunk.size())};
                     int[] sc = World.getWorld().getSectorCoords(osc[0], osc[1]);
                     int[] cc = World.getWorld().getChunkCoords(osc[0], osc[1]);
                     Sector s = World.getWorld().getSector(sc[0], sc[1]);

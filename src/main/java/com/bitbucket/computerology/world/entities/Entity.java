@@ -56,6 +56,8 @@ public class Entity {
         return true;
     }
     
+    public boolean isImportant() { return !flows.isEmpty(); }
+    
     public void save(BufferedWriter bw) {
         try {
             bw.write("e\n");

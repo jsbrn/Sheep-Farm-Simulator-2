@@ -7,6 +7,7 @@ import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
 public class GameCanvas extends GUIElement {
@@ -57,6 +58,9 @@ public class GameCanvas extends GUIElement {
     
     @Override
     public void onKeyPress(char c) {
+        
+        if (c == 'z') Camera.zoom(1);
+        
         if (!(c == 'x' && GameScreen.DEBUG_MODE)) return;
         int wc[] = World.getWorld().getWorldCoords(last_x, last_y);
         Entity e = Entity.create("Sheep");
@@ -73,6 +77,11 @@ public class GameCanvas extends GUIElement {
     @Override
     public void draw(Graphics g) {
         if (World.getWorld() != null) World.getWorld().draw(g);
+        if (GameScreen.DEBUG_MODE) {
+            g.setColor(Color.red);
+            int sc[] = World.getWorld().getOnscreenCoords(Camera.getX(), Camera.getY());
+            g.fillRect(sc[0]-2, sc[1]-2, 4, 4);
+        }
     }
 
 }

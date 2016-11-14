@@ -14,12 +14,11 @@ import org.lwjgl.opengl.Display;
 public class Sector {
     
     private World parent;
-    public static int SIZE_CHUNKS = 80; //80 is a good standard size
     private Chunk[][] chunks;
     private int x, y, biome;
     private boolean generated;
     
-    int chunk_update_index = 0;
+    int chunk_update_index = 0, important_count = 0;
     
     private ArrayList<Entity> entities;
     
@@ -27,10 +26,10 @@ public class Sector {
         this.x = x; this.y = y;
         this.parent = parent;
         this.generated = false;
-        this.chunks = new Chunk[SIZE_CHUNKS][SIZE_CHUNKS];
+        this.chunks = new Chunk[sizeChunks()][sizeChunks()];
         this.biome = -1;
-        for (int h = 0; h != SIZE_CHUNKS; h++) {
-            for (int w = 0; w != SIZE_CHUNKS; w++) {
+        for (int h = 0; h != sizeChunks(); h++) {
+            for (int w = 0; w != sizeChunks(); w++) {
                 chunks[w][h] = new Chunk(w, h, this);
             }
         }
@@ -56,18 +55,21 @@ public class Sector {
     public void update() {
         for (int i = 0; i != 10; i++) {
             //get the next chunk to update
-            Chunk c = getChunk(chunk_update_index % SIZE_CHUNKS, chunk_update_index / SIZE_CHUNKS);
+            Chunk c = getChunk(chunk_update_index % sizeChunks(), chunk_update_index / sizeChunks());
             //update the chunk then add 1 to the chunk index OR set it to 0 if it is >= the
             //total chunk count
             if (c != null) { c.update(); chunk_update_index = 
-                    chunk_update_index >= SIZE_CHUNKS*SIZE_CHUNKS ? 0 : chunk_update_index + 1; }
+                    chunk_update_index >= sizeChunks()*sizeChunks() ? 0 : chunk_update_index + 1; }
             else { chunk_update_index = 0; }
         }
     }
     
     public boolean removeEntity(Entity e) {
         if (entities.remove(e)) {
-            parent.deactivateSector(this);
+            if (e.isImportant()) {
+                important_count--;
+                if (important_count <= 0) parent.deactivateSector(this);
+            }
             return true;
         }
         return false;
@@ -84,15 +86,20 @@ public class Sector {
     }
     
     public int[] worldCoords() {
-        return new int[]{x*SIZE_CHUNKS*Chunk.SIZE_PIXELS, y*SIZE_CHUNKS*Chunk.SIZE_PIXELS};
+        return new int[]{x*sizePixels(), y*sizePixels()};
     }
+    
+    public static int sizeChunks() { return 80; }
+    public static int sizePixels() { return Chunk.size()*sizeChunks(); }
+    public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
     
     public int getBiome() {
         return biome;
     }
     
     public int[] onScreenCoords() {
-        double shift_x = (Camera.getX())-(Display.getWidth()/2), shift_y = (Camera.getY())-(Display.getHeight()/2);
+        double shift_x = (Camera.getX())-(Display.getWidth()/2)*Camera.getZoom(), 
+                shift_y = (Camera.getY())-(Display.getHeight()/2)*Camera.getZoom();
         return new int[]{(int)((worldCoords()[0])-shift_x), (int)((worldCoords()[1])-shift_y)};
     }
     
@@ -134,7 +141,14 @@ public class Sector {
         int cc[] = parent.getChunkCoords(osc[0], osc[1]);
         Chunk c = getChunk(cc[0], cc[1]);
         if (c == null) return false;
-        if (c.addEntity(e)) { entities.add(e); parent.activateSector(this); return true; } else { return false; }
+        if (c.addEntity(e)) { 
+            entities.add(e); 
+            if (e.isImportant()) important_count++;
+            if (important_count > 0) parent.activateSector(this); 
+            return true; 
+        } else { 
+            return false; 
+        }
     }
     
     public int entityCount() { return entities.size(); }
@@ -148,7 +162,7 @@ public class Sector {
      * @return A Chunk instance or null if not found.
      */
     public Chunk getChunk(int x, int y) {
-        if (x > -1 && x < SIZE_CHUNKS && y > -1 && y < SIZE_CHUNKS) {
+        if (x > -1 && x < sizeChunks() && y > -1 && y < sizeChunks()) {
             return chunks[x][y];
         }
         return null;
@@ -242,17 +256,17 @@ public class Sector {
             }
         }
         
-        int b_count = Math.abs(parent.rng().nextInt() % (SIZE_CHUNKS/2))+8;
+        int b_count = Math.abs(parent.rng().nextInt() % (sizeChunks()/2))+8;
         for (int i = 1; i != b_count+2; i++) {
             int b_x = 0, b_y = 0;
             while (i > 0) {
-                b_x = Math.abs(parent.rng().nextInt() % SIZE_CHUNKS);
-                b_y = Math.abs(parent.rng().nextInt() % SIZE_CHUNKS);
-                if ((b_x <= (4+(SIZE_CHUNKS/32)) || b_x >= SIZE_CHUNKS-(4+(SIZE_CHUNKS/32))) 
-                        || (b_y <= (4+(SIZE_CHUNKS/32)) || b_y >= SIZE_CHUNKS-(4+(SIZE_CHUNKS/32)))) break;
+                b_x = Math.abs(parent.rng().nextInt() % sizeChunks());
+                b_y = Math.abs(parent.rng().nextInt() % sizeChunks());
+                if ((b_x <= (4+(sizeChunks()/32)) || b_x >= sizeChunks()-(4+(sizeChunks()/32))) 
+                        || (b_y <= (4+(sizeChunks()/32)) || b_y >= sizeChunks()-(4+(sizeChunks()/32)))) break;
             }
-            World.getWorld().brush(onScreenCoords()[0]+b_x*Chunk.SIZE_PIXELS, onScreenCoords()[1]+b_y*Chunk.SIZE_PIXELS, 
-                    Math.abs(parent.rng().nextInt() % 8)+(4+(SIZE_CHUNKS/32)), chunks[b_x][b_y].randomValidTerrain(-1), true);
+            World.getWorld().brush(onScreenCoords()[0]+b_x*Chunk.size(), onScreenCoords()[1]+b_y*Chunk.size(), 
+                    Math.abs(parent.rng().nextInt() % 8)+(4+(sizeChunks()/32)), chunks[b_x][b_y].randomValidTerrain(-1), true);
         }
         
         generated = true;
