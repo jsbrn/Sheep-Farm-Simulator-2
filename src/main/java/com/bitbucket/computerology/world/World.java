@@ -378,10 +378,6 @@ public class World {
     }
     
     public int[] getOnscreenCoords(int world_x, int world_y) {
-        /*double shift_x = 
-                (Camera.getX()*Camera.getZoom())-(Display.getWidth()/2), 
-                shift_y = (Camera.getY()*Camera.getZoom())-(Display.getHeight()/2);*/
-        //return new int[]{(int)(world_x-shift_x), (int)(world_y-shift_y)};
         return new int[]{((world_x-Camera.getX())*Camera.getZoom())+(Display.getWidth()/2), 
             ((world_y-Camera.getY())*Camera.getZoom())+(Display.getHeight()/2)
         };
@@ -389,9 +385,10 @@ public class World {
     
     public int[] getSectorCoords(double onscreen_x, double onscreen_y) {
         int[] world_coords = getWorldCoords(onscreen_x, onscreen_y);
-        int sector_width = Sector.sizePixels();
-        return new int[]{(int)Math.floor((double)world_coords[0]/(double)sector_width), 
-            (int)Math.floor((double)world_coords[1]/(double)sector_width)};
+        int s_size = Sector.sizePixels();
+        double x = (double)world_coords[0]/(double)s_size; x = x >= 0 ? x : x-1;
+        double y = (double)world_coords[1]/(double)s_size; y = y >= 0 ? y : y-1;
+        return new int[]{(int)x,(int)y};
     }
     
     public int[] getChunkCoords(double onscreen_x, double onscreen_y) {

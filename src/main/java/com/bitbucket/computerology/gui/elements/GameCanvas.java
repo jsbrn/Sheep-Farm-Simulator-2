@@ -22,7 +22,8 @@ public class GameCanvas extends GUIElement {
     @Override
     public void update() {
         if (dragging) {
-            Camera.move(last_x-Mouse.getX(), last_y-(Display.getHeight()-Mouse.getY()));
+            Camera.move((last_x-Mouse.getX())/Camera.getZoom(), 
+                    (last_y-(Display.getHeight()-Mouse.getY()))/Camera.getZoom());
             last_x = Mouse.getX();
             last_y = Display.getHeight()-Mouse.getY();
         }

@@ -146,8 +146,7 @@ public class GameScreen extends BasicGameState {
             g.drawString("Camera: "+Camera.getX()+", "+Camera.getY(), 5, 72);
             
             int wc[] = World.getWorld().getWorldCoords(x, y);
-            wc = World.getWorld().getOnscreenCoords(wc[0], wc[1]);
-            g.drawString("Mouse coords: "+wc[0]+", "+wc[1], 5, 82);
+            g.drawString("Mouse world coords: "+wc[0]+", "+wc[1], 5, 82);
             
             int[] sc = World.getWorld().getSectorCoords(Camera.getX(), Camera.getY());
             g.drawString("Sector coords: "+sc[0]+", "+sc[1], 5, 102);
