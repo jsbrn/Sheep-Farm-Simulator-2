@@ -140,19 +140,23 @@ public class GameScreen extends BasicGameState {
         if (DEBUG_MODE) {
             g.setColor(Color.white);
             g.setFont(Assets.getFont(8));
-            g.drawString("Sectors: "+World.getWorld().sectorCount(), 5, 32);
-            g.drawString("Active sectors: "+World.getWorld().activeSectorCount(), 5, 42);
+            g.drawString("Sectors: "+World.getWorld().sectorCount(), 5, 42);
+            g.drawString("Active sectors: "+World.getWorld().activeSectorCount(), 5, 52);
             
-            g.drawString("Camera: "+Camera.getX()+", "+Camera.getY(), 5, 22);
+            g.drawString("Camera: "+Camera.getX()+", "+Camera.getY(), 5, 72);
+            
+            int wc[] = World.getWorld().getWorldCoords(x, y);
+            wc = World.getWorld().getOnscreenCoords(wc[0], wc[1]);
+            g.drawString("Mouse coords: "+wc[0]+", "+wc[1], 5, 82);
             
             int[] sc = World.getWorld().getSectorCoords(Camera.getX(), Camera.getY());
-            g.drawString("Sector coords: "+sc[0]+", "+sc[1], 5, 52);
+            g.drawString("Sector coords: "+sc[0]+", "+sc[1], 5, 102);
             Sector sector = World.getWorld().getSector(sc[0], sc[1]);
-            if (sector != null) g.drawString("Sector: "+sector.offsets()[0]+", "+sector.offsets()[1], 5, 62);
-            g.drawString("Sectors: (below)", 5, 72);
+            if (sector != null) g.drawString("Sector: "+sector.offsets()[0]+", "+sector.offsets()[1], 5, 92);
+            g.drawString("Sectors: (below)", 5, 112);
             for (int i = 0; i != World.getWorld().sectors().size(); i++) {
                 Sector s = World.getWorld().sectors().get(i);
-                g.drawString(s.offsets()[0]+", "+s.offsets()[1], 5, 82+(i*10));
+                g.drawString(s.offsets()[0]+", "+s.offsets()[1], 5, 122+(i*10));
             }
         }
         

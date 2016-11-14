@@ -23,7 +23,6 @@ public class World {
     public static int SECTOR_LIST = 0, ACTIVE_SECTOR_LIST = 1;
     
     private ArrayList<Sector> sectors, active_sectors;
-    private Sector origin; //the (0,0) sector marks the world origin
     private Random rng;
     private int seed;
     
@@ -179,7 +178,6 @@ public class World {
             return false; 
         }
         list.add(index, s);
-        if (s.offsets()[0] == 0 && s.offsets()[1] == 0 && origin == null) origin = s; //set the origin to be the first sector added
         return true;
     }
     
@@ -375,16 +373,18 @@ public class World {
     }
     
     public int[] getWorldCoords(double onscreen_x, double onscreen_y) {
-        if (origin == null) return new int[]{(int)onscreen_x, (int)onscreen_y};
-        int[] o = origin.onScreenCoords();
-        return new int[]{(int)((onscreen_x/Camera.getZoom())-o[0]), (int)((onscreen_y/Camera.getZoom())-o[1])};
+        return new int[]{(int)((onscreen_x - (Display.getWidth()/2))/Camera.getZoom()) + Camera.getX()
+            , (int)((onscreen_y - (Display.getHeight()/2))/Camera.getZoom()) + Camera.getY()};
     }
     
     public int[] getOnscreenCoords(int world_x, int world_y) {
-        double shift_x = 
-                (Camera.getX())-(Display.getWidth()/2)*Camera.getZoom(), 
-                shift_y = (Camera.getY())-(Display.getHeight()/2)*Camera.getZoom();
-        return new int[]{(int)((world_x)-shift_x), (int)((world_y)-shift_y)};
+        /*double shift_x = 
+                (Camera.getX()*Camera.getZoom())-(Display.getWidth()/2), 
+                shift_y = (Camera.getY()*Camera.getZoom())-(Display.getHeight()/2);*/
+        //return new int[]{(int)(world_x-shift_x), (int)(world_y-shift_y)};
+        return new int[]{((world_x-Camera.getX())*Camera.getZoom())+(Display.getWidth()/2), 
+            ((world_y-Camera.getY())*Camera.getZoom())+(Display.getHeight()/2)
+        };
     }
     
     public int[] getSectorCoords(double onscreen_x, double onscreen_y) {
