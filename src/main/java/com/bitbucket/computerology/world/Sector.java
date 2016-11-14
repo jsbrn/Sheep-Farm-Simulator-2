@@ -98,9 +98,7 @@ public class Sector {
     }
     
     public int[] onScreenCoords() {
-        double shift_x = (Camera.getX())-(Display.getWidth()/2)*Camera.getZoom(), 
-                shift_y = (Camera.getY())-(Display.getHeight()/2)*Camera.getZoom();
-        return new int[]{(int)((worldCoords()[0])-shift_x), (int)((worldCoords()[1])-shift_y)};
+        return World.getWorld().getOnscreenCoords(worldCoords()[0], worldCoords()[1]);
     }
     
     /**
@@ -265,7 +263,7 @@ public class Sector {
                 if ((b_x <= (4+(sizeChunks()/32)) || b_x >= sizeChunks()-(4+(sizeChunks()/32))) 
                         || (b_y <= (4+(sizeChunks()/32)) || b_y >= sizeChunks()-(4+(sizeChunks()/32)))) break;
             }
-            World.getWorld().brush(onScreenCoords()[0]+b_x*Chunk.size(), onScreenCoords()[1]+b_y*Chunk.size(), 
+            World.getWorld().brush(onScreenCoords()[0]+b_x*Chunk.onScreenSize(), onScreenCoords()[1]+b_y*Chunk.onScreenSize(), 
                     Math.abs(parent.rng().nextInt() % 8)+(4+(sizeChunks()/32)), chunks[b_x][b_y].randomValidTerrain(-1), true);
         }
         

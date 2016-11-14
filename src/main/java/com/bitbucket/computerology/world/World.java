@@ -224,8 +224,8 @@ public class World {
 
     public void draw(Graphics g) {
         if (Assets.getTerrainSprite() == null) return;
-        int x, y, w = Display.getWidth() + Chunk.size(),
-                h = Display.getHeight() + Chunk.size();
+        int x, y, w = Display.getWidth() + Chunk.onScreenSize(),
+                h = Display.getHeight() + Chunk.onScreenSize();
         Assets.getTerrainSprite().startUse();
         for (x = -Chunk.onScreenSize(); x < w; x+=Chunk.onScreenSize()) {
             for (y = -Chunk.onScreenSize(); y < h; y+=Chunk.onScreenSize()) {
@@ -256,7 +256,7 @@ public class World {
             bw.write("s: sector\n");
             bw.write("c: chunk\n");
             bw.write("--------------------------------\n");
-            bw.write("t="+world.time+"\n");
+            bw.write("t="+(int)world.time+"\n");
             world.player.save(bw);
             for (Sector s: world.sectors) s.save(bw);
             bw.close();
@@ -350,8 +350,8 @@ public class World {
         for (int w = (-diametre/2); w != (diametre/2); w++) {
             for (int h = (-diametre/2); h != (diametre/2); h++) {
                 if (MiscMath.distanceBetween(w, h, 0, 0) <= (diametre/2)) {
-                    int sc[] = this.getSectorCoords(os_x+(w*Chunk.size()), os_y+(h*Chunk.size()));
-                    int cc[] = this.getChunkCoords(os_x+(w*Chunk.size()), os_y+(h*Chunk.size()));
+                    int sc[] = this.getSectorCoords(os_x+(w*Chunk.onScreenSize()), os_y+(h*Chunk.onScreenSize()));
+                    int cc[] = this.getChunkCoords(os_x+(w*Chunk.onScreenSize()), os_y+(h*Chunk.onScreenSize()));
                     Sector s = this.getSector(sc[0], sc[1]);
                     Chunk c = (s != null) ? s.getChunk(cc[0], cc[1]) : null;
                     if (c != null) {
@@ -377,7 +377,7 @@ public class World {
     public int[] getWorldCoords(double onscreen_x, double onscreen_y) {
         if (origin == null) return new int[]{(int)onscreen_x, (int)onscreen_y};
         int[] o = origin.onScreenCoords();
-        return new int[]{(int)(onscreen_x-(o[0]/Camera.getZoom())), (int)(onscreen_y-(o[1]/Camera.getZoom()))};
+        return new int[]{(int)((onscreen_x/Camera.getZoom())-o[0]), (int)((onscreen_y/Camera.getZoom())-o[1])};
     }
     
     public int[] getOnscreenCoords(int world_x, int world_y) {
@@ -389,7 +389,7 @@ public class World {
     
     public int[] getSectorCoords(double onscreen_x, double onscreen_y) {
         int[] world_coords = getWorldCoords(onscreen_x, onscreen_y);
-        int sector_width = Sector.onScreenSize();
+        int sector_width = Sector.sizePixels();
         return new int[]{(int)Math.floor((double)world_coords[0]/(double)sector_width), 
             (int)Math.floor((double)world_coords[1]/(double)sector_width)};
     }
@@ -397,10 +397,10 @@ public class World {
     public int[] getChunkCoords(double onscreen_x, double onscreen_y) {
         int[] sector_coords = getSectorCoords(onscreen_x, onscreen_y);
         int[] world_coords = getWorldCoords(onscreen_x, onscreen_y);
-        int sector_width = Sector.onScreenSize();
+        int sector_width = Sector.sizePixels();
         sector_coords[0]*= sector_width; sector_coords[1]*= sector_width;
-        return new int[]{(int)((world_coords[0]-sector_coords[0])/(double)Chunk.onScreenSize()), 
-            (int)((world_coords[1]-sector_coords[1])/(double)Chunk.onScreenSize())};
+        return new int[]{(int)((world_coords[0]-sector_coords[0])/(double)Chunk.size()), 
+            (int)((world_coords[1]-sector_coords[1])/(double)Chunk.size())};
     }
     
 }

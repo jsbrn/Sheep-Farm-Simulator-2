@@ -117,9 +117,7 @@ public class Chunk {
     }
     
     public int[] onScreenCoords() {
-        double shift_x = (Camera.getX())-(Display.getWidth()/2)*Camera.getZoom(), 
-                shift_y = (Camera.getY())-(Display.getHeight()/2)*Camera.getZoom();
-        return new int[]{(int)((worldCoords()[0])-shift_x), (int)((worldCoords()[1])-shift_y)};
+        return World.getWorld().getOnscreenCoords(worldCoords()[0], worldCoords()[1]);
     }
     
     /**
@@ -192,20 +190,11 @@ public class Chunk {
     public void draw(Graphics g) {
         if (terrain < 0 || terrain >= Chunk.BIOME_COUNT) return;
         Image img = Assets.getTerrainSprite();
-        img.drawEmbedded(onScreenCoords()[0]-((img.getHeight()-onScreenSize())/2), 
-                onScreenCoords()[1]-((img.getHeight()-onScreenSize())/2), 
-                onScreenCoords()[0]-((img.getHeight()-onScreenSize())/2)+img.getHeight(), 
-                onScreenCoords()[1]-((img.getHeight()-onScreenSize())/2)+img.getHeight(),
-                img.getHeight()*terrain, 0, (img.getHeight()*terrain)+img.getHeight(), img.getHeight());
-        
-        if (GameScreen.DEBUG_MODE) {
-            g.setColor(Color.red);
-            g.drawRect(onScreenCoords()[0], onScreenCoords()[0], onScreenSize(), onScreenSize());
-            g.setLineWidth(2);
-            g.setColor(Color.black);
-            g.drawRect(parent.onScreenCoords()[0], parent.onScreenCoords()[0], Sector.onScreenSize(), Sector.onScreenSize());
-            g.setLineWidth(1);
-        }
+        int x = onScreenCoords()[0]-((img.getHeight()-onScreenSize())/2);
+        int y = onScreenCoords()[1]-((img.getHeight()-onScreenSize())/2);
+        int src_x = img.getHeight()*terrain;
+        img.drawEmbedded(x,y,x+img.getHeight(),y+img.getHeight(),
+                src_x, 0, src_x+img.getHeight(), img.getHeight());
         
     }
     
