@@ -15,7 +15,7 @@ public class Town {
         this.parent = null;
         this.x = -1;
         this.y = -1;
-        this.population = Math.abs(new Random().nextInt() % 100);
+        this.population = Math.abs(new Random().nextInt() % 90)+10;
     }
     
     public void update() {}
@@ -30,6 +30,10 @@ public class Town {
         int sum = 0;
         for (Building b: buildings) sum+=b.getDemand(resource);
         return sum;
+    }
+    
+    int getPrice(int resource) {
+        return 1;
     }
     
 }

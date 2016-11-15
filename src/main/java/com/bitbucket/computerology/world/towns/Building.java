@@ -14,10 +14,21 @@ public class Building {
         this.amounts_recieved = new int[Resource.RESOURCE_COUNT];
     }
     
+    /**
+     * Gets the demand of a resource for this building. Consider demand as
+     * the amount required on a regular basis.
+     * @param resource The Resource ID.
+     * @return A demand integer.
+     */
     public int getDemand(int resource) {
         return demand_multipliers[resource]*getPopularity();
     }
     
+    /**
+     * Gets the popularity of the building. Consider this the number of people
+     * that purchase from the shop on a regular interval.
+     * @return 
+     */
     public int getPopularity() {
         return (int)(parent_town.getPopulation()*popularity_mult);
     }

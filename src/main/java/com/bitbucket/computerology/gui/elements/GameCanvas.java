@@ -13,7 +13,7 @@ import org.newdawn.slick.Graphics;
 public class GameCanvas extends GUIElement {
     
     boolean dragging = false;
-    int last_x = 0, last_y = 0;
+    double last_x = 0, last_y = 0;
     
     public GameCanvas() {
 

@@ -278,8 +278,11 @@ public class World {
             bw.write("p: player stats\n");
             bw.write("s: sector\n");
             bw.write("c: chunk\n");
+            bw.write("e: entity\n");
             bw.write("--------------------------------\n");
             bw.write("t="+(int)world.time+"\n");
+            bw.write("x="+(int)Camera.getX()+"\n");
+            bw.write("y="+(int)Camera.getY()+"\n");
             world.player.save(bw);
             for (Sector s: world.sectors) s.save(bw);
             bw.close();
@@ -310,6 +313,8 @@ public class World {
                 if (line == null) break;
                 line = line.replace("", "");
                 if (line.contains("t=")) world.time = Double.parseDouble(line.replace("t=", ""));
+                if (line.contains("x=")) Camera.setX(Integer.parseInt(line.replace("x=", "").trim()));
+                if (line.contains("y=")) Camera.setY(Integer.parseInt(line.replace("y=", "").trim()));
                 if (line.equals("s")) {
                     Sector s = new Sector(0, 0, world);
                     if (s.load(br)) world.addSector(s, SECTOR_LIST);
@@ -417,12 +422,12 @@ public class World {
     }
     
     public int[] getChunkCoords(double onscreen_x, double onscreen_y) {
-        int[] sector_coords = getSectorCoords(onscreen_x, onscreen_y);
         int[] world_coords = getWorldCoords(onscreen_x, onscreen_y);
-        int sector_width = Sector.sizePixels();
-        sector_coords[0]*= sector_width; sector_coords[1]*= sector_width;
-        return new int[]{(int)((world_coords[0]-sector_coords[0])/(double)Chunk.size()), 
-            (int)((world_coords[1]-sector_coords[1])/(double)Chunk.size())};
+        int[] sector_coords = getSectorCoords(onscreen_x, onscreen_y);
+        sector_coords[0]*=Sector.sizePixels(); sector_coords[1]*=Sector.sizePixels();
+        int[] chunk_coords = new int[]{world_coords[0]-sector_coords[0], world_coords[1]-sector_coords[1]};
+        chunk_coords[0] /= Chunk.size(); chunk_coords[1] /= Chunk.size();
+        return chunk_coords;
     }
     
 }

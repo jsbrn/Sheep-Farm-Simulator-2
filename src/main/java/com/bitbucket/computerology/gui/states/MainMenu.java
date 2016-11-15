@@ -8,6 +8,7 @@ import com.bitbucket.computerology.main.SlickInitializer;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.misc.Window;
+import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import java.io.File;
 import org.lwjgl.input.Mouse;
@@ -139,6 +140,7 @@ public class MainMenu extends BasicGameState {
                         public void onMouseClick(int button, int x, int y, int click_count) {
                             Assets.SAVE_DIR = Assets.ROOT_DIR+"/saves/"+getText();
                             File f = new File(Assets.SAVE_DIR+"/world.txt");
+                            Camera.reset();
                             if (f.exists()) {
                                 World.newWorld();
                                 World.load();
