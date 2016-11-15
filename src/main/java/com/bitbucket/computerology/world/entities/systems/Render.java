@@ -18,6 +18,7 @@ public class Render extends ComponentSystem {
         Texture t = (Texture)tc; Position p = (Position)tp;
         if (t.getTexture() == null) return;
         int[] c = World.getWorld().getOnscreenCoords(p.getWorldX(), p.getWorldY());
+        t.getTexture().setRotation(p.getRotation());
         g.drawImage(t.getTexture(), c[0], c[1]);
     }
     

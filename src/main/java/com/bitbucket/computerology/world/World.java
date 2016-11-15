@@ -33,6 +33,8 @@ public class World {
     
     private ArrayList<Entity> entities;
     
+    private int sector_update_index = 0;
+    
     private World(int seed) {
         this.seed = seed;
         init();
@@ -83,14 +85,36 @@ public class World {
         time+=MiscMath.get24HourConstant(1, 1);
         
         for (Sector s: active_sectors) s.update();
+        
+        if (sector_update_index > -1 && sector_update_index < active_sectors.size()) {
+            Sector update = active_sectors.get(sector_update_index);
+            if (update != null) update.updateEntities();
+            sector_update_index++;
+        } else {
+            sector_update_index = 0;
+        }
     }
     
     public boolean addEntity(Entity e) {
-        int sc[] = getSectorCoords(e.getWorldX(), e.getWorldY());
+        int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
+        int sc[] = getSectorCoords(osc[0], osc[1]);
         Sector s = getSector(sc[0], sc[1]);
         if (s == null) return false;
         if (s.addEntity(e)) {
             System.out.println("Added entity "+e.getType()+" to world! "+e.getWorldX()+", "+e.getWorldY());
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean removeEntity(Entity e) {
+        int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
+        int sc[] = getSectorCoords(osc[0], osc[1]);
+        Sector s = getSector(sc[0], sc[1]);
+        if (s == null) return false;
+        if (s.removeEntity(e)) {
+            System.out.println("Removed entity "+e.getType()+" from world! "+e.getWorldX()+", "+e.getWorldY());
+            entities.remove(e);
             return true;
         }
         return false;

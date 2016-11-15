@@ -2,6 +2,8 @@ package com.bitbucket.computerology.world;
 
 import com.bitbucket.computerology.gui.states.GameScreen;
 import com.bitbucket.computerology.misc.Assets;
+import com.bitbucket.computerology.world.Camera;
+import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;

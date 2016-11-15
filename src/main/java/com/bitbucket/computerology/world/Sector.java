@@ -1,5 +1,7 @@
 package com.bitbucket.computerology.world;
 
+import com.bitbucket.computerology.world.Camera;
+import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Component;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.entities.components.Position;
@@ -18,9 +20,9 @@ public class Sector {
     private int x, y, biome;
     private boolean generated;
     
-    int chunk_update_index = 0, important_count = 0;
+    int chunk_update_index = 0;
     
-    private ArrayList<Entity> entities;
+    private ArrayList<Entity> entities, important_entities;
     
     public Sector(int x, int y, World parent) {
         this.x = x; this.y = y;
@@ -34,6 +36,7 @@ public class Sector {
             }
         }
         this.entities = new ArrayList<Entity>();
+        this.important_entities = new ArrayList<Entity>();
     }
     
     /**
@@ -64,11 +67,18 @@ public class Sector {
         }
     }
     
+    /**
+     * Updates only the entities marked as "important", i.e. the ones that have flows.
+     */
+    public void updateEntities() {
+        for (Entity e: important_entities) e.update();
+    }
+    
     public boolean removeEntity(Entity e) {
         if (entities.remove(e)) {
             if (e.isImportant()) {
-                important_count--;
-                if (important_count <= 0) parent.deactivateSector(this);
+                important_entities.remove(e);
+                if (important_entities.isEmpty()) parent.deactivateSector(this);
             }
             return true;
         }
@@ -141,8 +151,8 @@ public class Sector {
         if (c == null) return false;
         if (c.addEntity(e)) { 
             entities.add(e); 
-            if (e.isImportant()) important_count++;
-            if (important_count > 0) parent.activateSector(this); 
+            if (e.isImportant()) important_entities.add(e);
+            if (!important_entities.isEmpty()) parent.activateSector(this); 
             return true; 
         } else { 
             return false; 
