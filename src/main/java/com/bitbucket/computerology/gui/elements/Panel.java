@@ -69,7 +69,7 @@ public class Panel extends GUIElement {
             Color base = new Color(45, 50, 60);
             for (int r = 0; r != getHeight(); r++) {
                 int diff = Math.abs((getHeight()/2)-r) / (getHeight() / 64);
-                g.setColor(new Color(45-diff, 50-diff, 75-diff, 225));
+                g.setColor(new Color(45-diff, 50-diff, 60-diff, 225));
                 g.fillRect(getOnscreenX(), getOnscreenY()+r, getWidth(), 1);
             }
             g.setColor(Color.black);

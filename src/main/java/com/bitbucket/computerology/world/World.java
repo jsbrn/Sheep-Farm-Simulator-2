@@ -4,6 +4,7 @@ import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.events.EventHandler;
+import com.bitbucket.computerology.world.towns.Town;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
