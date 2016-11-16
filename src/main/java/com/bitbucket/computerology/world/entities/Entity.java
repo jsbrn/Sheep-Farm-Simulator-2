@@ -197,4 +197,22 @@ public class Entity {
         }
     }
     
+    /**
+     * Compares the sector's x and y coordinates (like -2, 5) to the given coordinates,
+     * for use in a sorted list of sectors. INCOMPLETE!
+     * @param x Sector x coordinate to compare to.
+     * @param y Sector y coordinate to compare to.
+     * @return -1 if the sector is to the "left" of the given coordinates,
+     * and 1 if it is to the "right". 0 if neither.
+     */
+    public int compareTo(int x, int y) {
+        int tx = this.getWorldX();
+        int ty = this.getWorldY();
+        if (tx > x) return 1;
+        if (tx < x) return -1;
+        if (ty > y) return 1;
+        if (ty < y) return -1;
+        return 0;
+    }
+    
 }

@@ -21,8 +21,6 @@ public class Chunk {
     private int terrain, x, y, rot;
     private Sector parent;
     
-    ArrayList<Entity> entities;
-    
     public static Color[] COLORS = {Color.green, Color.green.darker(), Color.yellow, Color.blue, Color.white};
     
     public Chunk(int x, int y, Sector parent) {
@@ -31,29 +29,10 @@ public class Chunk {
         this.x = x;
         this.y = y;
         this.parent = parent;
-        this.entities = new ArrayList<Entity>();
     }
     
     public static int size() { return 32; }
     public static int onScreenSize() { return size()*Camera.getZoom(); }
-    
-    public boolean addEntity(Entity e) {
-        if (!entities.contains(e)) { entities.add(e); return true; }
-        return false;
-    }
-    
-    public void update() {
-        //remove the first entity you find in the list that does not intersect anymore
-        //or is not in the parent sector
-        for (Entity e: entities) {
-            if (e.intersects(worldCoords()[0], worldCoords()[1], size(), size())
-                    || !parent.containsEntity(e)) {
-                entities.remove(e);
-                parent.removeEntity(e);
-                break;
-            }
-        }
-    }
     
     /**
      * Returns a Chunk array of size 8.

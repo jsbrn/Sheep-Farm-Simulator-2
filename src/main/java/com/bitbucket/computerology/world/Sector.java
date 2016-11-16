@@ -59,36 +59,6 @@ public class Sector {
     
     public boolean isTownSector() { return town_sector; }
     
-    public void update() {
-        for (int i = 0; i != 10; i++) {
-            //get the next chunk to update
-            Chunk c = getChunk(chunk_update_index % sizeChunks(), chunk_update_index / sizeChunks());
-            //update the chunk then add 1 to the chunk index OR set it to 0 if it is >= the
-            //total chunk count
-            if (c != null) { c.update(); chunk_update_index = 
-                    chunk_update_index >= sizeChunks()*sizeChunks() ? 0 : chunk_update_index + 1; }
-            else { chunk_update_index = 0; }
-        }
-    }
-    
-    /**
-     * Updates only the entities marked as "important", i.e. the ones that have flows.
-     */
-    public void updateEntities() {
-        for (Entity e: important_entities) e.update();
-    }
-    
-    public boolean removeEntity(Entity e) {
-        if (entities.remove(e)) {
-            if (e.isImportant()) {
-                important_entities.remove(e);
-                if (important_entities.isEmpty()) parent.deactivateSector(this);
-            }
-            return true;
-        }
-        return false;
-    }
-    
     public boolean containsEntity(Entity e) { return entities.contains(e); }
     
     public boolean generated() {
@@ -143,30 +113,6 @@ public class Sector {
     
     public World getWorld() {
         return parent;
-    }
-    
-    public boolean addEntity(Entity e) {
-        Component p = e.getComponent("Position");
-        if (p == null) return false;
-        int osc[] = parent.getOnscreenCoords(((Position)p).getWorldX(),
-                ((Position)p).getWorldY());
-        int cc[] = parent.getChunkCoords(osc[0], osc[1]);
-        Chunk c = getChunk(cc[0], cc[1]);
-        if (c == null) return false;
-        if (c.addEntity(e)) { 
-            entities.add(e); 
-            if (e.isImportant()) important_entities.add(e);
-            if (!important_entities.isEmpty()) parent.activateSector(this); 
-            return true; 
-        } else { 
-            return false; 
-        }
-    }
-    
-    public int entityCount() { return entities.size(); }
-    public Entity getEntity(int index) { 
-        if (index > -1 && index < entities.size()) return entities.get(index);
-        return null;
     }
     
     /**

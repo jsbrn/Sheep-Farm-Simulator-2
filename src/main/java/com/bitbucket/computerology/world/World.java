@@ -23,7 +23,7 @@ public class World {
     private static World world;
     public static int SECTOR_LIST = 0, ACTIVE_SECTOR_LIST = 1;
     
-    private ArrayList<Sector> sectors, active_sectors;
+    private ArrayList<Sector> sectors;
     private Random rng;
     private int seed;
     
@@ -34,8 +34,6 @@ public class World {
     
     private ArrayList<Entity> entities;
     private ArrayList<Town> towns;
-    
-    private int sector_update_index = 0;
     
     private World(int seed) {
         this.seed = seed;
@@ -50,7 +48,6 @@ public class World {
     private void init() {
         this.rng = new Random(seed);
         this.sectors = new ArrayList<Sector>();
-        this.active_sectors = new ArrayList<Sector>();
         this.player = new Player();
         this.time = 0;
         this.event_handlers = new ArrayList<EventHandler>();
@@ -79,58 +76,15 @@ public class World {
     
     
     /**
-     * Generates in a radius around (0,0). Force-creates an origin sector that
-     * the others will naturally be relative to. You can call generateAround anytime
-     * after this function has been called. This must be called before any other world
-     * generation functions are called: it adds the origin sector which every other coordinate
-     * is relative to.
+     * Generates in a radius around (0,0).
      */
     public void generate() {
-        Sector o = new Sector(0, 0, this);
-        addSector(o, SECTOR_LIST);
-        o.randomizeBiome();
-        o.generate();
         generateAround(0, 0);
     }
     
     public void update() {
         for (EventHandler e: event_handlers) { e.update(); }
         time+=MiscMath.get24HourConstant(1, 1);
-        
-        for (Sector s: active_sectors) s.update();
-        
-        if (sector_update_index > -1 && sector_update_index < active_sectors.size()) {
-            Sector update = active_sectors.get(sector_update_index);
-            if (update != null) update.updateEntities();
-            sector_update_index++;
-        } else {
-            sector_update_index = 0;
-        }
-    }
-    
-    public boolean addEntity(Entity e) {
-        int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
-        int sc[] = getSectorCoords(osc[0], osc[1]);
-        Sector s = getSector(sc[0], sc[1]);
-        if (s == null) return false;
-        if (s.addEntity(e)) {
-            System.out.println("Added entity "+e.getType()+" to world! "+e.getWorldX()+", "+e.getWorldY());
-            return true;
-        }
-        return false;
-    }
-    
-    public boolean removeEntity(Entity e) {
-        int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
-        int sc[] = getSectorCoords(osc[0], osc[1]);
-        Sector s = getSector(sc[0], sc[1]);
-        if (s == null) return false;
-        if (s.removeEntity(e)) {
-            System.out.println("Removed entity "+e.getType()+" from world! "+e.getWorldX()+", "+e.getWorldY());
-            entities.remove(e);
-            return true;
-        }
-        return false;
     }
     
     /** Returns the current time since world creation (in minutes).**/
@@ -140,7 +94,6 @@ public class World {
     public int getHour() { return (int)(time % 1440) / 60; }
     
     public int sectorCount() { return sectors.size(); }
-    public int activeSectorCount() { return active_sectors.size(); }
 
     /**
      * Find the sector with the offset value specified.
@@ -149,7 +102,7 @@ public class World {
      * @return A Sector instance, or null if not found.
      */
     public Sector getSector(int x, int y) {
-        Sector s = getSector(x, y, 0, active_sectors.size()-1, active_sectors);
+        Sector s = getSector(x, y, 0, sectors.size()-1, sectors);
         if (s == null) {
             s = getSector(x, y, 0, sectors.size()-1, sectors);
         }
@@ -190,66 +143,108 @@ public class World {
     }
     
     /**
-     * Adds (and sorts) a sector to the specified list (LOADED_SECTORS, UNLOADED_SECTORS).
+     * Adds (and sorts) a sector to the list of sectors.
      * @param s The sector to add.
-     * @param list The list to add to.
      * @return A boolean indicating the success of the operation.
      */
-    public boolean addSector(Sector s, int list) {
-        if (list == SECTOR_LIST) return addSector(s, 0, sectors.size()-1, sectors);
-        if (list == ACTIVE_SECTOR_LIST) return addSector(s, 0, active_sectors.size()-1, active_sectors);
-        return false;
+    public boolean addEntity(Entity e) {
+        return addEntity(e, 0, entities.size()-1);
     }
     
-    public boolean activateSector(Sector s) {
-        return addSector(s, ACTIVE_SECTOR_LIST);
-    }
-    
-    public boolean deactivateSector(Sector s) {
-        return active_sectors.remove(s);
-    }
-    
-    private boolean addSector(Sector s, int l, int u, ArrayList<Sector> list) {
-        int index = getPotentialSectorIndex(s.offsets()[0], s.offsets()[1], l, u, list);
-        if (index <= -1 || index > list.size()) { 
+    private boolean addEntity(Entity e, int l, int u) {
+        int index = getPotentialEntityIndex(e.getWorldX(), e.getWorldY(), l, u);
+        if (index <= -1 || index > entities.size()) { 
             return false; 
         }
-        list.add(index, s);
+        entities.add(index, e);
         return true;
     }
     
     /**
-     * Given a sector (x, y), determine the index it needs to enter the list at,
-     * to keep the list sorted.
+     * Given an entity with world coordinates (x,y), determine the index it needs to enter the list at,
+     * to keep the list sorted. If the sector is found to already exist in the list,
+     * -1 is returned.
      * @param l Lower bound of the search region (when calling first, use 0)
      * @param u Upper bound of the search region (when calling first, use size()-1)
-     * @param list The list to search.
-     * @return 
+     * @return An integer of the above specifications.
      */
-    private static int getPotentialSectorIndex(int x, int y, int l, int u, ArrayList<Sector> list) {
+    private int getPotentialEntityIndex(int world_x, int world_y, int l, int u) {
         //if the bounds are the number, then return the bound
         
-        if (list.isEmpty()) return 0;
-        if (list.get(0).compareTo(x, y) > 0) return 0;
-        if (list.get(list.size()-1).compareTo(x, y) < 0) return list.size();
+        if (entities.isEmpty()) return 0;
+        if (entities.get(0).compareTo(world_x, world_y) > 0) return 0;
+        if (entities.get(entities.size()-1).compareTo(world_x, world_y) < 0) return entities.size();
         
         int lsize = (u+1)-l;
         int index = lsize/2 + l;
 
         if (lsize == 0) return -1;
         
-        Sector element = list.get(index);
+        Entity element = entities.get(index);
+        int cmp = element.compareTo(world_x, world_y);
+        
+        if (cmp == 0) return -1;
+        
+        int sub_bounds[] = new int[]{cmp > 0 ? l : index, cmp > 0 ? index : u};
+        if ((sub_bounds[1]+1)-sub_bounds[0] <= 2) { //if sublist is two in length
+            if (entities.get(sub_bounds[0]).compareTo(world_x, world_y) < 0
+                    && entities.get(sub_bounds[1]).compareTo(world_x, world_y) > 0) return sub_bounds[0]+1;
+            return -1;
+        } else {
+            return getPotentialEntityIndex(world_x, world_y, sub_bounds[0], sub_bounds[1]);
+        }
+    }
+    
+    /**
+     * Adds (and sorts) a sector to the list of sectors.
+     * @param s The sector to add.
+     * @return A boolean indicating the success of the operation.
+     */
+    public boolean addSector(Sector s) {
+        return addSector(s, 0, sectors.size()-1);
+    }
+    
+    private boolean addSector(Sector s, int l, int u) {
+        int index = getPotentialSectorIndex(s.offsets()[0], s.offsets()[1], l, u);
+        if (index <= -1 || index > sectors.size()) { 
+            return false; 
+        }
+        sectors.add(index, s);
+        return true;
+    }
+    
+    /**
+     * Given a sector (x, y), determine the index it needs to enter the list at,
+     * to keep the list sorted. If the sector is found to already exist in the list,
+     * -1 is returned.
+     * @param l Lower bound of the search region (when calling first, use 0)
+     * @param u Upper bound of the search region (when calling first, use size()-1)
+     * @return An integer of the above specifications.
+     */
+    private int getPotentialSectorIndex(int x, int y, int l, int u) {
+        //if the bounds are the number, then return the bound
+        
+        if (sectors.isEmpty()) return 0;
+        if (sectors.get(0).compareTo(x, y) > 0) return 0;
+        if (sectors.get(sectors.size()-1).compareTo(x, y) < 0) return sectors.size();
+        
+        int lsize = (u+1)-l;
+        int index = lsize/2 + l;
+
+        if (lsize == 0) return -1;
+        
+        Sector element = sectors.get(index);
         int cmp = element.compareTo(x, y);
         
         if (cmp == 0) return -1;
         
         int sub_bounds[] = new int[]{cmp > 0 ? l : index, cmp > 0 ? index : u};
         if ((sub_bounds[1]+1)-sub_bounds[0] <= 2) { //if sublist is two in length
-            if (list.get(sub_bounds[0]).compareTo(x, y) < 0
-                    && list.get(sub_bounds[1]).compareTo(x, y) > 0) return sub_bounds[0]+1;
+            if (sectors.get(sub_bounds[0]).compareTo(x, y) < 0
+                    && sectors.get(sub_bounds[1]).compareTo(x, y) > 0) return sub_bounds[0]+1;
             return -1;
         } else {
-            return getPotentialSectorIndex(x, y, sub_bounds[0], sub_bounds[1], list);
+            return getPotentialSectorIndex(x, y, sub_bounds[0], sub_bounds[1]);
         }
     }
     
@@ -279,19 +274,14 @@ public class World {
         Assets.getTerrainSprite().endUse();
     }
     
+    /**
+     * INCOMPLETE.
+     * @param g 
+     */
     void drawEntities(Graphics g) {
         int osc[] = getOnscreenCoords(Camera.getX(), Camera.getY());
         int sc[] = getSectorCoords(osc[0], osc[1]);
-        Sector s = getSector(sc[0], sc[1]);
-        if (s != null) {
-            for (int i = 0; i != s.entityCount(); i++) s.getEntity(i).draw(g);
-            for (Sector a: s.getAdjacentSectors()) {
-                if (a == null) continue; //if a == null or is not visible, skip
-                if (!MiscMath.rectanglesIntersect(0, 0, Display.getWidth(), Display.getHeight(), 
-                        a.onScreenCoords()[0], a.onScreenCoords()[1], Sector.onScreenSize(), Sector.onScreenSize())) continue;
-                for (int i = 0; i != a.entityCount(); i++) a.getEntity(i).draw(g);
-            }
-        }
+        
     }
     
     public static void save() {
@@ -346,7 +336,7 @@ public class World {
                 if (line.contains("cz=")) Camera.setZoom(Integer.parseInt(line.replace("cz=", "").trim()));
                 if (line.equals("s")) {
                     Sector s = new Sector(0, 0, world);
-                    if (s.load(br)) world.addSector(s, SECTOR_LIST);
+                    if (s.load(br)) world.addSector(s);
                 }
                 if (line.equals("e")) {
                     Entity e = new Entity();
@@ -368,7 +358,7 @@ public class World {
      */
     public Sector createSector(int x, int y) {
         Sector s = new Sector(x, y, this);
-        addSector(s, SECTOR_LIST);
+        addSector(s);
         return s;
     }
     
