@@ -12,15 +12,19 @@ public class Camera {
     public static int getZoom() { return zoom; }
     
     public static void zoom(int delta) { 
-        zoom += delta;
-        if (zoom < 1) zoom = 1;
-        if (zoom > 3) zoom = 1;
+        setZoom(zoom+delta);
     }
     
     public static void reset() {
         zoom = 1;
         x = 0;
         y = 0;
+    }
+    
+    public static void setZoom(int z) { 
+        zoom = z;
+        if (zoom < 1) zoom = 1;
+        if (zoom > 3) zoom = 1;
     }
     
     public static void move(double dx, double dy) {

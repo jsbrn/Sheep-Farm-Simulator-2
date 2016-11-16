@@ -258,6 +258,11 @@ public class World {
     public ArrayList<Sector> sectors() { return sectors; }
 
     public void draw(Graphics g) {
+        drawTerrain(g);
+        drawEntities(g);
+    }
+    
+    void drawTerrain(Graphics g) {
         if (Assets.getTerrainSprite() == null) return;
         int x, y, w = Display.getWidth() + Chunk.onScreenSize(),
                 h = Display.getHeight() + Chunk.onScreenSize();
@@ -272,9 +277,19 @@ public class World {
             }
         }
         Assets.getTerrainSprite().endUse();
-        for (Sector s: active_sectors) {
-            for (int i = 0; i != s.entityCount(); i++) {
-                s.getEntity(i).draw(g);
+    }
+    
+    void drawEntities(Graphics g) {
+        int osc[] = getOnscreenCoords(Camera.getX(), Camera.getY());
+        int sc[] = getSectorCoords(osc[0], osc[1]);
+        Sector s = getSector(sc[0], sc[1]);
+        if (s != null) {
+            for (int i = 0; i != s.entityCount(); i++) s.getEntity(i).draw(g);
+            for (Sector a: s.getAdjacentSectors()) {
+                if (a == null) continue; //if a == null or is not visible, skip
+                if (!MiscMath.rectanglesIntersect(0, 0, Display.getWidth(), Display.getHeight(), 
+                        a.onScreenCoords()[0], a.onScreenCoords()[1], Sector.onScreenSize(), Sector.onScreenSize())) continue;
+                for (int i = 0; i != a.entityCount(); i++) a.getEntity(i).draw(g);
             }
         }
     }
@@ -293,10 +308,12 @@ public class World {
             bw.write("e: entity\n");
             bw.write("--------------------------------\n");
             bw.write("t="+(int)world.time+"\n");
-            bw.write("x="+(int)Camera.getX()+"\n");
-            bw.write("y="+(int)Camera.getY()+"\n");
+            bw.write("cx="+(int)Camera.getX()+"\n");
+            bw.write("cy="+(int)Camera.getY()+"\n");
+            bw.write("cz="+(int)Camera.getZoom()+"\n");
             world.player.save(bw);
             for (Sector s: world.sectors) s.save(bw);
+            for (Entity e: world.entities) e.save(bw);
             bw.close();
         } catch (IOException ex) {
             Logger.getLogger(World.class.getName()).log(Level.SEVERE, null, ex);
@@ -324,11 +341,16 @@ public class World {
                 if (line == null) break;
                 line = line.replace("", "");
                 if (line.contains("t=")) world.time = Double.parseDouble(line.replace("t=", ""));
-                if (line.contains("x=")) Camera.setX(Integer.parseInt(line.replace("x=", "").trim()));
-                if (line.contains("y=")) Camera.setY(Integer.parseInt(line.replace("y=", "").trim()));
+                if (line.contains("cx=")) Camera.setX(Integer.parseInt(line.replace("cx=", "").trim()));
+                if (line.contains("cy=")) Camera.setY(Integer.parseInt(line.replace("cy=", "").trim()));
+                if (line.contains("cz=")) Camera.setZoom(Integer.parseInt(line.replace("cz=", "").trim()));
                 if (line.equals("s")) {
                     Sector s = new Sector(0, 0, world);
                     if (s.load(br)) world.addSector(s, SECTOR_LIST);
+                }
+                if (line.equals("e")) {
+                    Entity e = new Entity();
+                    if (e.load(br)) world.addEntity(e);
                 }
                 if (line.equals("p")) world.player.load(br);
             }

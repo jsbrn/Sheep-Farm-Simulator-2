@@ -1,10 +1,12 @@
 package com.bitbucket.computerology.world.entities.systems;
 
+import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Component;
 import com.bitbucket.computerology.world.entities.ComponentSystem;
 import com.bitbucket.computerology.world.entities.components.*;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 
 public class Render extends ComponentSystem {
     
@@ -18,8 +20,9 @@ public class Render extends ComponentSystem {
         Texture t = (Texture)tc; Position p = (Position)tp;
         if (t.getTexture() == null) return;
         int[] c = World.getWorld().getOnscreenCoords(p.getWorldX(), p.getWorldY());
-        t.getTexture().setRotation(p.getRotation());
-        g.drawImage(t.getTexture(), c[0], c[1]);
+        Image img = t.getTexture().getScaledCopy(Camera.getZoom());
+        img.setRotation(p.getRotation());
+        g.drawImage(t.getTexture().getScaledCopy(Camera.getZoom()), c[0]-img.getWidth()/2, c[1]-img.getHeight()/2);
     }
     
 }

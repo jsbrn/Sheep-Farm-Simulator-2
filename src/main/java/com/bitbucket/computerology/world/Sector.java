@@ -260,7 +260,14 @@ public class Sector {
      *****************************************************************************************************/
     
     void generate() {
-
+        
+        generateTerrain();
+        generateObjects();
+        generated = true;
+        
+    }
+    
+    void generateTerrain() {
         //set each chunk to match the sector biome
         for (int w = 0; w != chunks.length; w++) {
             for (int h = 0; h != chunks[w].length; h++) {
@@ -280,9 +287,21 @@ public class Sector {
             World.getWorld().brush(onScreenCoords()[0]+b_x*Chunk.onScreenSize(), onScreenCoords()[1]+b_y*Chunk.onScreenSize(), 
                     Math.abs(parent.rng().nextInt() % 8)+(4+(sizeChunks()/32)), chunks[b_x][b_y].randomValidTerrain(-1), true);
         }
-        
-        generated = true;
-        
+    }
+    
+    void generateObjects() {
+        if (biome == Chunk.GRASS_FOREST) {
+            for (int w = 0; w != chunks.length; w++) {
+                for (int h = 0; h != chunks[w].length; h++) {
+                    if (chunks[w][h].getTerrain() == Chunk.GRASS_FOREST) {
+                        Entity tree = Entity.create("Tree");
+                        tree.setWorldX(chunks[w][h].worldCoords()[0]+Chunk.size()/2);
+                        tree.setWorldY(chunks[w][h].worldCoords()[1]+Chunk.size()/2);
+                        World.getWorld().addEntity(tree);
+                    }
+                }
+            }
+        }
     }
     
     void cleanup(int passes) {

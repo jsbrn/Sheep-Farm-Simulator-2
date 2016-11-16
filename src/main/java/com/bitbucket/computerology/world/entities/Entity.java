@@ -35,7 +35,7 @@ public class Entity {
         }
         clone.copyTo(e);
         e.type = type;
-        e.id = Math.abs(new Random().nextInt() % 100000);
+        e.id = Math.abs(new Random().nextInt() % 10000000);
         return e;
     }
     
@@ -138,7 +138,6 @@ public class Entity {
     }
     
     public void draw(Graphics g) {
-        System.out.println("Drawing "+type+" "+this);
         for (ComponentSystem s: systems) s.draw(g);
     }
     
@@ -147,8 +146,6 @@ public class Entity {
     public Component getComponent(String s) {
         for (Component c: components) {
             if (c.getID().equals(s)) {
-                if (c instanceof Position) System.out.println("Found position component!"); else 
-                    System.out.println(c.getID()+" is a match for "+s);
                 return c;
             }
         }
