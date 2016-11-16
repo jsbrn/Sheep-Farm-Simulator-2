@@ -1,7 +1,5 @@
 package com.bitbucket.computerology.world;
 
-import com.bitbucket.computerology.world.Camera;
-import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Component;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.entities.components.Position;
@@ -11,14 +9,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.opengl.Display;
 
 public class Sector {
     
     private World parent;
     private Chunk[][] chunks;
     private int x, y, biome;
-    private boolean generated;
+    private boolean generated, town_sector;
     
     int chunk_update_index = 0;
     
@@ -35,6 +32,7 @@ public class Sector {
                 chunks[w][h] = new Chunk(w, h, this);
             }
         }
+        this.town_sector = Math.abs(parent.rng().nextInt() % 50) == 0;
         this.entities = new ArrayList<Entity>();
         this.important_entities = new ArrayList<Entity>();
     }
@@ -54,6 +52,12 @@ public class Sector {
         if (this.y < y) return -1;
         return 0;
     }
+    
+    public boolean hasTown() {
+        return World.getWorld().getTown(this) != null;
+    }
+    
+    public boolean isTownSector() { return town_sector; }
     
     public void update() {
         for (int i = 0; i != 10; i++) {

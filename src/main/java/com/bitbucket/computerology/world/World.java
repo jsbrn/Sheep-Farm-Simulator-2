@@ -33,6 +33,7 @@ public class World {
     private double time;
     
     private ArrayList<Entity> entities;
+    private ArrayList<Town> towns;
     
     private int sector_update_index = 0;
     
@@ -55,6 +56,7 @@ public class World {
         this.event_handlers = new ArrayList<EventHandler>();
         this.event_handlers.add(new EventHandler());
         this.entities = new ArrayList<Entity>();
+        this.towns = new ArrayList<Town>();
     }
     
     public static World getWorld() {
@@ -63,6 +65,16 @@ public class World {
     
     public static void newWorld() {
         world = new World();
+    }
+    
+    public Town getTown(Sector s) {
+        for (Town t: towns) if (t.getParent().equals(s)) return t;
+        return null;
+    }
+    
+    public Town getTown(int sector_x, int sector_y) {
+        Sector s = getSector(sector_x, sector_y);
+        return getTown(s);
     }
     
     
@@ -293,8 +305,7 @@ public class World {
     }
     
     /**
-     * "Destroys" the world by setting it to null, thus dereferencing
-     * EVERYTHING in it (thanks, GC). This is probably the worst way to do it.
+     * Sets the world instance to null.
      */
     public static void destroy() {
         world = null;

@@ -6,15 +6,13 @@ import java.util.Random;
 
 public class Town {
     
-    int x, y, population;
+    int population;
     Sector parent;
     ArrayList<Building> buildings;
     
-    public Town() {
+    public Town(Sector s) {
         this.buildings = new ArrayList<Building>();
-        this.parent = null;
-        this.x = -1;
-        this.y = -1;
+        this.parent = s;
         this.population = Math.abs(new Random().nextInt() % 90)+10;
     }
     
@@ -22,8 +20,7 @@ public class Town {
     
     public void setParent(Sector s) { parent = s; }
     public Sector getParent() { return parent; }
-    public int getWorldX() { return x; }
-    public int getWorldY() { return y; }
+    
     public int getPopulation() { return population; }
     
     int getDemand(int resource) {
