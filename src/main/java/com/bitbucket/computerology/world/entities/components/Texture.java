@@ -18,7 +18,6 @@ public class Texture extends Component {
         for (String s: p) {
             if (s.indexOf("texture=") == 0) { 
                 texture_url = s.replace("texture=", "").trim(); 
-                System.out.println("Texture string = "+texture_url);
             }
         }
         if (texture_url.length() > 0) {

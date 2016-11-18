@@ -141,7 +141,6 @@ public class GameScreen extends BasicGameState {
             g.setColor(Color.white);
             g.setFont(Assets.getFont(8));
             g.drawString("Sectors: "+World.getWorld().sectorCount(), 5, 42);
-            g.drawString("Active sectors: "+World.getWorld().activeSectorCount(), 5, 52);
             
             g.drawString("Camera: "+Camera.getX()+", "+Camera.getY(), 5, 72);
             

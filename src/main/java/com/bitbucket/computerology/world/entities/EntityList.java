@@ -40,7 +40,6 @@ public class EntityList {
     }
     
     static boolean loadEntity(Entity e, BufferedReader br) {
-        System.out.println("Loading entity...");
         try {
             while (true) {
                 String line = br.readLine();
@@ -57,7 +56,6 @@ public class EntityList {
                 if (line.equals("s")) {
                     ComponentSystem c = loadSystem(br);
                     if (c != null) { 
-                        System.out.println(c.getID());
                         e.addSystem(c); 
                     }
                 }
@@ -79,7 +77,6 @@ public class EntityList {
     }
     
     static Component loadComponent(BufferedReader br) {
-        System.out.println("Loading component...");
         Component c = null;
         try {
             while (true) {
@@ -102,7 +99,6 @@ public class EntityList {
     }
     
     static ComponentSystem loadSystem(BufferedReader br) {
-        System.out.println("Loading system...");
         ComponentSystem c = null;
         try {
             while (true) {
@@ -122,7 +118,6 @@ public class EntityList {
     }
     
     static boolean loadFlow(Flow f, BufferedReader br) {
-        System.out.println("Loading flow...");
         try {
             while (true) {
                 String line = br.readLine();
@@ -144,7 +139,6 @@ public class EntityList {
     }
     
     static boolean loadBlock(Block b, BufferedReader br) {
-        System.out.println("Loading block...");
         try {
             while (true) {
                 String line = br.readLine();

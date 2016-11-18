@@ -11,8 +11,8 @@ public class BlockList {
         
         Block b = new Block("move", "tttff", "", new String[][]{{"", "x", "number"}, {"", "y", "number"}});
         BLOCK_LIST.add(b);
-
-        for (Block b2: BLOCK_LIST) System.out.println(b2.type);
+        
+        System.out.println("Successfully loaded "+BLOCK_LIST.size()+" flowchart blocks!");
         
     }
     

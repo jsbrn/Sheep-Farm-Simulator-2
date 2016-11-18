@@ -53,7 +53,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -242,7 +242,7 @@ public class JarClassLoader extends ClassLoader {
 
     private File dirTemp;
     private PrintStream logger;
-    private List<JarFileInfo> lstJarFile;
+    private ArrayList<JarFileInfo> lstJarFile;
     private Set<File> hsDeleteOnExit;
     private Map<String, Class<?>> hmClass;
     private LogLevel logLevel;
@@ -503,8 +503,8 @@ public class JarClassLoader extends ClassLoader {
         return null;
     } // findJarEntry()
 
-    private List<JarEntryInfo> findJarEntries(String sName) {
-        List<JarEntryInfo> lst = new ArrayList<JarEntryInfo>();
+    private ArrayList<JarEntryInfo> findJarEntries(String sName) {
+        ArrayList<JarEntryInfo> lst = new ArrayList<JarEntryInfo>();
         for (JarFileInfo jarFileInfo : lstJarFile) {
             JarFile jarFile = jarFileInfo.jarFile;
             JarEntry jarEntry = jarFile.getJarEntry(sName);
@@ -1007,8 +1007,8 @@ public class JarClassLoader extends ClassLoader {
     public Enumeration<URL> findResources(String sName) throws IOException {
         logDebug(LogArea.RESOURCE, "getResources: %s", sName);
         if (isLaunchedFromJar()) {
-            List<JarEntryInfo> lstJarEntry = findJarEntries(normalizeResourceName(sName));
-            List<URL> lstURL = new ArrayList<URL>();
+            ArrayList<JarEntryInfo> lstJarEntry = findJarEntries(normalizeResourceName(sName));
+            ArrayList<URL> lstURL = new ArrayList<URL>();
             for (JarEntryInfo inf : lstJarEntry) {
                 URL url = inf.getURL();
                 if (url != null) {

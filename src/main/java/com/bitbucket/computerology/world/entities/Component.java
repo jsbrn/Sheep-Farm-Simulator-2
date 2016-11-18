@@ -30,7 +30,6 @@ public class Component {
         if ("Hitbox".equals(s)) c = new Hitbox();
         if (c != null) { 
             c.setID(s); 
-            System.out.println("Created component "+c.getID());
         } else { System.err.println("Failed to create component "+s+"!"); }
         return c;
     }

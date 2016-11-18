@@ -4,7 +4,7 @@ import com.bitbucket.computerology.world.entities.components.Position;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,9 +12,9 @@ import org.newdawn.slick.Graphics;
 
 public class Entity {
     
-    private LinkedList<ComponentSystem> systems;
-    private LinkedList<Component> components;
-    private LinkedList<Flow> flows;
+    private ArrayList<ComponentSystem> systems;
+    private ArrayList<Component> components;
+    private ArrayList<Flow> flows;
     String name, type;
     int id;
     
@@ -40,9 +40,9 @@ public class Entity {
     }
     
     public Entity() {
-        this.systems = new LinkedList<ComponentSystem>();
-        this.components = new LinkedList<Component>();
-        this.flows = new LinkedList<Flow>();
+        this.systems = new ArrayList<ComponentSystem>();
+        this.components = new ArrayList<Component>();
+        this.flows = new ArrayList<Flow>();
         this.name = "";
         this.type = "";
         this.id = -1;

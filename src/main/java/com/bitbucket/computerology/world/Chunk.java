@@ -31,6 +31,17 @@ public class Chunk {
         this.parent = parent;
     }
     
+    public boolean generateEntities() {
+        if (getTerrain() == Chunk.GRASS_FOREST) {
+            Entity tree = Entity.create("Tree");
+            tree.setWorldX(worldCoords()[0]+Chunk.size()/2);
+            tree.setWorldY(worldCoords()[1]+Chunk.size()/2);
+            World.getWorld().addEntity(tree);
+            return true;
+        }
+        return false;
+    }
+    
     public static int size() { return 32; }
     public static int onScreenSize() { return size()*Camera.getZoom(); }
     
@@ -93,7 +104,7 @@ public class Chunk {
     }
     
     public int getTerrain() {
-        return terrain;
+        return terrain > -1 ? terrain : parent.getBiome();
     }
     
     public int[] onScreenCoords() {
@@ -160,7 +171,7 @@ public class Chunk {
             bw.write("c\n");
             bw.write("x="+x+"\n");
             bw.write("y="+y+"\n");
-            bw.write("t="+terrain+"\n");
+            bw.write("t="+getTerrain()+"\n");
             bw.write("/c\n");
         } catch (IOException ex) {
             Logger.getLogger(Chunk.class.getName()).log(Level.SEVERE, null, ex);
@@ -168,11 +179,11 @@ public class Chunk {
     }
     
     public void draw(Graphics g) {
-        if (terrain < 0 || terrain >= Chunk.BIOME_COUNT) return;
+        if (getTerrain() < 0 || getTerrain() >= Chunk.BIOME_COUNT) return;
         Image img = Assets.getTerrainSprite();
         int x = onScreenCoords()[0]-((img.getHeight()-onScreenSize())/2);
         int y = onScreenCoords()[1]-((img.getHeight()-onScreenSize())/2);
-        int src_x = img.getHeight()*terrain;
+        int src_x = img.getHeight()*getTerrain();
         img.drawEmbedded(x,y,x+img.getHeight(),y+img.getHeight(),
                 src_x, 0, src_x+img.getHeight(), img.getHeight());
         

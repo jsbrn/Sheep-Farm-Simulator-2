@@ -119,7 +119,6 @@ public class Block {
     public String getParametre(int index, int dindex) {
         if (dindex < 0 || dindex > 2) return null;
         if (index <= -1 || index >= values.length) return null;
-        System.out.println();
         return values[index][dindex];
     }
     

@@ -13,7 +13,6 @@ public class Position extends Component {
     @Override
     public void initParams(ArrayList<String> p) {
         for (String s: p) {
-            System.out.println("Parsing param: "+s);
             if (s.indexOf("x=") == 0) x = Integer.parseInt(s.replace("x=", ""));
             if (s.indexOf("y=") == 0) y = Integer.parseInt(s.replace("y=", ""));
             if (s.indexOf("rotation=") == 0) rotation = Integer.parseInt(s.replace("rotation=", ""));
