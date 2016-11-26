@@ -74,6 +74,29 @@ public class World {
         return getTown(s);
     }
     
+    public boolean addEntity(Entity e) {
+        int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
+        int sc[] = getSectorCoords(osc[0], osc[1]);
+        Sector s = getSector(sc[0], sc[1]);
+        if (s != null) {
+            if (s.addEntity(e)) { entities.add(e); return true; }
+        }
+        return false;
+    }
+    
+    public boolean removeEntity(Entity e) {
+        int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
+        int sc[] = getSectorCoords(osc[0], osc[1]);
+        Sector s = getSector(sc[0], sc[1]);
+        if (s != null) {
+            if (s.removeEntity(e)) { entities.remove(e); return true; }
+        }
+        return false;
+    }
+    
+    //public ArrayList<Entity> getEntities(int w_x, int w_y, int w, int h) {
+        
+    //}
     
     /**
      * Generates in a radius around (0,0).
@@ -139,59 +162,6 @@ public class World {
             return null;
         } else {
             return getSector(x, y, sub_bounds[0], sub_bounds[1], list);
-        }
-    }
-    
-    /**
-     * Adds (and sorts) a sector to the list of sectors.
-     * @param s The sector to add.
-     * @return A boolean indicating the success of the operation.
-     */
-    public boolean addEntity(Entity e) {
-        return addEntity(e, 0, entities.size()-1);
-    }
-    
-    private boolean addEntity(Entity e, int l, int u) {
-        int index = getPotentialEntityIndex(e.getWorldX(), e.getWorldY(), l, u);
-        if (index <= -1 || index > entities.size()) { 
-            return false; 
-        }
-        entities.add(index, e);
-        return true;
-    }
-    
-    /**
-     * Given an entity with world coordinates (x,y), determine the index it needs to enter the list at,
-     * to keep the list sorted. If the sector is found to already exist in the list,
-     * -1 is returned.
-     * @param l Lower bound of the search region (when calling first, use 0)
-     * @param u Upper bound of the search region (when calling first, use size()-1)
-     * @return An integer of the above specifications.
-     */
-    private int getPotentialEntityIndex(int world_x, int world_y, int l, int u) {
-        //if the bounds are the number, then return the bound
-        
-        if (entities.isEmpty()) return 0;
-        if (entities.get(0).compareTo(world_x, world_y) > 0) return 0;
-        if (entities.get(entities.size()-1).compareTo(world_x, world_y) < 0) return entities.size();
-        
-        int lsize = (u+1)-l;
-        int index = lsize/2 + l;
-
-        if (lsize == 0) return -1;
-        
-        Entity element = entities.get(index);
-        int cmp = element.compareTo(world_x, world_y);
-        
-        if (cmp == 0) return -1;
-        
-        int sub_bounds[] = new int[]{cmp > 0 ? l : index, cmp > 0 ? index : u};
-        if ((sub_bounds[1]+1)-sub_bounds[0] <= 2) { //if sublist is two in length
-            if (entities.get(sub_bounds[0]).compareTo(world_x, world_y) < 0
-                    && entities.get(sub_bounds[1]).compareTo(world_x, world_y) > 0) return sub_bounds[0]+1;
-            return -1;
-        } else {
-            return getPotentialEntityIndex(world_x, world_y, sub_bounds[0], sub_bounds[1]);
         }
     }
     
@@ -275,13 +245,30 @@ public class World {
     }
     
     /**
-     * INCOMPLETE.
-     * @param g 
+     * Loops through all entities in the world and draws the ones that are visible.
+     * In the future it will not loop through ALL entities.
      */
     void drawEntities(Graphics g) {
-        int osc[] = getOnscreenCoords(Camera.getX(), Camera.getY());
-        int sc[] = getSectorCoords(osc[0], osc[1]);
         
+        for (Entity e: entities) { 
+            int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
+            if (MiscMath.pointIntersects(osc[0], osc[1], -Entity.maxSizePixels(), -Entity.maxSizePixels(), 
+                    Display.getWidth()+Entity.maxSizePixels(), Display.getWidth()+Entity.maxSizePixels())) {
+                e.draw(g);
+            }
+        }
+        
+        /**ArrayList<List>
+        int x, y, w = Display.getWidth() + Entity.maxSizePixels(), 
+                h = Display.getHeight() + Entity.maxSizePixels();
+        for (x = -Entity.maxSizePixels(); x < w; x+=Chunk.onScreenSize()) {
+            for (y = -Entity.maxSizePixels(); y < h; y+=Chunk.onScreenSize()) {
+                int sc[] = getSectorCoords(x, y);
+                int cc[] = getChunkCoords(x, y);
+                Sector s = getSector(sc[0], sc[1]);
+                
+            }
+        }**/
     }
     
     public static void save() {
@@ -449,7 +436,7 @@ public class World {
         int[] sector_coords = getSectorCoords(onscreen_x, onscreen_y);
         sector_coords[0]*=Sector.sizePixels(); sector_coords[1]*=Sector.sizePixels();
         int[] chunk_coords = new int[]{world_coords[0]-sector_coords[0], world_coords[1]-sector_coords[1]};
-        chunk_coords[0] /= Chunk.size(); chunk_coords[1] /= Chunk.size();
+        chunk_coords[0] /= Chunk.sizePixels(); chunk_coords[1] /= Chunk.sizePixels();
         return chunk_coords;
     }
     

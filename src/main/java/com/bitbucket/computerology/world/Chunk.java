@@ -1,9 +1,6 @@
 package com.bitbucket.computerology.world;
 
-import com.bitbucket.computerology.gui.states.GameScreen;
 import com.bitbucket.computerology.misc.Assets;
-import com.bitbucket.computerology.world.Camera;
-import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,27 +20,38 @@ public class Chunk {
     
     public static Color[] COLORS = {Color.green, Color.green.darker(), Color.yellow, Color.blue, Color.white};
     
+    public static ArrayList<Entity> entities;
+    
     public Chunk(int x, int y, Sector parent) {
         this.rot = Math.abs(new Random().nextInt() % 4);
         this.terrain = -1;
         this.x = x;
         this.y = y;
         this.parent = parent;
+        this.entities = new ArrayList<Entity>();
     }
     
     public boolean generateEntities() {
         if (getTerrain() == Chunk.GRASS_FOREST) {
             Entity tree = Entity.create("Tree");
-            tree.setWorldX(worldCoords()[0]+Chunk.size()/2);
-            tree.setWorldY(worldCoords()[1]+Chunk.size()/2);
+            tree.setWorldX(worldCoords()[0]+Chunk.sizePixels()/2);
+            tree.setWorldY(worldCoords()[1]+Chunk.sizePixels()/2);
             World.getWorld().addEntity(tree);
             return true;
         }
         return false;
     }
     
-    public static int size() { return 32; }
-    public static int onScreenSize() { return size()*Camera.getZoom(); }
+    public static int sizePixels() { return 32; }
+    public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
+    
+    public boolean addEntity(Entity e) {
+        return entities.add(e);
+    }
+    
+    public boolean removeEntity(Entity e) {
+        return entities.remove(e);
+    }
     
     /**
      * Returns a Chunk array of size 8.
@@ -100,7 +108,7 @@ public class Chunk {
     }
     
     public int[] worldCoords() {
-        return new int[]{parent.worldCoords()[0] + (x*size()), parent.worldCoords()[1] + (y*size())};
+        return new int[]{parent.worldCoords()[0] + (x*sizePixels()), parent.worldCoords()[1] + (y*sizePixels())};
     }
     
     public int getTerrain() {

@@ -1,8 +1,6 @@
 package com.bitbucket.computerology.world;
 
-import com.bitbucket.computerology.world.entities.Component;
 import com.bitbucket.computerology.world.entities.Entity;
-import com.bitbucket.computerology.world.entities.components.Position;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -19,7 +17,7 @@ public class Sector {
     
     int chunk_update_index = 0;
     
-    private ArrayList<Entity> entities, important_entities;
+    private ArrayList<Entity> entities;
     
     public Sector(int x, int y, World parent) {
         this.x = x; this.y = y;
@@ -34,7 +32,6 @@ public class Sector {
         }
         this.town_sector = Math.abs(parent.rng().nextInt() % 50) == 0;
         this.entities = new ArrayList<Entity>();
-        this.important_entities = new ArrayList<Entity>();
     }
     
     /**
@@ -57,9 +54,27 @@ public class Sector {
         return World.getWorld().getTown(this) != null;
     }
     
-    public boolean isTownSector() { return town_sector; }
+    public boolean addEntity(Entity e) {
+        int[] osc = parent.getOnscreenCoords(e.getWorldX(), e.getWorldY());
+        int[] cc = parent.getChunkCoords(osc[0], osc[1]);
+        Chunk c = getChunk(cc[0], cc[1]);
+        if (c != null) {
+            if (c.addEntity(e)) { entities.add(e); return true; }
+        }
+        return false;
+    }
     
-    public boolean containsEntity(Entity e) { return entities.contains(e); }
+    public boolean removeEntity(Entity e) {
+        int[] osc = parent.getOnscreenCoords(e.getWorldX(), e.getWorldY());
+        int[] cc = parent.getChunkCoords(osc[0], osc[1]);
+        Chunk c = getChunk(cc[0], cc[1]);
+        if (c != null) {
+            if (c.removeEntity(e)) { entities.remove(e); return true; }
+        }
+        return false;
+    }
+    
+    public boolean isTownSector() { return town_sector; }
     
     public boolean generated() {
         return generated;
@@ -74,7 +89,7 @@ public class Sector {
     }
     
     public static int sizeChunks() { return 80; }
-    public static int sizePixels() { return Chunk.size()*sizeChunks(); }
+    public static int sizePixels() { return Chunk.sizePixels()*sizeChunks(); }
     public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
     
     public int getBiome() {

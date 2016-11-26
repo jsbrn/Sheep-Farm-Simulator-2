@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.entities;
 
+import com.bitbucket.computerology.world.Chunk;
 import com.bitbucket.computerology.world.entities.components.Position;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -47,6 +48,9 @@ public class Entity {
         this.type = "";
         this.id = -1;
     }
+    
+    public static int maxSizeChunks() { return 16; }
+    public static int maxSizePixels() { return maxSizeChunks()*Chunk.sizePixels(); }
     
     /**
      * Checks if the entity intersects the world coordinates and the specified dimensions.

@@ -18,7 +18,7 @@ public class Button extends GUIElement {
     String text;
     Color bg_color, text_color;
     
-    static int GRAD = 25; //gradient magnitude
+    static int GRAD = 35; //gradient magnitude
     
     public Button() {
         this.text = "";
