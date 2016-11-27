@@ -223,25 +223,26 @@ public class World {
     public ArrayList<Sector> sectors() { return sectors; }
 
     public void draw(Graphics g) {
-        drawTerrain(g);
+        drawTerrain(false, g);
+        drawTerrain(true, g);
         drawEntities(g);
     }
     
-    void drawTerrain(Graphics g) {
-        if (Assets.getTerrainSprite() == null) return;
+    void drawTerrain(boolean corners, Graphics g) {
+        if (Assets.getTerrainSprite(corners) == null) return;
         int x, y, w = Display.getWidth() + Chunk.onScreenSize(),
                 h = Display.getHeight() + Chunk.onScreenSize();
-        Assets.getTerrainSprite().startUse();
+        Assets.getTerrainSprite(corners).startUse();
         for (x = -Chunk.onScreenSize(); x < w; x+=Chunk.onScreenSize()) {
             for (y = -Chunk.onScreenSize(); y < h; y+=Chunk.onScreenSize()) {
                 int sc[] = getSectorCoords(x, y);
                 int cc[] = getChunkCoords(x, y);
                 Sector s = getSector(sc[0], sc[1]);
                 Chunk c = (s != null) ? s.getChunk(cc[0], cc[1]) : null;
-                if (c != null) { c.draw(g); }
+                if (c != null) { c.draw(corners, g); }
             }
         }
-        Assets.getTerrainSprite().endUse();
+        Assets.getTerrainSprite(corners).endUse();
     }
     
     /**

@@ -21,7 +21,8 @@ public class Assets {
     public static String STATUS = ""; //a description of what is being loaded currently
     
     //assets
-    static Image[] CHUNK_TERRAIN = new Image[3];
+    static Image[] TERRAIN = new Image[3]; //3 zoom levels
+    static Image[] TERRAIN_CORNERS = new Image[3];
     public static Image MAIN_MENU_BACKGROUND;
     static TrueTypeFont[] FONTS;
     static TrueTypeFont placeholder_font;
@@ -64,14 +65,21 @@ public class Assets {
         }
     }
     
-    public static Image getTerrainSprite() { return Assets.CHUNK_TERRAIN[Camera.getZoom()-1]; }
+    public static Image getTerrainSprite(boolean corners) {
+        return corners ?
+                Assets.TERRAIN_CORNERS[Camera.getZoom()-1] 
+                : Assets.TERRAIN[Camera.getZoom()-1]; 
+    }
     
     private static void loadTerrainSprite() {
         try {
-            for (int i = 0; i != 3; i++) {
-                Assets.CHUNK_TERRAIN[i] 
-                        = new Image("images/gui/terrain.png", false, Image.FILTER_NEAREST)
-                        .getScaledCopy(i+1);
+            for (int z = 0; z < 3; z++) {
+                Assets.TERRAIN[z] 
+                    = new Image("images/terrain/terrain.png", false, Image.FILTER_NEAREST)
+                    .getScaledCopy(z+1);
+                Assets.TERRAIN_CORNERS[z] 
+                    = new Image("images/terrain/terrain_corners.png", false, Image.FILTER_NEAREST)
+                    .getScaledCopy(z+1);
             }
         } catch (SlickException e) {
             e.printStackTrace();

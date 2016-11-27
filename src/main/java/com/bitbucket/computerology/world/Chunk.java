@@ -54,7 +54,11 @@ public class Chunk {
     }
     
     /**
-     * Returns a Chunk array of size 8.
+     * Returns a Chunk array of size 8. Traverses horizontally first, then vertically.
+     * That is: <br><br>
+     * 0 1 2<br>
+     * 3 x 4<br>
+     * 5 6 7<br>
      * @param diag Whether or not to include chunks diagonal to the parent.
      * @return A Chunk[] array. Elements can be null if no chunk was found in the slot.
      */
@@ -186,14 +190,44 @@ public class Chunk {
         }
     }
     
-    public void draw(Graphics g) {
+    public void draw(boolean corners, Graphics g) {
+        
         if (getTerrain() < 0 || getTerrain() >= Chunk.BIOME_COUNT) return;
-        Image img = Assets.getTerrainSprite();
-        int x = onScreenCoords()[0]-((img.getHeight()-onScreenSize())/2);
-        int y = onScreenCoords()[1]-((img.getHeight()-onScreenSize())/2);
-        int src_x = img.getHeight()*getTerrain();
-        img.drawEmbedded(x,y,x+img.getHeight(),y+img.getHeight(),
-                src_x, 0, src_x+img.getHeight(), img.getHeight());
+        Image img = Assets.getTerrainSprite(corners);
+        
+        int src_x = Chunk.onScreenSize()*getTerrain();
+        
+        int r = (rot*Chunk.onScreenSize());
+        int rx = onScreenCoords()[0]-(onScreenSize()/2);
+        int ry = onScreenCoords()[1]-(onScreenSize()/2);
+        
+        if (corners) {
+            int draw[] = {-1, -1, -1, -1};
+            Chunk[] adj = getAdjacentChunks(false);
+            if (adj[1] != null && adj[3] != null) {
+                if (adj[1].getTerrain() == adj[3].getTerrain()) draw[0] = adj[1].getTerrain(); 
+            }
+            if (adj[1] != null && adj[4] != null) {
+                if (adj[1].getTerrain() == adj[4].getTerrain()) draw[1] = adj[1].getTerrain(); 
+            }
+            if (adj[4] != null && adj[6] != null) {
+                if (adj[4].getTerrain() == adj[6].getTerrain()) draw[2] = adj[4].getTerrain(); 
+            }
+            if (adj[6] != null && adj[3] != null) {
+                if (adj[6].getTerrain() == adj[3].getTerrain()) draw[3] = adj[6].getTerrain(); 
+            }
+            for (int i = 0; i < 4; i++) {
+                if (draw[i] > -1 && draw[i] < Chunk.BIOME_COUNT) {
+                    src_x = Chunk.onScreenSize()*draw[i];
+                    r = (i*Chunk.onScreenSize());
+                    img.drawEmbedded(rx,ry,rx+Chunk.onScreenSize(),ry+Chunk.onScreenSize(),
+                        src_x, r, src_x+Chunk.onScreenSize(), r+Chunk.onScreenSize());
+                }
+            }
+        } else {
+            img.drawEmbedded(rx,ry,rx+Chunk.onScreenSize(),ry+Chunk.onScreenSize(),
+                    src_x, r, src_x+Chunk.onScreenSize(), r+Chunk.onScreenSize());
+        }
         
     }
     
