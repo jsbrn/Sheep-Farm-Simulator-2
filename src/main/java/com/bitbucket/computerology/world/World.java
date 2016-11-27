@@ -385,6 +385,14 @@ public class World {
         }
     }
     
+    /**
+     * Applies a circular brush to the terrain.
+     * @param os_x Center of the terrain circle. On-screen coords.
+     * @param os_y Center of the terrain circle.
+     * @param diametre The diametre of the circle.
+     * @param terrain Terrain type to paint.
+     * @param overwrite Overwrite chunks with existing terrain data?
+     */
     public void brush(double os_x, double os_y, int diametre, int terrain, boolean overwrite) {
         for (int w = (-diametre/2); w != (diametre/2); w++) {
             for (int h = (-diametre/2); h != (diametre/2); h++) {

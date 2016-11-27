@@ -20,7 +20,7 @@ public class Chunk {
     
     public static Color[] COLORS = {Color.green, Color.green.darker(), Color.yellow, Color.blue, Color.white};
     
-    public static ArrayList<Entity> entities;
+    public ArrayList<Entity> entities;
     
     public Chunk(int x, int y, Sector parent) {
         this.rot = Math.abs(new Random().nextInt() % 4);
@@ -32,7 +32,7 @@ public class Chunk {
     }
     
     public boolean generateEntities() {
-        if (getTerrain() == Chunk.GRASS_FOREST) {
+        if (getTerrain() == Chunk.GRASS_FOREST && Math.abs(parent.getWorld().rng().nextInt() % 2) == 0) {
             Entity tree = Entity.create("Tree");
             tree.setWorldX(worldCoords()[0]+Chunk.sizePixels()/2);
             tree.setWorldY(worldCoords()[1]+Chunk.sizePixels()/2);

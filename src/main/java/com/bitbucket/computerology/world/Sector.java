@@ -88,7 +88,7 @@ public class Sector {
         return new int[]{x*sizePixels(), y*sizePixels()};
     }
     
-    public static int sizeChunks() { return 80; }
+    public static int sizeChunks() { return 32; }
     public static int sizePixels() { return Chunk.sizePixels()*sizeChunks(); }
     public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
     
@@ -154,7 +154,7 @@ public class Sector {
             ArrayList<Sector> non_null = new ArrayList<Sector>();
             for (Sector s: adj) {if (s != null) { non_null.add(s); }}
             
-            if (non_null.isEmpty() || Math.abs(parent.rng().nextInt() % 100) <= 30) 
+            if (non_null.isEmpty() || Math.abs(parent.rng().nextInt() % 100) <= 10) 
                 b = Math.abs(parent.rng().nextInt() % Chunk.BIOME_COUNT);
             else
                 b = non_null.get(Math.abs(parent.rng().nextInt() % non_null.size())).getBiome();
@@ -230,18 +230,10 @@ public class Sector {
     
     void generateTerrain() {
         
-        int b_count = Math.abs(parent.rng().nextInt() % (sizeChunks()/2))+8;
-        for (int i = 1; i != b_count+2; i++) {
-            int b_x = 0, b_y = 0;
-            while (i > 0) {
-                b_x = Math.abs(parent.rng().nextInt() % sizeChunks());
-                b_y = Math.abs(parent.rng().nextInt() % sizeChunks());
-                if ((b_x <= (4+(sizeChunks()/32)) || b_x >= sizeChunks()-(4+(sizeChunks()/32))) 
-                        || (b_y <= (4+(sizeChunks()/32)) || b_y >= sizeChunks()-(4+(sizeChunks()/32)))) break;
-            }
-            World.getWorld().brush(onScreenCoords()[0]+b_x*Chunk.onScreenSize(), onScreenCoords()[1]+b_y*Chunk.onScreenSize(), 
-                    Math.abs(parent.rng().nextInt() % 8)+(4+(sizeChunks()/32)), chunks[b_x][b_y].randomValidTerrain(-1), true);
-        }
+        parent.brush(this.onScreenCoords()[0]+Sector.onScreenSize()/2, 
+                this.onScreenCoords()[0]+Sector.onScreenSize()/2, Chunk.WATER, (int)(Sector.sizeChunks()*1.5), true);
+        
+        
     }
     
     void generateObjects() {
