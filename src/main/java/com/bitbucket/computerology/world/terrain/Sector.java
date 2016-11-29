@@ -1,6 +1,9 @@
-package com.bitbucket.computerology.world;
+package com.bitbucket.computerology.world.terrain;
 
+import com.bitbucket.computerology.world.Camera;
+import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
+import com.bitbucket.computerology.world.terrain.generators.Generator;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -14,6 +17,8 @@ public class Sector {
     private Chunk[][] chunks;
     private int x, y, biome;
     private boolean generated, town_sector;
+    
+    private Generator generator;
     
     int chunk_update_index = 0;
     
@@ -32,6 +37,7 @@ public class Sector {
         }
         this.town_sector = Math.abs(parent.rng().nextInt() % 50) == 0;
         this.entities = new ArrayList<Entity>();
+        this.generator = null;
     }
     
     /**
@@ -101,16 +107,24 @@ public class Sector {
     }
     
     /**
-     * Sets the sector biome to the specified biome.
+     * Sets the sector biome to the specified biome. Applies a new generator
+     * instance to the sector, so use this instead of just giving biome a new value.
      * @param biome An integer defining the biome (i.e. Chunk.DESERT)
      */
     void setBiome(int biome) {
         this.biome = biome;
+        this.generator = Generator.create(this);
     }
     
     /**
      * Get sectors adjacent to this sector. Does not consider any sector to be
      * adjacent to itself.
+     * 
+     * <br><br>
+     * 0 1 2<br>
+     * 3 x 4<br>
+     * 5 6 7<br>
+     * 
      * @return A Sector[] with 8 elements.
      */
     public Sector[] getAdjacentSectors() {
@@ -176,7 +190,7 @@ public class Sector {
         return true;
     }
     
-    public boolean load(BufferedReader br) {
+    public final boolean load(BufferedReader br) {
         try {
             while (true) {
                 String line = br.readLine();
@@ -189,7 +203,7 @@ public class Sector {
                 }
                 if (line.indexOf("x=") == 0) x = Integer.parseInt(line.replace("x=", ""));
                 if (line.indexOf("y=") == 0) y = Integer.parseInt(line.replace("y=", ""));
-                if (line.indexOf("b=") == 0) biome = Integer.parseInt(line.replace("b=", ""));
+                if (line.indexOf("b=") == 0) setBiome(Integer.parseInt(line.replace("b=", "")));
                 if (line.indexOf("g=") == 0) generated = Boolean.parseBoolean(line.replace("g=", ""));
             }
         } catch (IOException ex) {
@@ -198,7 +212,7 @@ public class Sector {
         return false;
     }
     
-    public void save(BufferedWriter bw) {
+    public final void save(BufferedWriter bw) {
         try {
             bw.write("s\n");
                 bw.write("x="+x+"\n");
@@ -220,48 +234,38 @@ public class Sector {
      * Generator code below; these functions should not be called outside of generate() or World.init(). *
      *****************************************************************************************************/
     
-    void generate() {
+    public final void generate() {
+        if (generated) return;
         
-        generateTerrain();
-        generateObjects();
+        //blend with the other surrounding sectors
+        int section = Sector.sizeChunks()/8, schunks = Sector.sizeChunks();
+        for (int bx = 0; bx < schunks; bx+=section) {
+            for (int by = 0; by < schunks; by+=section) {
+                if ((bx > section*2 && bx < schunks-(section*2)) //if not on the edge, continue
+                        && (by > section*2 && by < schunks-(section*2))) continue;
+                int d = Math.abs(parent.rng().nextInt() % schunks/2)+6;
+                /*Generator.brush(worldCoords()[0]+(bx*Chunk.sizePixels()), 
+                        worldCoords()[1]+(by*Chunk.sizePixels()), 
+                        d, biome);*/
+            }
+        }
+        
+        //call on its generator to add some biome specific terrain details
+        if (generator != null) generator.generate();
+        
+        //mark as generated so that it will not regenerate
         generated = true;
         
     }
     
-    void generateTerrain() {
-        
-        parent.brush(this.onScreenCoords()[0]+Sector.onScreenSize()/2, 
-                this.onScreenCoords()[0]+Sector.onScreenSize()/2, Chunk.WATER, (int)(Sector.sizeChunks()*1.5), true);
-        
-        
-    }
-    
-    void generateObjects() {
-        if (biome != Chunk.GRASS_FOREST) return;
-        for (int w = 0; w != chunks.length; w++) {
-            for (int h = 0; h != chunks[w].length; h++) {
-                chunks[w][h].generateEntities();
-            }
-        }
-    }
-    
-    void cleanup(int passes) {
-        if (passes <= 0) return;
-        for (int w = 0; w != chunks.length; w++) {
-            for (int h = 0; h != chunks[w].length; h++) {
-                if (chunks[w][h].isOrphan(false)) {
-                    chunks[w][h].setTerrain(biome);
-                }
-            }
-        }
-    }
+    public Generator generator() { return generator; }
     
     /**
      * Gives the sector a random biome that takes into consideration the sectors
      * around it. Desert will never be adjacent to tundra.
      */
-    void randomizeBiome() {
-        biome = randomValidBiome(-1);
+    public void randomizeBiome() {
+        if (!generated) setBiome(randomValidBiome(-1));
     }
 
 }

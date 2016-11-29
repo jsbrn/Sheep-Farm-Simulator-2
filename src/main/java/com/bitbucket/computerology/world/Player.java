@@ -1,5 +1,7 @@
 package com.bitbucket.computerology.world;
 
+import com.bitbucket.computerology.world.terrain.Sector;
+import com.bitbucket.computerology.world.terrain.Chunk;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;

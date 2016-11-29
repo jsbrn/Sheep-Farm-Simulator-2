@@ -1,8 +1,8 @@
 package com.bitbucket.computerology.gui.elements;
 
 import com.bitbucket.computerology.gui.GUIElement;
-import com.bitbucket.computerology.world.Chunk;
-import com.bitbucket.computerology.world.Sector;
+import com.bitbucket.computerology.world.terrain.Chunk;
+import com.bitbucket.computerology.world.terrain.Sector;
 import com.bitbucket.computerology.world.World;
 import java.util.logging.Level;
 import java.util.logging.Logger;

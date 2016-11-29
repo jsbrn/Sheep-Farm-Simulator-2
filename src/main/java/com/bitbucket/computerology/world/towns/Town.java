@@ -1,6 +1,6 @@
 package com.bitbucket.computerology.world.towns;
 
-import com.bitbucket.computerology.world.Sector;
+import com.bitbucket.computerology.world.terrain.Sector;
 import java.util.ArrayList;
 import java.util.Random;
 

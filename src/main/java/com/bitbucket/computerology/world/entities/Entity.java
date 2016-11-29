@@ -1,6 +1,6 @@
 package com.bitbucket.computerology.world.entities;
 
-import com.bitbucket.computerology.world.Chunk;
+import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.entities.components.Position;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

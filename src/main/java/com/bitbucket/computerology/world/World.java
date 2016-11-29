@@ -1,5 +1,7 @@
 package com.bitbucket.computerology.world;
 
+import com.bitbucket.computerology.world.terrain.Sector;
+import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.entities.Entity;
@@ -230,8 +232,8 @@ public class World {
     
     void drawTerrain(boolean corners, Graphics g) {
         if (Assets.getTerrainSprite(corners) == null) return;
-        int x, y, w = Display.getWidth() + Chunk.onScreenSize(),
-                h = Display.getHeight() + Chunk.onScreenSize();
+        int x, y, w = Display.getWidth() + (2*Chunk.onScreenSize()),
+                h = Display.getHeight() + (2*Chunk.onScreenSize());
         Assets.getTerrainSprite(corners).startUse();
         for (x = -Chunk.onScreenSize(); x < w; x+=Chunk.onScreenSize()) {
             for (y = -Chunk.onScreenSize(); y < h; y+=Chunk.onScreenSize()) {
@@ -380,30 +382,6 @@ public class World {
                 Sector s = getSector(sector_x+w, sector_y+h);
                 if (s != null) {
                     if (!s.generated()) s.generate();
-                }
-            }
-        }
-    }
-    
-    /**
-     * Applies a circular brush to the terrain.
-     * @param os_x Center of the terrain circle. On-screen coords.
-     * @param os_y Center of the terrain circle.
-     * @param diametre The diametre of the circle.
-     * @param terrain Terrain type to paint.
-     * @param overwrite Overwrite chunks with existing terrain data?
-     */
-    public void brush(double os_x, double os_y, int diametre, int terrain, boolean overwrite) {
-        for (int w = (-diametre/2); w != (diametre/2); w++) {
-            for (int h = (-diametre/2); h != (diametre/2); h++) {
-                if (MiscMath.distanceBetween(w, h, 0, 0) <= (diametre/2)) {
-                    int sc[] = this.getSectorCoords(os_x+(w*Chunk.onScreenSize()), os_y+(h*Chunk.onScreenSize()));
-                    int cc[] = this.getChunkCoords(os_x+(w*Chunk.onScreenSize()), os_y+(h*Chunk.onScreenSize()));
-                    Sector s = this.getSector(sc[0], sc[1]);
-                    Chunk c = (s != null) ? s.getChunk(cc[0], cc[1]) : null;
-                    if (c != null) {
-                        if (c.getTerrain() != -1 || overwrite) c.setTerrain(terrain);
-                    }
                 }
             }
         }

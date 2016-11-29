@@ -11,7 +11,7 @@ import com.bitbucket.computerology.gui.elements.TextField;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.Camera;
-import com.bitbucket.computerology.world.Sector;
+import com.bitbucket.computerology.world.terrain.Sector;
 import com.bitbucket.computerology.world.World;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;

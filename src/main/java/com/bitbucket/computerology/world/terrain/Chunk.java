@@ -1,6 +1,8 @@
-package com.bitbucket.computerology.world;
+package com.bitbucket.computerology.world.terrain;
 
 import com.bitbucket.computerology.misc.Assets;
+import com.bitbucket.computerology.world.Camera;
+import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,17 +31,6 @@ public class Chunk {
         this.y = y;
         this.parent = parent;
         this.entities = new ArrayList<Entity>();
-    }
-    
-    public boolean generateEntities() {
-        if (getTerrain() == Chunk.GRASS_FOREST && Math.abs(parent.getWorld().rng().nextInt() % 2) == 0) {
-            Entity tree = Entity.create("Tree");
-            tree.setWorldX(worldCoords()[0]+Chunk.sizePixels()/2);
-            tree.setWorldY(worldCoords()[1]+Chunk.sizePixels()/2);
-            World.getWorld().addEntity(tree);
-            return true;
-        }
-        return false;
     }
     
     public static int sizePixels() { return 32; }
