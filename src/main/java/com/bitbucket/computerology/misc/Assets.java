@@ -16,7 +16,7 @@ public class Assets {
     
     //used to keep track of the asset loading
     static int pass = 0;
-    public static int ASSET_COUNT = 44; //this number needs to be accurate
+    public static int ASSET_COUNT = 16; //this number needs to be accurate
     private static boolean loaded;
     public static String STATUS = ""; //a description of what is being loaded currently
     
@@ -43,10 +43,10 @@ public class Assets {
         if (pass == 2) { STATUS = "logic blocks"; BlockList.loadBlockList(); return false; }
         if (pass == 3) { STATUS = "entities"; EntityList.loadEntityList(); return false; }
         if (pass == 4) { STATUS = "terrain spritesheet"; loadTerrainSprite(); return false; }
-        if (pass == 5) { FONTS = new TrueTypeFont[40]; return false; }
+        if (pass == 5) { FONTS = new TrueTypeFont[11]; return false; }
         if (pass >= 6 && pass < 6+FONTS.length) {
             STATUS = "fonts";
-            Font awtFont = new Font("Arial", Font.PLAIN, pass-6+8);
+            Font awtFont = new Font("Arial", Font.PLAIN, 8+((pass-6)*4));
             TrueTypeFont f = new TrueTypeFont(awtFont, true);
             FONTS[pass-6] = f;
             return false;
@@ -93,7 +93,7 @@ public class Assets {
      * if nothing found.
      */
     public static TrueTypeFont getFont(int size) {
-        int index = size-8;
+        size -= size % 4; int index = (size/4)-2;
         if (FONTS != null && !(index >= FONTS.length || index < -1)) { 
             if (FONTS[index] != null) return FONTS[index];
         }

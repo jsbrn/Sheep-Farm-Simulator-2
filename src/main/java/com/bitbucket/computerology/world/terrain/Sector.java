@@ -244,9 +244,9 @@ public class Sector {
                 if ((bx > section*2 && bx < schunks-(section*2)) //if not on the edge, continue
                         && (by > section*2 && by < schunks-(section*2))) continue;
                 int d = Math.abs(parent.rng().nextInt() % schunks/2)+6;
-                /*Generator.brush(worldCoords()[0]+(bx*Chunk.sizePixels()), 
+                Generator.brush(worldCoords()[0]+(bx*Chunk.sizePixels()), 
                         worldCoords()[1]+(by*Chunk.sizePixels()), 
-                        d, biome);*/
+                        d, biome);
             }
         }
         

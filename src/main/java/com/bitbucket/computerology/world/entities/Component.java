@@ -38,7 +38,7 @@ public class Component {
      * Takes the param string and splits it into a String array, passing along
      * the array to the other initParams function.
      */
-    public final void initParams() {
+    public final void init() {
         initParams(MiscString.parseString(params));
     }
     

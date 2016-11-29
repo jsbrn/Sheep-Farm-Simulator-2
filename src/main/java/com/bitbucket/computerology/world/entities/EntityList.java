@@ -49,7 +49,7 @@ public class EntityList {
                 if (line.equals("c")) {
                     Component c = loadComponent(br);
                     if (c != null) {
-                        c.initParams();
+                        c.init();
                         e.addComponent(c);
                     }
                 }
