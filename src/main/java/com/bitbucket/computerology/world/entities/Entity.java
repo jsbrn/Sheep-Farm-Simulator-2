@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.entities;
 
+import com.bitbucket.computerology.world.entities.components.Forces;
 import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.entities.components.Position;
@@ -139,6 +140,27 @@ public class Entity {
         if (c == null) return;
         Position p = ((Position)c);
         p.setWorldY(w_y);
+    }
+    
+    public Force getForce(String name) {
+        Component c = getComponent("Forces");
+        Forces f = c != null ? ((Forces)c) : null;
+        if (f == null) return null;
+        return f.getForce(name);
+    }
+    
+    public void addForce(Force f) {
+        Component c = getComponent("Forces");
+        Forces fs = c != null ? ((Forces)c) : null;
+        if (fs == null) return;
+        fs.addForce(f);
+    }
+    
+    public void removeForce(String f) {
+        Component c = getComponent("Forces");
+        Forces fs = c != null ? ((Forces)c) : null;
+        if (fs == null) return;
+        fs.removeForce(f);
     }
     
     public String getType() { return type; }

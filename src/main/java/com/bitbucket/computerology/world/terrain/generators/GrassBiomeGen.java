@@ -1,6 +1,7 @@
 package com.bitbucket.computerology.world.terrain.generators;
 
 import com.bitbucket.computerology.world.entities.Entity;
+import com.bitbucket.computerology.world.entities.Force;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.terrain.Sector;
 
@@ -15,7 +16,7 @@ public class GrassBiomeGen extends Generator {
         //if (isRiver()) createRiver();
         
         int c_count = Math.abs(parent.getWorld().rng().nextInt() % 5);
-        for (int i = 0; i < 5; i++) treeCluster();
+        for (int i = 0; i < c_count; i++) treeCluster();
         
     }
     
@@ -29,6 +30,9 @@ public class GrassBiomeGen extends Generator {
             int rx2 = rx+(parent.getWorld().rng().nextInt() % rr);
             int ry2 = ry+(parent.getWorld().rng().nextInt() % rr);
             Entity tree = Entity.create("Tree");
+            Force f = new Force("move");
+            f.setXAcceleration(1);
+            tree.addForce(f);
             tree.setWorldX(parent.worldCoords()[0]+rx2);
             tree.setWorldY(parent.worldCoords()[1]+ry2);
             parent.getWorld().addEntity(tree);
