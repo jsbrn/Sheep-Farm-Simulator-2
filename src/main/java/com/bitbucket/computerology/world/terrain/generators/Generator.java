@@ -32,9 +32,8 @@ public class Generator {
         for (int w = (-diametre/2); w != (diametre/2); w++) {
             for (int h = (-diametre/2); h != (diametre/2); h++) {
                 if (MiscMath.distanceBetween(w, h, 0, 0) <= (diametre/2)) {
-                    int osc[] = World.getWorld().getOnscreenCoords(wx, wy);
-                    int sc[] = World.getWorld().getSectorCoords(osc[0]+(w*Chunk.onScreenSize()), osc[1]+(h*Chunk.onScreenSize()));
-                    int cc[] = World.getWorld().getChunkCoords(osc[0]+(w*Chunk.onScreenSize()), osc[1]+(h*Chunk.onScreenSize()));
+                    int sc[] = World.getWorld().getSectorCoords(wx+(w*Chunk.sizePixels()), wy+(h*Chunk.sizePixels()));
+                    int cc[] = World.getWorld().getChunkCoords(wx+(w*Chunk.sizePixels()), wy+(h*Chunk.sizePixels()));
                     Sector s = World.getWorld().getSector(sc[0], sc[1]);
                     Chunk c = (s != null) ? s.getChunk(cc[0], cc[1]) : null;
                     if (c != null) c.setTerrain(terrain);

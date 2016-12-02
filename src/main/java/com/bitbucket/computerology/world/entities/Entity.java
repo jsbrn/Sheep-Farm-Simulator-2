@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.entities;
 
+import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.entities.components.Position;
 import java.io.BufferedReader;
@@ -58,6 +59,13 @@ public class Entity {
      */
     public boolean intersects(int x, int y, int w, int h) {
         return true;
+    }
+    
+    public boolean collidesWith(Entity e) {
+        Hitbox h = null;
+        Component c = getComponent("Hitbox");
+        if (c != null) h = ((Hitbox)c);
+        return h == null ? false : h.collidesWith(e);
     }
     
     public boolean isImportant() { return !flows.isEmpty(); }

@@ -61,8 +61,7 @@ public class Sector {
     }
     
     public boolean addEntity(Entity e) {
-        int[] osc = parent.getOnscreenCoords(e.getWorldX(), e.getWorldY());
-        int[] cc = parent.getChunkCoords(osc[0], osc[1]);
+        int[] cc = parent.getChunkCoords(e.getWorldX(), e.getWorldY());
         Chunk c = getChunk(cc[0], cc[1]);
         if (c != null) {
             if (c.addEntity(e)) { entities.add(e); return true; }
@@ -71,8 +70,7 @@ public class Sector {
     }
     
     public boolean removeEntity(Entity e) {
-        int[] osc = parent.getOnscreenCoords(e.getWorldX(), e.getWorldY());
-        int[] cc = parent.getChunkCoords(osc[0], osc[1]);
+        int[] cc = parent.getChunkCoords(e.getWorldX(), e.getWorldY());
         Chunk c = getChunk(cc[0], cc[1]);
         if (c != null) {
             if (c.removeEntity(e)) { entities.remove(e); return true; }

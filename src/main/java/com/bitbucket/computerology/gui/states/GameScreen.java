@@ -145,10 +145,8 @@ public class GameScreen extends BasicGameState {
             g.drawString("Camera: "+Camera.getX()+", "+Camera.getY(), 5, 72);
             
             int wc[] = World.getWorld().getWorldCoords(x, y);
-            int msc[] = World.getWorld().getSectorCoords(x, y);
-            g.drawString("World coords: "+wc[0]+", "+wc[1]+" -> Sector coords: "+msc[0]+", "+msc[1], 5, 62);
             
-            int[] sc = World.getWorld().getChunkCoords(x, y);
+            int[] sc = World.getWorld().getChunkCoords(wc[0], wc[1]);
             g.drawString("Chunk coords: "+sc[0]+", "+sc[1], 5, 102);
 
             g.drawString("Sectors: (below)", 5, 112);

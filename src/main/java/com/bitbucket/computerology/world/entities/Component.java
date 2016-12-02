@@ -44,7 +44,7 @@ public class Component {
     
     /**
      * Parses the values in the given string arrays, assigning each to
-     * an appropriate variable. Can be overridden.
+     * an appropriate variable. Can be overridden to initialize other things.
      */
     public void initParams(ArrayList<String> p) {}
     
@@ -61,11 +61,17 @@ public class Component {
         c.parent = this.parent;
     }
     
+    /**
+     * save() is final, all components saved must call it exactly.
+     * But save() calls customSave(), so you have the opportunity to 
+     * have custom values saved per component.
+     * @param bw 
+     */
     public void customSave(BufferedWriter bw) {}
     
     public final void save(BufferedWriter bw) {
         try {
-            bw.write("c - "+id+"\n");
+            bw.write("c\n");
             bw.write("id="+id+"\n");
             customSave(bw);
             bw.write("/c\n");

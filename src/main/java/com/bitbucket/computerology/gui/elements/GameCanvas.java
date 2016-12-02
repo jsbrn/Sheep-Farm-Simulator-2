@@ -63,8 +63,8 @@ public class GameCanvas extends GUIElement {
         if (c == 'z') Camera.zoom(1);
         
         if (!(c == 'x' && GameScreen.DEBUG_MODE)) return;
-        int wc[] = World.getWorld().getWorldCoords(last_x, last_y);
-        Entity e = Entity.create("Sheep");
+        int wc[] = World.getWorld().getWorldCoords((int)last_x, (int)last_y);
+        Entity e = Entity.create("Tree");
         e.setWorldX(wc[0]);
         e.setWorldY(wc[1]);
         World.getWorld().addEntity(e);

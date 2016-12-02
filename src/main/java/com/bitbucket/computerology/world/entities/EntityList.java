@@ -49,8 +49,8 @@ public class EntityList {
                 if (line.equals("c")) {
                     Component c = loadComponent(br);
                     if (c != null) {
-                        c.init();
                         e.addComponent(c);
+                        c.init();
                     }
                 }
                 if (line.equals("s")) {
