@@ -6,11 +6,11 @@ import com.bitbucket.computerology.world.entities.Entity;
 import java.util.ArrayList;
 
 public class Hitbox extends Component {
+    
     boolean collides;
     int width, height;
     
     public void createHitboxes() {
-        System.out.println("parent = "+getParent());
         Component c = getParent().getComponent("Texture");
         if (c == null) return;
         Texture t = ((Texture)c);
