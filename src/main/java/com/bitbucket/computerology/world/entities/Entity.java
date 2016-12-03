@@ -58,11 +58,11 @@ public class Entity {
      * Checks if the entity intersects the world coordinates and the specified dimensions.
      * @return A boolean. Returns true always, for now. Needs to be implemented.
      */
-    public boolean intersects(int x, int y, int w, int h) {
+    public final boolean intersects(int x, int y, int w, int h) {
         return true;
     }
     
-    public boolean collidesWith(Entity e) {
+    public final boolean collidesWith(Entity e) {
         Hitbox h = null;
         Component c = getComponent("Hitbox");
         if (c != null) h = ((Hitbox)c);
@@ -71,7 +71,7 @@ public class Entity {
     
     public boolean isImportant() { return !flows.isEmpty(); }
     
-    public void save(BufferedWriter bw) {
+    public final void save(BufferedWriter bw) {
         try {
             bw.write("e\n");
             bw.write("t="+type+"\n");
@@ -112,7 +112,7 @@ public class Entity {
         return false;
     }
     
-    public int getWorldX() {
+    public final int getWorldX() {
         Component p = getComponent("Position");
         if (p != null) {
             return ((Position)p).getWorldX();
@@ -120,7 +120,7 @@ public class Entity {
         return 0;
     }
     
-    public int getWorldY() {
+    public final int getWorldY() {
         Component p = getComponent("Position");
         if (p != null) {
             return ((Position)p).getWorldY();
@@ -128,56 +128,56 @@ public class Entity {
         return 0;
     }
     
-    public void setWorldX(int w_x) {
+    public final void setWorldX(int w_x) {
         Component c = getComponent("Position");
         if (c == null) return;
         Position p = ((Position)c);
         p.setWorldX(w_x);
     }
     
-    public void setWorldY(int w_y) {
+    public final void setWorldY(int w_y) {
         Component c = getComponent("Position");
         if (c == null) return;
         Position p = ((Position)c);
         p.setWorldY(w_y);
     }
     
-    public Force getForce(String name) {
+    public final Force getForce(String name) {
         Component c = getComponent("Forces");
         Forces f = c != null ? ((Forces)c) : null;
         if (f == null) return null;
         return f.getForce(name);
     }
     
-    public void addForce(Force f) {
+    public final void addForce(Force f) {
         Component c = getComponent("Forces");
         Forces fs = c != null ? ((Forces)c) : null;
         if (fs == null) return;
         fs.addForce(f);
     }
     
-    public void removeForce(String f) {
+    public final void removeForce(String f) {
         Component c = getComponent("Forces");
         Forces fs = c != null ? ((Forces)c) : null;
         if (fs == null) return;
         fs.removeForce(f);
     }
     
-    public String getType() { return type; }
-    public String getName() { return name; }
-    public void setName(String n) { name = n; }
+    public final String getType() { return type; }
+    public final String getName() { return name; }
+    public final void setName(String n) { name = n; }
     
-    public void update() {
+    public final void update() {
         for (ComponentSystem s: systems) s.update();
     }
     
-    public void draw(Graphics g) {
+    public final void draw(Graphics g) {
         for (ComponentSystem s: systems) s.draw(g);
     }
     
-    public void addComponent(Component c) {components.remove(c);components.add(c);c.setParent(this);}
-    public void removeComponent(Component c) {if (!components.contains(c) && c != null) components.remove(c);}
-    public Component getComponent(String s) {
+    public final void addComponent(Component c) {components.remove(c);components.add(c);c.setParent(this);}
+    public final void removeComponent(Component c) {if (!components.contains(c) && c != null) components.remove(c);}
+    public final Component getComponent(String s) {
         for (Component c: components) {
             if (c.getID().equals(s)) {
                 return c;
@@ -186,9 +186,9 @@ public class Entity {
         return null;
     }
     
-    public void addSystem(ComponentSystem c) {if (!systems.contains(c)) {systems.add(c);c.setParent(this);}}
-    public void removeSystem(ComponentSystem c) {if (!systems.contains(c)) systems.remove(c);}
-    public ComponentSystem getSystem(String s) {
+    public final void addSystem(ComponentSystem c) {if (!systems.contains(c)) {systems.add(c);c.setParent(this);}}
+    public final void removeSystem(ComponentSystem c) {if (!systems.contains(c)) systems.remove(c);}
+    public final ComponentSystem getSystem(String s) {
         for (ComponentSystem c: systems) {
             if (c.getID().equals(s)) {
                 return c;
@@ -197,9 +197,9 @@ public class Entity {
         return null;
     }
     
-    public void addFlow(Flow f) {if (!flows.contains(f)) {flows.add(f);f.setParent(this);}}
-    public void removeFlow(Flow f) {if (!flows.contains(f)) flows.remove(f);}
-    public Flow getFlow(String s) {
+    public final void addFlow(Flow f) {if (!flows.contains(f)) {flows.add(f);f.setParent(this);}}
+    public final void removeFlow(Flow f) {if (!flows.contains(f)) flows.remove(f);}
+    public final Flow getFlow(String s) {
         for (Flow f: flows) {
             if (f.getID().equals(s)) {
                 return f;
@@ -208,7 +208,7 @@ public class Entity {
         return null;
     }
     
-    public void copyTo(Entity e) {
+    public final void copyTo(Entity e) {
         e.type = this.type;
         e.name = this.name;
         e.components.clear();
@@ -239,7 +239,7 @@ public class Entity {
      * @return -1 if the sector is to the "left" of the given coordinates,
      * and 1 if it is to the "right". 0 if neither.
      */
-    public int compareTo(int x, int y) {
+    public final int compareTo(int x, int y) {
         int tx = this.getWorldX();
         int ty = this.getWorldY();
         if (tx > x) return 1;

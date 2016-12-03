@@ -105,8 +105,9 @@ public class World {
         generateAround(0, 0);
     }
     
-    public void update() {
+    public final void update() {
         for (EventHandler e: event_handlers) { e.update(); }
+        for (Entity e: entities) e.update();
         time+=MiscMath.get24HourConstant(1, 1);
     }
     
@@ -410,9 +411,9 @@ public class World {
     
     public int[] getSectorCoords(int world_x, int world_y) {
         int s_size = Sector.sizePixels();
-        double x = world_x/s_size; x = x >= 0 ? x : x-1;
-        double y = world_y/s_size; y = y >= 0 ? y : y-1;
-        return new int[]{(int)x,(int)y};
+        int x = world_x/s_size; x = world_x >= 0 ? x : x-1;
+        int y = world_y/s_size; y = world_y >= 0 ? y : y-1;
+        return new int[]{x,y};
     }
     
     public int[] getChunkCoords(int world_x, int world_y) {

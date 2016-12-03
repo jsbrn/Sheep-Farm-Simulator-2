@@ -140,20 +140,19 @@ public class GameScreen extends BasicGameState {
         if (DEBUG_MODE) {
             g.setColor(Color.white);
             g.setFont(Assets.getFont(8));
-            g.drawString("Sectors: "+World.getWorld().sectorCount(), 5, 42);
             
-            g.drawString("Camera: "+Camera.getX()+", "+Camera.getY(), 5, 72);
+            g.drawString("Sectors: "+World.getWorld().sectorCount(), 5, 42);
+            g.drawString("Camera: "+Camera.getX()+", "+Camera.getY(), 5, 52);
             
             int wc[] = World.getWorld().getWorldCoords(x, y);
+            int sc[] = World.getWorld().getSectorCoords(wc[0], wc[1]);
+            int cc[] = World.getWorld().getChunkCoords(wc[0], wc[1]);
             
-            int[] sc = World.getWorld().getChunkCoords(wc[0], wc[1]);
-            g.drawString("Chunk coords: "+sc[0]+", "+sc[1], 5, 102);
-
-            g.drawString("Sectors: (below)", 5, 112);
-            for (int i = 0; i != World.getWorld().sectors().size(); i++) {
-                Sector s = World.getWorld().sectors().get(i);
-                g.drawString(s.offsets()[0]+", "+s.offsets()[1], 5, 122+(i*10));
-            }
+            g.drawString("Mouse", 5, 72);
+            g.drawString("  - Onscreen: "+x+", "+y, 5, 82);
+            g.drawString("  - World: "+wc[0]+", "+wc[1], 5, 92);
+            g.drawString("  - Sector: "+sc[0]+", "+sc[1], 5, 102);
+            g.drawString("  - Chunk: "+cc[0]+", "+cc[1], 5, 112);
         }
         
     }

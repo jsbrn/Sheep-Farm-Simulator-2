@@ -189,8 +189,8 @@ public class Chunk {
         int src_x = Chunk.onScreenSize()*getTerrain();
         
         int r = (rot*Chunk.onScreenSize());
-        int rx = onScreenCoords()[0]-(onScreenSize()/2);
-        int ry = onScreenCoords()[1]-(onScreenSize()/2);
+        int rx = onScreenCoords()[0];
+        int ry = onScreenCoords()[1];
         
         if (corners) {
             int draw[] = {-1, -1, -1, -1};

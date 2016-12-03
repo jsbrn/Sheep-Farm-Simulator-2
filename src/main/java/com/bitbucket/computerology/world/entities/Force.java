@@ -1,5 +1,7 @@
 package com.bitbucket.computerology.world.entities;
 
+import com.bitbucket.computerology.misc.MiscMath;
+
 public class Force {
     
     String id;
@@ -45,6 +47,9 @@ public class Force {
                 || (o_dx <= 0 && dx >= 0)) acc_x = false;
         if ((o_dy >= 0 && dy <= 0)
                 || (o_dy <= 0 && dy >= 0)) acc_y = false;
+        if (!stop_at_0) { acc_x = true; acc_y = true; }
+        if (acc_x) dx += MiscMath.getConstant(ax, 1);
+        if (acc_y) dy += MiscMath.getConstant(ay, 1);
         
     }
     
