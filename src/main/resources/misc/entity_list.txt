@@ -1,17 +1,22 @@
 e
 id=Tree
-t=
-c=true
 c
 id=Position
+
 
 /c
 c
 id=Texture
 texture=tree.png
+
 /c
 c
 id=Hitbox
+
+
+/c
+c
+id=Forces
 
 /c
 s

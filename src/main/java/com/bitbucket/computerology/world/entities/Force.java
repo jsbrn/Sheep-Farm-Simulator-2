@@ -7,7 +7,7 @@ public class Force {
     String id;
     //original velocities
     double o_dx, o_dy;
-    //dx, dy velocities; ax, ay multipliers
+    //dx, dy velocities; ax, ay accelerations
     double dx, dy, ax, ay;
     
     boolean stop_at_0 = false;
@@ -15,7 +15,7 @@ public class Force {
     public Force(String id) {
         this.id = id;
         this.dx = 0; this.dy = 0;
-        this.ax = 1; this.ay = 1;
+        this.ax = 0; this.ay = 0;
         this.o_dx = dx; this.o_dy = dy;
     }
     

@@ -399,8 +399,8 @@ public class World {
     }
     
     public int[] getWorldCoords(int onscreen_x, int onscreen_y) {
-        return new int[]{(onscreen_x - (Display.getWidth()/2)/Camera.getZoom()) + Camera.getX()
-            , (onscreen_y - (Display.getHeight()/2)/Camera.getZoom()) + Camera.getY()};
+        return new int[]{((onscreen_x - (Display.getWidth()/2))/Camera.getZoom()) + Camera.getX()
+            , ((onscreen_y - (Display.getHeight()/2))/Camera.getZoom()) + Camera.getY()};
     }
     
     public int[] getOnscreenCoords(int world_x, int world_y) {

@@ -28,9 +28,8 @@ public class Movement extends ComponentSystem {
         Position p = c == null ? null : ((Position)c);
         
         if (p == null) return;
-        p.setWorldX((int)(p.getWorldX()+MiscMath.getConstant(dx, 1)));
-        p.setWorldY((int)(p.getWorldY()+MiscMath.getConstant(dy, 1)));
-        
+        p.addWorldX(MiscMath.getConstant(dx, 1));
+        p.addWorldY(MiscMath.getConstant(dy, 1));
     }
     
 }

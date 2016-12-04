@@ -1,6 +1,7 @@
 package com.bitbucket.computerology.world.entities;
 
 import com.bitbucket.computerology.misc.MiscString;
+import com.bitbucket.computerology.world.entities.components.Forces;
 import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.entities.components.Position;
 import com.bitbucket.computerology.world.entities.components.Texture;
@@ -28,6 +29,7 @@ public class Component {
         if ("Texture".equals(s)) c = new Texture();
         if ("Position".equals(s)) c = new Position();
         if ("Hitbox".equals(s)) c = new Hitbox();
+        if ("Forces".equals(s)) c = new Forces();
         if (c != null) { 
             c.setID(s); 
         } else { System.err.println("Failed to create component "+s+"!"); }
@@ -69,9 +71,16 @@ public class Component {
      */
     public void customSave(BufferedWriter bw) {}
     
+    /**
+     * Just like save(), load() is final. It calls customLoad and passes the current line
+     * as a parametre. Custom load can be overridden per component.
+     * @param line The line to interpret.
+     */
+    public void customLoad(String line) {}
+    
     public final void save(BufferedWriter bw) {
         try {
-            bw.write("c\n");
+            bw.write("c - "+id+"\n");
             bw.write("id="+id+"\n");
             customSave(bw);
             bw.write("/c\n");
@@ -79,7 +88,20 @@ public class Component {
             Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public boolean customLoad(BufferedReader br) { return true; }
+
+    public final boolean load(BufferedReader br) { 
+        try {
+            while (true) {
+                String line = br.readLine();
+                if (line == null) break;
+                line = line.trim();
+                if (line.equals("/c")) return true;
+                customLoad(line);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Position.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false; 
+    }
     
 }

@@ -38,7 +38,7 @@ public class Entity {
         }
         clone.copyTo(e);
         e.type = type;
-        e.id = Math.abs(new Random().nextInt() % 10000000);
+        e.id = Math.abs(new Random().nextInt() % 1000000)+1000;
         return e;
     }
     
@@ -53,14 +53,6 @@ public class Entity {
     
     public static int maxSizeChunks() { return 16; }
     public static int maxSizePixels() { return maxSizeChunks()*Chunk.sizePixels(); }
-    
-    /**
-     * Checks if the entity intersects the world coordinates and the specified dimensions.
-     * @return A boolean. Returns true always, for now. Needs to be implemented.
-     */
-    public final boolean intersects(int x, int y, int w, int h) {
-        return true;
-    }
     
     public final boolean collidesWith(Entity e) {
         Hitbox h = null;
@@ -89,7 +81,7 @@ public class Entity {
             while (true) {
                 String line = br.readLine();
                 if (line == null) break;
-                line = line.replace("", "").trim();
+                line = line.trim();
                 if (line.equals("/e")) return true;
                 if (line.indexOf("t=") == 0) {
                     Entity copy = Entity.create(line.replace("t=", "").trim());
@@ -102,7 +94,7 @@ public class Entity {
                     //calls the custom load on it
                     Component c = this.getComponent(line.replace("c - ", "").trim());
                     if (c != null) {
-                        c.customLoad(br);
+                        if (c.load(br) == false) return false;
                     }
                 }
             }
@@ -115,7 +107,7 @@ public class Entity {
     public final int getWorldX() {
         Component p = getComponent("Position");
         if (p != null) {
-            return ((Position)p).getWorldX();
+            return (int)((Position)p).getWorldX();
         }
         return 0;
     }
@@ -123,7 +115,7 @@ public class Entity {
     public final int getWorldY() {
         Component p = getComponent("Position");
         if (p != null) {
-            return ((Position)p).getWorldY();
+            return (int)((Position)p).getWorldY();
         }
         return 0;
     }
@@ -140,6 +132,20 @@ public class Entity {
         if (c == null) return;
         Position p = ((Position)c);
         p.setWorldY(w_y);
+    }
+    
+    public final void addWorldX(double w_x) {
+        Component c = getComponent("Position");
+        if (c == null) return;
+        Position p = ((Position)c);
+        p.addWorldX(w_x);
+    }
+    
+    public final void addWorldY(double w_y) {
+        Component c = getComponent("Position");
+        if (c == null) return;
+        Position p = ((Position)c);
+        p.addWorldY(w_y);
     }
     
     public final Force getForce(String name) {

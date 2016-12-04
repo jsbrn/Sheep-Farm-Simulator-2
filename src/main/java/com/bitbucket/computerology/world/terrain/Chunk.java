@@ -208,7 +208,7 @@ public class Chunk {
                 if (adj[6].getTerrain() == adj[3].getTerrain()) draw[3] = adj[6].getTerrain(); 
             }
             for (int i = 0; i < 4; i++) {
-                if (draw[i] > -1 && draw[i] < Chunk.BIOME_COUNT) {
+                if (draw[i] > -1 && draw[i] < Chunk.BIOME_COUNT && draw[i] != getTerrain()) {
                     src_x = Chunk.onScreenSize()*draw[i];
                     r = (i*Chunk.onScreenSize());
                     img.drawEmbedded(rx,ry,rx+Chunk.onScreenSize(),ry+Chunk.onScreenSize(),
