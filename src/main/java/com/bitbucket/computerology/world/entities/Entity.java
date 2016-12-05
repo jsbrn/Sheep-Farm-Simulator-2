@@ -4,6 +4,7 @@ import com.bitbucket.computerology.world.entities.components.Forces;
 import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.entities.components.Position;
+import com.bitbucket.computerology.world.entities.components.Texture;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -49,6 +50,15 @@ public class Entity {
         this.name = "";
         this.type = "";
         this.id = -1;
+    }
+    
+    /**
+     * Overrides Object.toString.
+     * @return Returns a string of the following format: type+(#id)
+     */
+    @Override
+    public String toString() {
+        return type+" (#"+id+")";
     }
     
     public static int maxSizeChunks() { return 16; }
@@ -167,6 +177,32 @@ public class Entity {
         Forces fs = c != null ? ((Forces)c) : null;
         if (fs == null) return;
         fs.removeForce(f);
+    }
+    
+    /**
+     * Gets the entity width, currently just the texture's original width.
+     * IN THE FUTURE, IT WILL RETURN THE ACTUAL WIDTH BASED ON ROTATION AND HITBOX.
+     * @return The width, or 0 if no width.
+     */
+    public final int getWidth() {
+        Component tc = getComponent("Texture");
+        if (tc == null) return 0;
+        Texture t = (Texture)tc;
+        if (t.getTexture() == null) return 0;
+        return t.getTexture().getWidth();
+    }
+    
+    /**
+     * Gets the entity height, currently just the texture's original height.
+     * IN THE FUTURE, IT WILL RETURN THE ACTUAL WIDTH BASED ON ROTATION AND HITBOX.
+     * @return The height, or 0 if no height.
+     */
+    public final int getHeight() {
+        Component tc = getComponent("Texture");
+        if (tc == null) return 0;
+        Texture t = (Texture)tc;
+        if (t.getTexture() == null) return 0;
+        return t.getTexture().getWidth();
     }
     
     public final String getType() { return type; }

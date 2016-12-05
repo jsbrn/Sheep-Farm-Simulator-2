@@ -13,6 +13,8 @@ import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.terrain.Sector;
 import com.bitbucket.computerology.world.World;
+import com.bitbucket.computerology.world.entities.Entity;
+import com.bitbucket.computerology.world.terrain.Chunk;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
@@ -148,11 +150,49 @@ public class GameScreen extends BasicGameState {
             int sc[] = World.getWorld().getSectorCoords(wc[0], wc[1]);
             int cc[] = World.getWorld().getChunkCoords(wc[0], wc[1]);
             
+            Sector s = World.getWorld().getSector(sc[0], sc[1]);
+            if (s == null) return;
+            Chunk c = s.getChunk(cc[0], cc[1]);
             g.drawString("Mouse", 5, 72);
             g.drawString("  - Onscreen: "+x+", "+y, 5, 82);
             g.drawString("  - World: "+wc[0]+", "+wc[1], 5, 92);
-            g.drawString("  - Sector: "+sc[0]+", "+sc[1], 5, 102);
-            g.drawString("  - Chunk: "+cc[0]+", "+cc[1], 5, 112);
+            g.drawString("  - Sector: "+sc[0]+", "+sc[1]+" (b: "+s.getBiome()+")", 5, 102);
+            g.drawString("  - Chunk: "+cc[0]+", "+cc[1]+" (t: "+(c != null ? c.getTerrain() : "null")+")", 5, 112);
+            
+            g.setColor(Color.blue);
+            g.drawRect(x-100, y-100, 200, 200);
+            for (Chunk ch: World.getWorld().getChunks(wc[0]-100, wc[1]-100, 200, 200)) {
+                g.setColor(new Color(0, 0, 0, 125));
+                g.fillRect(ch.onScreenCoords()[0], ch.onScreenCoords()[1], Chunk.onScreenSize(), Chunk.onScreenSize());
+            }
+            
+            if (c != null) {
+                g.drawString("Entities in chunk: ", x+20, y);
+                int i = 0;
+                for (Entity e: c.entities) {
+                    g.drawString("  - "+e.toString(), x+20, y+10+(i*10));
+                    i++;
+                }
+                
+                for (int k = -50; k < 50; k++) {
+                    for (int j = -50; j < 50; j++) {
+                        g.setColor(Color.black);
+                        g.drawLine(c.onScreenCoords()[0]+(k*Chunk.onScreenSize()), 0, 
+                                c.onScreenCoords()[0]+(k*Chunk.onScreenSize()), Display.getHeight());
+                        g.drawLine(0, c.onScreenCoords()[1]+(j*Chunk.onScreenSize()), 
+                                Display.getWidth(), c.onScreenCoords()[1]+(j*Chunk.onScreenSize()));
+                    }
+                }
+                
+                g.setColor(Color.red);
+                g.drawRect(s.onScreenCoords()[0], s.onScreenCoords()[1], 
+                        Sector.onScreenSize(), Sector.onScreenSize());
+                
+            } else {
+                System.out.println("Chunk at "+cc[0]+", "+cc[1]+" is null!");
+            }
+            
+            
         }
         
     }

@@ -1,7 +1,7 @@
 package com.bitbucket.computerology.world.entities.components;
 
+import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Component;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -32,16 +32,28 @@ public class Position extends Component {
         if (line.indexOf("r=") == 0) rotation = Integer.parseInt(line.replace("r=", ""));
     }
 
-    public void setWorldX(int x) { this.x = x; }
-    public void setWorldY(int y) { this.y = y; }
-    public void addWorldX(double x) { this.x += x; }
-    public void addWorldY(double y) { this.y += y; }
+    public void setWorldX(double x) {
+        //World.getWorld().removeEntity(getParent());
+        this.x = x; 
+        //World.getWorld().addEntity(getParent());
+    }
+    public void setWorldY(double y) { 
+        //World.getWorld().removeEntity(getParent());
+        this.y = y; 
+        //World.getWorld().addEntity(getParent());
+    }
+    public void addWorldX(double x) { 
+        this.setWorldX(getWorldX()+x);
+    }
+    public void addWorldY(double y) { 
+        this.setWorldY(getWorldY()+y);
+    }
+    public void setRotation(int r) { 
+        this.rotation = r % 360;
+    }
     
-    
-    public void setRotation(int r) { this.rotation = r % 360; }
-    
-    public int getWorldX() { return (int)x; }
-    public int getWorldY() { return (int)y; }
+    public double getWorldX() { return x; }
+    public double getWorldY() { return y; }
     public int getRotation() { return (int)rotation % 360; }
     
 }

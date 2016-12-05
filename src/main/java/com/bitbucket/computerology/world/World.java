@@ -76,27 +76,73 @@ public class World {
         return getTown(s);
     }
     
+    /**
+     * Gets all of the chunks intersecting the specified rectangle.
+     * @param x World coordinates.
+     * @param y World coordinates.
+     * @param w Width.
+     * @param h Height.
+     * @return An ArrayList<Chunk>.
+     */
+    public ArrayList<Chunk> getChunks(int x, int y, int w, int h) {
+        ArrayList<Chunk> list = new ArrayList<Chunk>();
+        for (int i = 0; i < (w/Chunk.sizePixels())+1; i++) {
+            for (int j = 0; j < (h/Chunk.sizePixels())+1; j++) {
+                int sc[] = getSectorCoords(x+(i*Chunk.sizePixels()), y+(j*Chunk.sizePixels()));
+                int cc[] = getChunkCoords(x+(i*Chunk.sizePixels()), y+(j*Chunk.sizePixels()));
+                Sector s = getSector(sc[0], sc[1]);
+                Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
+                if (c != null) list.add(c);
+            }
+        }
+        return list;
+    }
+    
     public boolean addEntity(Entity e) {
-        int sc[] = getSectorCoords(e.getWorldX(), e.getWorldY());
-        Sector s = getSector(sc[0], sc[1]);
-        if (s != null) {
-            if (s.addEntity(e)) { entities.add(e); return true; }
+        if (e == null) return false;
+        boolean b[] = {false,false,false,false};
+        int i = 0;
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                int sc[] = getSectorCoords(
+                        e.getWorldX() - e.getWidth()/2 + (x*e.getWidth()), 
+                        e.getWorldY() - e.getHeight()/2 + (y*e.getHeight()));
+                Sector s = getSector(sc[0], sc[1]);
+                if (s != null) b[i] = s.addEntity(e); else b[i] = false;
+                i++;
+            }
+        }
+
+        if (b[0] || b[1] || b[2] || b[3]) {
+            if (!entities.contains(e)) {
+                entities.add(e);
+                return true;
+            }
         }
         return false;
     }
     
     public boolean removeEntity(Entity e) {
-        int sc[] = getSectorCoords(e.getWorldX(), e.getWorldY());
-        Sector s = getSector(sc[0], sc[1]);
-        if (s != null) {
-            if (s.removeEntity(e)) { entities.remove(e); return true; }
+        if (e == null) return false;
+        boolean b[] = {false,false,false,false};
+        int i = 0;
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 2; y++) {
+                int sc[] = getSectorCoords(
+                        e.getWorldX() - e.getWidth()/2 + (x*e.getWidth()), 
+                        e.getWorldY() - e.getHeight()/2 + (y*e.getHeight()));
+                Sector s = getSector(sc[0], sc[1]);
+                if (s != null) b[i] = s.removeEntity(e); else b[i] = false;
+                i++;
+            }
+        }
+
+        if (b[0] || b[1] || b[2] || b[3]) {
+            entities.remove(e);
+            return true;
         }
         return false;
     }
-    
-    //public ArrayList<Entity> getEntities(int w_x, int w_y, int w, int h) {
-        
-    //}
     
     /**
      * Generates in a radius around (0,0).
@@ -107,7 +153,10 @@ public class World {
     
     public final void update() {
         for (EventHandler e: event_handlers) { e.update(); }
-        for (Entity e: entities) e.update();
+        for (int i = 0; i < entities.size(); i++) {
+            if (i >= entities.size() || i < 0) break;
+            entities.get(i).update();
+        }
         time+=MiscMath.get24HourConstant(1, 1);
     }
     
@@ -133,6 +182,15 @@ public class World {
         return s;
     }
     
+    /**
+     * Gets the sector at sector coords (x, y). Uses a binary search algorithm.
+     * @param x Sector coordinate.
+     * @param y Sector coordinate.
+     * @param l The lower bound of the list to search (start with 0).
+     * @param u The upper bound of the list to search (start with list.size - 1).
+     * @param list The list to search.
+     * @return A Sector instance, or null if none found at (x, y).
+     */
     private Sector getSector(int x, int y, int l, int u, ArrayList<Sector> list) {
         
         if (list.isEmpty()) return null;
@@ -234,8 +292,8 @@ public class World {
         int x, y, w = Display.getWidth() + (2*Chunk.onScreenSize()),
                 h = Display.getHeight() + (2*Chunk.onScreenSize());
         Assets.getTerrainSprite(corners).startUse();
-        for (x = -Chunk.onScreenSize(); x < w; x+=Chunk.onScreenSize()) {
-            for (y = -Chunk.onScreenSize(); y < h; y+=Chunk.onScreenSize()) {
+        for (x = 0; x < w; x+=Chunk.onScreenSize()/2) {
+            for (y = 0; y < h; y+=Chunk.onScreenSize()/2) {
                 int wc[] = getWorldCoords(x, y);
                 int sc[] = getSectorCoords(wc[0], wc[1]);
                 int cc[] = getChunkCoords(wc[0], wc[1]);
@@ -399,29 +457,27 @@ public class World {
     }
     
     public int[] getWorldCoords(int onscreen_x, int onscreen_y) {
-        return new int[]{((onscreen_x - (Display.getWidth()/2))/Camera.getZoom()) + Camera.getX()
-            , ((onscreen_y - (Display.getHeight()/2))/Camera.getZoom()) + Camera.getY()};
+        return new int[]{((onscreen_x - (Display.getWidth()/2))/Camera.getZoom()) + Camera.getX(),
+            ((onscreen_y - (Display.getHeight()/2))/Camera.getZoom()) + Camera.getY()};
     }
     
-    public int[] getOnscreenCoords(int world_x, int world_y) {
-        return new int[]{((world_x-Camera.getX())*Camera.getZoom())+(Display.getWidth()/2), 
-            ((world_y-Camera.getY())*Camera.getZoom())+(Display.getHeight()/2)
-        };
+    public int[] getOnscreenCoords(double world_x, double world_y) {
+        return new int[]{(int)((world_x-Camera.getX())*Camera.getZoom())+(Display.getWidth()/2), 
+            (int)((world_y-Camera.getY())*Camera.getZoom())+(Display.getHeight()/2)};
     }
     
-    public int[] getSectorCoords(int world_x, int world_y) {
-        int s_size = Sector.sizePixels();
-        int x = world_x/s_size; x = world_x >= 0 ? x : x-1;
-        int y = world_y/s_size; y = world_y >= 0 ? y : y-1;
-        return new int[]{x,y};
+    public int[] getSectorCoords(double world_x, double world_y) {
+        return new int[]{(int)Math.floor(world_x/Sector.sizePixels()),
+            (int)Math.floor(world_y/Sector.sizePixels())};
     }
     
-    public int[] getChunkCoords(int world_x, int world_y) {
-        int[] sector_coords = getSectorCoords(world_x, world_y);
-        sector_coords[0]*=Sector.sizePixels(); sector_coords[1]*=Sector.sizePixels();
-        int[] chunk_coords = new int[]{world_x-sector_coords[0], world_y-sector_coords[1]};
-        chunk_coords[0] /= Chunk.sizePixels(); chunk_coords[1] /= Chunk.sizePixels();
-        return chunk_coords;
+    public int[] getChunkCoords(double world_x, double world_y) {
+        int[] cc = new int[]{(int)Math.floor(world_x/Chunk.sizePixels()),
+            (int)Math.floor(world_y/Chunk.sizePixels())};
+        cc[0] %= Sector.sizeChunks(); cc[1] %= Sector.sizeChunks();
+        cc[0] = cc[0] >= 0 ? cc[0] : Sector.sizeChunks() + cc[0];
+        cc[1] = cc[1] >= 0 ? cc[1] : Sector.sizeChunks() + cc[1];
+        return cc;
     }
     
 }

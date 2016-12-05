@@ -1,6 +1,7 @@
 package com.bitbucket.computerology.world.terrain;
 
 import com.bitbucket.computerology.misc.Assets;
+import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
@@ -37,7 +38,8 @@ public class Chunk {
     public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
     
     public boolean addEntity(Entity e) {
-        return entities.add(e);
+        if (!entities.contains(e)) return entities.add(e);
+        return false;
     }
     
     public boolean removeEntity(Entity e) {

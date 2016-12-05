@@ -61,21 +61,35 @@ public class Sector {
     }
     
     public boolean addEntity(Entity e) {
-        int[] cc = parent.getChunkCoords(e.getWorldX(), e.getWorldY());
-        Chunk c = getChunk(cc[0], cc[1]);
-        if (c != null) {
-            if (c.addEntity(e)) { entities.add(e); return true; }
+        boolean success = true;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                int sc[] = parent.getChunkCoords(
+                        e.getWorldX() - e.getWidth()/2 + (i*e.getWidth()), 
+                        e.getWorldY() - e.getHeight()/2 + (j*e.getHeight()));
+                Chunk s = getChunk(sc[0], sc[1]);
+                if (s != null) s.addEntity(e);
+                i++;
+            }
         }
-        return false;
+        entities.add(e);
+        return success;
     }
     
     public boolean removeEntity(Entity e) {
-        int[] cc = parent.getChunkCoords(e.getWorldX(), e.getWorldY());
-        Chunk c = getChunk(cc[0], cc[1]);
-        if (c != null) {
-            if (c.removeEntity(e)) { entities.remove(e); return true; }
+        boolean success = true;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                int sc[] = parent.getChunkCoords(
+                        e.getWorldX() - e.getWidth()/2 + (i*e.getWidth()), 
+                        e.getWorldY() - e.getHeight()/2 + (j*e.getHeight()));
+                Chunk s = getChunk(sc[0], sc[1]);
+                if (s != null) s.removeEntity(e);
+                i++;
+            }
         }
-        return false;
+        entities.remove(e);
+        return success;
     }
     
     public boolean isTownSector() { return town_sector; }

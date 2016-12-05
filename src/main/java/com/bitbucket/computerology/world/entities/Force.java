@@ -28,10 +28,18 @@ public class Force {
     
     public String getID() { return id; }
     
+    /**
+     * The velocity in pixels per second.
+     * @return A double[] of size 2.
+     */
     public double[] velocity() {
         return new double[]{dx, dy};
     }
     
+    /**
+     * The acceleration in pixels per second.
+     * @return A double[] of size 2.
+     */
     public double[] acceleration() {
         return new double[]{ax, ay};
     }
