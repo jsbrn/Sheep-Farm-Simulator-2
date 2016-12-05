@@ -18,11 +18,11 @@ public class Sector {
     private int x, y, biome;
     private boolean generated, town_sector;
     
+    ArrayList<Entity> entities;
+    
     private Generator generator;
     
     int chunk_update_index = 0;
-    
-    private ArrayList<Entity> entities;
     
     public Sector(int x, int y, World parent) {
         this.x = x; this.y = y;
@@ -37,8 +37,13 @@ public class Sector {
         }
         this.town_sector = Math.abs(parent.rng().nextInt() % 50) == 0;
         this.entities = new ArrayList<Entity>();
+        this.entities.ensureCapacity(1000);
         this.generator = null;
     }
+    
+    public void addEntity(Entity e) { if (!entities.contains(e)) entities.add(e); }
+    public void removeEntity(Entity e) { entities.remove(e); }
+    public ArrayList<Entity> getEntities() { return entities; }
     
     /**
      * Compares the sector's x and y coordinates (like -2, 5) to the given coordinates,
@@ -58,38 +63,6 @@ public class Sector {
     
     public boolean hasTown() {
         return World.getWorld().getTown(this) != null;
-    }
-    
-    public boolean addEntity(Entity e) {
-        boolean success = true;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                int sc[] = parent.getChunkCoords(
-                        e.getWorldX() - e.getWidth()/2 + (i*e.getWidth()), 
-                        e.getWorldY() - e.getHeight()/2 + (j*e.getHeight()));
-                Chunk s = getChunk(sc[0], sc[1]);
-                if (s != null) s.addEntity(e);
-                i++;
-            }
-        }
-        entities.add(e);
-        return success;
-    }
-    
-    public boolean removeEntity(Entity e) {
-        boolean success = true;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                int sc[] = parent.getChunkCoords(
-                        e.getWorldX() - e.getWidth()/2 + (i*e.getWidth()), 
-                        e.getWorldY() - e.getHeight()/2 + (j*e.getHeight()));
-                Chunk s = getChunk(sc[0], sc[1]);
-                if (s != null) s.removeEntity(e);
-                i++;
-            }
-        }
-        entities.remove(e);
-        return success;
     }
     
     public boolean isTownSector() { return town_sector; }

@@ -46,6 +46,8 @@ public class Chunk {
         return entities.remove(e);
     }
     
+    public ArrayList<Entity> getEntities() { return entities; }
+    
     /**
      * Returns a Chunk array of size 8. Traverses horizontally first, then vertically.
      * That is: <br><br>
@@ -135,6 +137,11 @@ public class Chunk {
             
         }
         return b;
+    }
+    
+    public boolean intersects(int x, int y, int w, int h) {
+        return MiscMath.rectanglesIntersect(worldCoords()[0], 
+                worldCoords()[1], Chunk.sizePixels(), Chunk.sizePixels(), x, y, w, h);
     }
     
     public boolean isOrphan(boolean stay_in_sector) {

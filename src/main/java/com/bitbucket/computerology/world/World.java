@@ -34,7 +34,7 @@ public class World {
     private ArrayList<EventHandler> event_handlers;
     private double time;
     
-    private ArrayList<Entity> entities;
+    private ArrayList<Entity> active_entities, moving_entities, render_entities;
     private ArrayList<Town> towns;
     
     private World(int seed) {
@@ -50,11 +50,17 @@ public class World {
     private void init() {
         this.rng = new Random(seed);
         this.sectors = new ArrayList<Sector>();
+        this.sectors.ensureCapacity(5000); //preallocate array to 5000 sectors
         this.player = new Player();
         this.time = 0;
         this.event_handlers = new ArrayList<EventHandler>();
         this.event_handlers.add(new EventHandler());
-        this.entities = new ArrayList<Entity>();
+        this.active_entities = new ArrayList<Entity>();
+        this.active_entities.ensureCapacity(1000);
+        this.moving_entities = new ArrayList<Entity>();
+        this.moving_entities.ensureCapacity(1000);
+        this.render_entities = new ArrayList<Entity>();
+        this.render_entities.ensureCapacity(1000);
         this.towns = new ArrayList<Town>();
     }
     
@@ -86,62 +92,76 @@ public class World {
      */
     public ArrayList<Chunk> getChunks(int x, int y, int w, int h) {
         ArrayList<Chunk> list = new ArrayList<Chunk>();
-        for (int i = 0; i < (w/Chunk.sizePixels())+1; i++) {
-            for (int j = 0; j < (h/Chunk.sizePixels())+1; j++) {
-                int sc[] = getSectorCoords(x+(i*Chunk.sizePixels()), y+(j*Chunk.sizePixels()));
-                int cc[] = getChunkCoords(x+(i*Chunk.sizePixels()), y+(j*Chunk.sizePixels()));
+        int max_w = w < Chunk.sizePixels() ? w : w+Chunk.sizePixels();
+        int max_h = h < Chunk.sizePixels() ? h : h+Chunk.sizePixels();
+        int i_inc = w < Chunk.sizePixels() ? w : Chunk.sizePixels();
+        int j_inc = h < Chunk.sizePixels() ? h : Chunk.sizePixels();
+        for (int i = 0; i <= max_w; i+=i_inc) {
+            for (int j = 0; j <= max_h; j+=j_inc) {
+                int sc[] = getSectorCoords(x+i, y+j);
+                int cc[] = getChunkCoords(x+i, y+j);
                 Sector s = getSector(sc[0], sc[1]);
                 Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
-                if (c != null) list.add(c);
+                if (c != null && !list.contains(c)
+                        && c.intersects(x, y, w, h)) list.add(c);
             }
         }
         return list;
     }
     
+    public Entity getEntity(int x, int y) {
+        int sc[] = getSectorCoords(x, y);
+        int cc[] = getChunkCoords(x, y);
+        Sector s = getSector(sc[0], sc[1]);
+        Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
+        if (c != null) {
+            for (int i = c.getEntities().size()-1; i > -1; i--) {
+                if (c.getEntities().get(i).intersects(x, y, 1, 1)) 
+                    return c.getEntities().get(i);
+            }
+        }
+        return null;
+    }
+    
+    public ArrayList<Entity> getEntities(int x, int y, int w, int h) {
+        ArrayList<Entity> list = new ArrayList<Entity>();
+        for (Chunk c: getChunks(x, y, w, h))
+            for (Entity e: c.getEntities())
+                if (!list.contains(e)
+                        && e.intersects(x, y, w, h)) list.add(e);
+        return list;
+    }
+    
+    public boolean refreshEntity(Entity e, boolean add) {
+        int sc[] = getSectorCoords(e.getWorldX(), e.getWorldY());
+        Sector s = getSector(sc[0], sc[1]);
+        if (s != null) {if (add) s.addEntity(e); else s.removeEntity(e);}
+        ArrayList<Chunk> chunks = getChunks(e.getWorldX()-e.getWidth()/2,
+                e.getWorldY()-e.getHeight()/2,e.getWidth(), e.getHeight());
+        boolean success = true;
+        for (Chunk c: chunks) {
+            if (add) if (!c.addEntity(e)) success = false;
+            if (!add) c.removeEntity(e);
+        }
+        return success;
+    }
+    
     public boolean addEntity(Entity e) {
         if (e == null) return false;
-        boolean b[] = {false,false,false,false};
-        int i = 0;
-        for (int x = 0; x < 2; x++) {
-            for (int y = 0; y < 2; y++) {
-                int sc[] = getSectorCoords(
-                        e.getWorldX() - e.getWidth()/2 + (x*e.getWidth()), 
-                        e.getWorldY() - e.getHeight()/2 + (y*e.getHeight()));
-                Sector s = getSector(sc[0], sc[1]);
-                if (s != null) b[i] = s.addEntity(e); else b[i] = false;
-                i++;
-            }
-        }
-
-        if (b[0] || b[1] || b[2] || b[3]) {
-            if (!entities.contains(e)) {
-                entities.add(e);
-                return true;
-            }
-        }
-        return false;
+        refreshEntity(e, true);
+        if (e.moves()) moving_entities.add(e);
+        if (e.updates()) active_entities.add(e);
+        if (e.renders()) render_entities.add(e);
+        return e.moves() || e.updates() || e.renders();
     }
     
     public boolean removeEntity(Entity e) {
         if (e == null) return false;
-        boolean b[] = {false,false,false,false};
-        int i = 0;
-        for (int x = 0; x < 2; x++) {
-            for (int y = 0; y < 2; y++) {
-                int sc[] = getSectorCoords(
-                        e.getWorldX() - e.getWidth()/2 + (x*e.getWidth()), 
-                        e.getWorldY() - e.getHeight()/2 + (y*e.getHeight()));
-                Sector s = getSector(sc[0], sc[1]);
-                if (s != null) b[i] = s.removeEntity(e); else b[i] = false;
-                i++;
-            }
-        }
-
-        if (b[0] || b[1] || b[2] || b[3]) {
-            entities.remove(e);
-            return true;
-        }
-        return false;
+        refreshEntity(e, false);
+        if (e.moves()) moving_entities.remove(e);
+        if (e.updates()) active_entities.remove(e);
+        if (e.renders()) render_entities.remove(e);
+        return e.moves() || e.updates() || e.renders();
     }
     
     /**
@@ -153,10 +173,16 @@ public class World {
     
     public final void update() {
         for (EventHandler e: event_handlers) { e.update(); }
-        for (int i = 0; i < entities.size(); i++) {
-            if (i >= entities.size() || i < 0) break;
-            entities.get(i).update();
+        
+        for (int i = 0; i < active_entities.size(); i++) {
+            if (i >= active_entities.size() || i < 0) break;
+            active_entities.get(i).update();
         }
+        for (int i = 0; i < moving_entities.size(); i++) {
+            if (i >= moving_entities.size() || i < 0) break;
+            moving_entities.get(i).move();
+        }
+        
         time+=MiscMath.get24HourConstant(1, 1);
     }
     
@@ -292,8 +318,8 @@ public class World {
         int x, y, w = Display.getWidth() + (2*Chunk.onScreenSize()),
                 h = Display.getHeight() + (2*Chunk.onScreenSize());
         Assets.getTerrainSprite(corners).startUse();
-        for (x = 0; x < w; x+=Chunk.onScreenSize()/2) {
-            for (y = 0; y < h; y+=Chunk.onScreenSize()/2) {
+        for (x = 0; x < w; x+=Chunk.onScreenSize()) {
+            for (y = 0; y < h; y+=Chunk.onScreenSize()) {
                 int wc[] = getWorldCoords(x, y);
                 int sc[] = getSectorCoords(wc[0], wc[1]);
                 int cc[] = getChunkCoords(wc[0], wc[1]);
@@ -311,25 +337,14 @@ public class World {
      */
     void drawEntities(Graphics g) {
         
-        for (Entity e: entities) { 
+        for (Entity e: render_entities) { 
             int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
             if (MiscMath.pointIntersects(osc[0], osc[1], -Entity.maxSizePixels(), -Entity.maxSizePixels(), 
                     Display.getWidth()+Entity.maxSizePixels(), Display.getWidth()+Entity.maxSizePixels())) {
                 e.draw(g);
             }
         }
-        
-        /**ArrayList<List>
-        int x, y, w = Display.getWidth() + Entity.maxSizePixels(), 
-                h = Display.getHeight() + Entity.maxSizePixels();
-        for (x = -Entity.maxSizePixels(); x < w; x+=Chunk.onScreenSize()) {
-            for (y = -Entity.maxSizePixels(); y < h; y+=Chunk.onScreenSize()) {
-                int sc[] = getSectorCoords(x, y);
-                int cc[] = getChunkCoords(x, y);
-                Sector s = getSector(sc[0], sc[1]);
-                
-            }
-        }**/
+
     }
     
     public static void save() {
@@ -350,8 +365,10 @@ public class World {
             bw.write("cy="+(int)Camera.getY()+"\n");
             bw.write("cz="+(int)Camera.getZoom()+"\n");
             world.player.save(bw);
-            for (Sector s: world.sectors) s.save(bw);
-            for (Entity e: world.entities) e.save(bw);
+            for (Sector s: world.sectors) {
+                s.save(bw);
+                for (Entity e: s.getEntities()) e.save(bw);
+            }
             bw.close();
         } catch (IOException ex) {
             Logger.getLogger(World.class.getName()).log(Level.SEVERE, null, ex);

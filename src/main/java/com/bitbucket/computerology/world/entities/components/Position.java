@@ -33,14 +33,14 @@ public class Position extends Component {
     }
 
     public void setWorldX(double x) {
-        //World.getWorld().removeEntity(getParent());
+        World.getWorld().refreshEntity(getParent(), false);
         this.x = x; 
-        //World.getWorld().addEntity(getParent());
+        World.getWorld().refreshEntity(getParent(), true);
     }
     public void setWorldY(double y) { 
-        //World.getWorld().removeEntity(getParent());
+        World.getWorld().refreshEntity(getParent(), false);
         this.y = y; 
-        //World.getWorld().addEntity(getParent());
+        World.getWorld().refreshEntity(getParent(), true);
     }
     public void addWorldX(double x) { 
         this.setWorldX(getWorldX()+x);
@@ -49,7 +49,9 @@ public class Position extends Component {
         this.setWorldY(getWorldY()+y);
     }
     public void setRotation(int r) { 
+        World.getWorld().refreshEntity(getParent(), false);
         this.rotation = r % 360;
+        World.getWorld().refreshEntity(getParent(), true);
     }
     
     public double getWorldX() { return x; }

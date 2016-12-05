@@ -160,8 +160,8 @@ public class GameScreen extends BasicGameState {
             g.drawString("  - Chunk: "+cc[0]+", "+cc[1]+" (t: "+(c != null ? c.getTerrain() : "null")+")", 5, 112);
             
             g.setColor(Color.blue);
-            g.drawRect(x-100, y-100, 200, 200);
-            for (Chunk ch: World.getWorld().getChunks(wc[0]-100, wc[1]-100, 200, 200)) {
+            g.drawRect(x-200, y-200, 200, 200);
+            for (Chunk ch: World.getWorld().getChunks(wc[0]-200, wc[1]-200, 200, 200)) {
                 g.setColor(new Color(0, 0, 0, 125));
                 g.fillRect(ch.onScreenCoords()[0], ch.onScreenCoords()[1], Chunk.onScreenSize(), Chunk.onScreenSize());
             }

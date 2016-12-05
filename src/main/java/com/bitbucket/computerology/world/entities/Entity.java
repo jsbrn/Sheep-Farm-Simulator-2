@@ -64,14 +64,37 @@ public class Entity {
     public static int maxSizeChunks() { return 16; }
     public static int maxSizePixels() { return maxSizeChunks()*Chunk.sizePixels(); }
     
-    public final boolean collidesWith(Entity e) {
+    public final boolean intersects(Entity e) {
         Hitbox h = null;
         Component c = getComponent("Hitbox");
         if (c != null) h = ((Hitbox)c);
-        return h == null ? false : h.collidesWith(e);
+        return h == null ? false : h.intersects(e);
     }
     
-    public boolean isImportant() { return !flows.isEmpty(); }
+    public final boolean intersects(int x, int y, int width, int height) {
+        Hitbox h = null;
+        Component c = getComponent("Hitbox");
+        if (c != null) h = ((Hitbox)c);
+        return h == null ? false : h.intersects(x, y, width, height);
+    }
+    
+    /**
+     * Does this entity have logic that needs to be updated?
+     * @return A boolean.
+     */
+    public boolean updates() { return !flows.isEmpty(); }
+    
+    /**
+     * Does this entity have the Movement system component?
+     * @return A boolean.
+     */
+    public boolean moves() { return getSystem("Movement") != null; }
+    
+    /**
+     * Does this entity render a texture or other visual effect?
+     * @return A boolean.
+     */
+    public boolean renders() { return getSystem("Render") != null; }
     
     public final void save(BufferedWriter bw) {
         try {
@@ -210,11 +233,18 @@ public class Entity {
     public final void setName(String n) { name = n; }
     
     public final void update() {
-        for (ComponentSystem s: systems) s.update();
+        //update all systems but Movement, which is separate
+        for (ComponentSystem s: systems) 
+            if (!s.id.equals("Movement")) s.update();
     }
     
     public final void draw(Graphics g) {
         for (ComponentSystem s: systems) s.draw(g);
+    }
+    
+    public final void move() {
+        ComponentSystem c = getSystem("Movement");
+        if (c != null) c.update();
     }
     
     public final void addComponent(Component c) {components.remove(c);components.add(c);c.setParent(this);}
