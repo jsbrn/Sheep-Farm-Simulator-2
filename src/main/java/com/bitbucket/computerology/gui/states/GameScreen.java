@@ -159,6 +159,9 @@ public class GameScreen extends BasicGameState {
             g.drawString("  - Sector: "+sc[0]+", "+sc[1]+" (b: "+s.getBiome()+")", 5, 102);
             g.drawString("  - Chunk: "+cc[0]+", "+cc[1]+" (t: "+(c != null ? c.getTerrain() : "null")+")", 5, 112);
             
+            Entity en = World.getWorld().getEntity(wc[0], wc[1]);
+            g.drawString(en != null ? en.toString() : "null", 5, 132);
+            
             g.setColor(Color.blue);
             g.drawRect(x-200, y-200, 200, 200);
             for (Chunk ch: World.getWorld().getChunks(wc[0]-200, wc[1]-200, 200, 200)) {

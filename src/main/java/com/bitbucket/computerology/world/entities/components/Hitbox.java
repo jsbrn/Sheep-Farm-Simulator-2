@@ -10,13 +10,12 @@ public class Hitbox extends Component {
     boolean collides;
     int width, height;
     
-    public void createHitboxes() {
-        Component c = getParent().getComponent("Texture");
-        if (c == null) return;
-        Texture t = ((Texture)c);
-        if (t.getTexture() == null) return;
-        this.width = t.getTexture().getWidth();
-        this.height = t.getTexture().getHeight();
+    ArrayList<int[]> lines;
+    
+    public Hitbox() {
+        this.width = 0;
+        this.height = 0;
+        this.lines = new ArrayList<int[]>();
     }
     
     public boolean intersects(Entity e) {
@@ -30,16 +29,18 @@ public class Hitbox extends Component {
     
     public boolean intersects(int x, int y, int w, int h) {
         Entity e = getParent();
-        return MiscMath.rectanglesIntersect(e.getWorldX()-(width/2),
-                e.getWorldY()-(height/2), width, height,
-                x, y, w, h);
+        for (int[] l: lines) {
+            if (l.length != 4) continue;
+            if (MiscMath.rectangleIntersectsLine(x, y, w, h, e.getWorldX()+l[0], 
+                    e.getWorldY()+l[1], e.getWorldX()+l[2], e.getWorldY()+l[3])) return true;
+        }
+        return false;
     }
     
     @Override
     public void initParams(ArrayList<String> params) {
         for (String p: params) if (p.indexOf("collides=") == 0)
             collides = Boolean.parseBoolean(p.replace("collides=", "").trim());
-        createHitboxes();
     }
     
     @Override
