@@ -123,27 +123,6 @@ public class MiscMath {
         }
         return false;
     }
-    
-    public static int orientation(int ax, int ay, int bx, int by, int cx, int cy) {
-        double o = (by - ay)*(cx - bx)-(bx - ax)*(cy - by);
-        if (o == 0.0)
-            return 0; // colinear
-        return (o > 0) ? 1 : 2; // clock or counterclock wise
-    }
-
-    public static boolean intersect(int l1x1, int l1y1, int l1x2, int l1y2
-            , int l2x1, int l2y1, int l2x2, int l2y2) {
-
-        int o1 = orientation(l1x1, l1y1, l1x2, l1y2, l2x1, l2y1);
-        int o2 = orientation(l1x1, l1y1, l1x2, l1y2, l2x2, l2y2);
-        int o3 = orientation(l2x1, l2y1, l2x2, l2y2, p1);
-        int o4 = orientation(l2x1, l2y1, l2x2, l2y2, q1);
-
-        if (o1 != o2 && o3 != o4)
-            return true;
-
-        return false;
-    }
 
     /**
      * Determines if two rectangles intersect each other.

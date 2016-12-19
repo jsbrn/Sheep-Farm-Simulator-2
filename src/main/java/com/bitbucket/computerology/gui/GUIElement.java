@@ -97,21 +97,14 @@ public class GUIElement {
         offset_modes[1] = mode;
     }
     
-    public final void setWidth(int w) {
-        width = w;
-    }
-    
-    public final void setHeight(int h) {
-        height = h;
-    }
-    
-    public final void setX(int x) {
-        this.x = x;
-    }
-    
-    public final void setY(int y) {
-        this.y = y;
-    }
+    public final void setWidth(int w) { width = w; }
+    public final void setHeight(int h) { height = h; }
+    public final void addWidth(int w) { width += w; }
+    public final void addHeight(int h) { height += h; }
+    public final void setX(int x) { this.x = x; }
+    public final void setY(int y) { this.y = y; }
+    public final void addX(int x) { this.x += x; }
+    public final void addY(int y) { this.y += y; }
     
     public int getWidth() {
         return width;

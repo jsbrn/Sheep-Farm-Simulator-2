@@ -111,6 +111,9 @@ public class GameScreen extends BasicGameState {
         final Panel map_menu = new Panel();
         map_menu.setWidth(200);
         map_menu.setHeight(200);
+        map_menu.showBackground(true);
+        map_menu.setTitle("Map (draggable)");
+        map_menu.setDraggable(true);
         map_menu.setX(-map_menu.getWidth());
         map_menu.setY(-map_menu.getHeight());
         map_menu.setYOffsetMode(GUIElement.ORIGIN_BOTTOM);
