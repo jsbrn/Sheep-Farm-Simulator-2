@@ -4,6 +4,7 @@ import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.entities.Component;
 import com.bitbucket.computerology.world.entities.Entity;
 import java.util.ArrayList;
+import org.newdawn.slick.Graphics;
 
 public class Hitbox extends Component {
     
@@ -19,12 +20,17 @@ public class Hitbox extends Component {
     }
     
     public boolean intersects(Entity e) {
-        Hitbox h2 = null;
+        Hitbox h2;
         Component c = e.getComponent("Hitbox");
-        if (c != null) h2 = ((Hitbox)c);
+        if (c != null) h2 = ((Hitbox)c); else h2 = null;
         if (h2 == null) return false;
-        return intersects(e.getWorldX()-(h2.width/2),
-                e.getWorldY()-(h2.height/2), h2.width, h2.height);
+        for (int[] l1: lines) {
+            for (int[] l2: h2.lines) {
+                if (MiscMath.linesIntersect(l1, l2)) {
+                    
+                }
+            }
+        }
     }
     
     public boolean intersects(int x, int y, int w, int h) {
@@ -35,6 +41,10 @@ public class Hitbox extends Component {
                     e.getWorldY()+l[1], e.getWorldX()+l[2], e.getWorldY()+l[3])) return true;
         }
         return false;
+    }
+    
+    public void addLine(int x, int y, int x2, int y2) {
+        lines.add(new int[]{x, y, x2, y2});
     }
     
     @Override
@@ -48,6 +58,14 @@ public class Hitbox extends Component {
         ((Hitbox)c).width = width;
         ((Hitbox)c).height = height;
         ((Hitbox)c).collides = collides;
+    }
+    
+    public int lineCount() {
+        return lines.size();
+    }
+    
+    public int[] getLine(int index) {
+        return index >= 0 && index < lines.size() ? lines.get(index) : null;
     }
     
 }

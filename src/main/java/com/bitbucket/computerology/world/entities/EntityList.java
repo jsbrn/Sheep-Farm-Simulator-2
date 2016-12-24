@@ -1,6 +1,7 @@
 package com.bitbucket.computerology.world.entities;
 
 import com.bitbucket.computerology.misc.MiscString;
+import com.bitbucket.computerology.world.entities.components.Hitbox;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class EntityList {
                     Component c = loadComponent(br);
                     if (c != null) {
                         e.addComponent(c);
-                        c.init();
+                        c.init(); //load custom parametres, etc.
                     }
                 }
                 if (line.equals("s")) {
@@ -66,6 +67,21 @@ public class EntityList {
                 if (line.equals("f")) {
                     Flow f = new Flow();
                     if (loadFlow(f, br)) e.addFlow(f);
+                }
+                //load the hitbox stuff (as designed in the editor)
+                if (line.equals("h")) {
+                    Component c = e.getComponent("Hitbox");
+                    Hitbox h = c != null ? ((Hitbox)c) : null;
+                    while (h != null) {
+                        line = br.readLine();
+                        if (line == null) break;
+                        if (line.equals("/h")) break;
+                        ArrayList<String> l = MiscString.parseString(line.replace(" ", "\n"));
+                        h.addLine(Integer.parseInt(l.get(0))
+                        ,Integer.parseInt(l.get(1))
+                        ,Integer.parseInt(l.get(2))
+                        ,Integer.parseInt(l.get(3)));
+                    }
                 }
             }
         } catch (FileNotFoundException ex) {

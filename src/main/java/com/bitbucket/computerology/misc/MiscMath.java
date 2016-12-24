@@ -167,5 +167,43 @@ public class MiscMath {
         return MiscMath.distanceBetween(r_x, 0, cx, 0) < min_width 
                 && MiscMath.distanceBetween(r_y, 0, cy, 0) < min_height;
     }
+    
+    public static boolean linesIntersect(int[] l1, int[] l2) {
+        if (l1.length != 4 || l2.length != 4) {
+            System.err.println("MiscMath.linesIntersect: you must input two lines!");
+            return false;
+        }
+        
+        //determine the 4 points (of lines AB, CD; where A and C are the leftmost points of each line)
+        double[] p1, p2, p3, p4;
+        p1 = new double[]{l1[0] < l1[2] ? l1[0] : l1[2], l1[1] < l1[3] ? l1[1] : l1[3]};
+        p2 = new double[]{l1[0] > l1[2] ? l1[0] : l1[2], l1[1] > l1[3] ? l1[1] : l1[3]};
+        p3 = new double[]{l2[0] < l2[2] ? l2[0] : l2[2], l2[1] < l2[3] ? l2[1] : l2[3]};
+        p4 = new double[]{l2[0] > l2[2] ? l2[0] : l2[2], l2[1] > l2[3] ? l2[1] : l2[3]};
+        
+        double m1 = (p2[1]-p1[1])/(p2[0]-p1[0]);
+        double m2 = (p4[1]-p3[1])/(p4[0]-p3[0]);
+        
+        double b1 = p1[1]+(p1[0]*m1);
+        double b2 = p3[1]+(p3[0]*m2);
+        
+        double rx = p1[0] < p3[0] ? p1[0] : p3[0];
+        double ry = p1[1] < p3[1] ? p1[1] : p3[1];
+        double rw = (p2[0] > p4[0] ? p2[0] : p4[0]) - rx;
+        double rh = (p2[1] > p4[1] ? p2[1] : p4[1]) - ry;
+        
+        double a = m1, b = -1, c = m2, d = -1;
+        double det = (a*d)-(b*c);
+        if (det != 0) {
+            double detx = (b1*d)-(b*b2);
+            double dety = (a*b2)-(b1*c);
+            double x = detx/det, y = dety/det;
+            return MiscMath.pointIntersects(x, y, rx, ry, (int)rw, (int)rh);
+        } else {
+            //handle the case in which the lines are paralell
+        }
+        //take the line with the x that was used for the top left corner
+        return false;
+    }
 
 }
