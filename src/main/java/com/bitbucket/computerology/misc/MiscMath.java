@@ -205,5 +205,18 @@ public class MiscMath {
         }
         return false;
     }
+    
+    /**
+     * Returns a rotated point about the origin (0, 0).
+     * @param offset_x The x coord.
+     * @param offset_y The y coord.
+     * @param rotation The angle, in degrees.
+     * @return 
+     */
+    public static int[] getRotatedOffset(int offset_x, int offset_y, double rotation) {
+        rotation = Math.toRadians(rotation);
+        return new int[]{(int)(offset_x * Math.cos(rotation) - offset_y * Math.sin(rotation)),
+            (int)(offset_x * Math.sin(rotation) + offset_y * Math.cos(rotation))};
+    }
 
 }

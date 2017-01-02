@@ -21,6 +21,7 @@ public class EntityList {
     }
     
     public static void loadEntityList() {
+        System.out.println("Loading entities...");
         ENTITIES = new ArrayList<Entity>();
         try {
             InputStream in = EntityList.class.getResourceAsStream("/misc/entity_list.txt"); 
@@ -38,6 +39,7 @@ public class EntityList {
         } catch (IOException ex) {
             Logger.getLogger(EntityList.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("Successfully loaded "+ENTITIES.size()+" entities!");
     }
     
     static boolean loadEntity(Entity e, BufferedReader br) {

@@ -5,6 +5,7 @@ import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.entities.components.Position;
 import com.bitbucket.computerology.world.entities.components.Texture;
+import com.bitbucket.computerology.world.entities.systems.Movement;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class Entity {
     Position position; 
     Texture texture;
     Forces forces;
+    Movement movement;
     
     
     /**
@@ -65,14 +67,13 @@ public class Entity {
     public final void update() {
         //update all systems but Movement, which is separate
         for (ComponentSystem s: systems) 
-            if (!s.id.equals("Movement")) s.update();
+            if (!s.equals(movement)) s.update();
     }
     
     public final void draw(Graphics g) { for (ComponentSystem s: systems) s.draw(g); }
     
     public final void move() {
-        ComponentSystem c = getSystem("Movement");
-        if (c != null) c.update();
+        if (movement != null) movement.update();
     }
     
     public final boolean intersects(Entity e) {
@@ -116,6 +117,12 @@ public class Entity {
     public final void addWorldX(double wx) { if (position == null) return; position.addWorldX(wx); }
     public final void addWorldY(double wy) { if (position == null) return; position.addWorldY(wy); }
     
+    public final int getRotation() { return position == null ? 0 : (int)position.getRotation(); }
+    public final void setRotation(int wx) { 
+        if (position == null) return; position.setRotation(wx); 
+        if (hitbox == null) return; hitbox.refresh();
+    }
+    
     public final Force getForce(String name) { return forces == null ? null : forces.getForce(name); }
     public final void addForce(Force f) { if (forces == null) return; forces.addForce(f); }
     public final void removeForce(String f) { if (forces == null) return; forces.removeForce(f); }
@@ -128,7 +135,7 @@ public class Entity {
     public final void setName(String n) { name = n; }
     
     public final void addComponent(Component c) {
-        components.remove(c);
+        if (components.contains(c)) return;
         components.add(c);
         c.setParent(this);
         if (c.getID().equals("Position")) position = ((Position)c);
@@ -146,7 +153,12 @@ public class Entity {
         return null;
     }
     
-    public final void addSystem(ComponentSystem c) {if (!systems.contains(c)) {systems.add(c);c.setParent(this);}}
+    public final void addSystem(ComponentSystem c) {
+        if (systems.contains(c)) return;
+        systems.add(c);
+        c.setParent(this);
+        if (c.getID().equals("Movement")) movement = ((Movement)c);
+    }
     public final void removeSystem(ComponentSystem c) {if (!systems.contains(c)) systems.remove(c);}
     public final ComponentSystem getSystem(String s) {
         for (ComponentSystem c: systems) {

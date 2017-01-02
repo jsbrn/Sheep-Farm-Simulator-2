@@ -19,13 +19,37 @@ public class Hitbox extends Component {
         this.offset_x = 0;
         this.offset_y = 0;
         this.lines = new ArrayList<int[]>();
+        this.rotated_lines = new ArrayList<int[]>();
     }
+    
+    /**
+     * Recalculates the rotated hitbox, including its width and height.
+     */
+    public void refresh() {
+        rotated_lines.clear();
+        int lx = Integer.MAX_VALUE, ly = Integer.MAX_VALUE, ux = -Integer.MAX_VALUE, uy = -Integer.MAX_VALUE;
+        for (int[] l: lines) {
+            int[] p1 = MiscMath.getRotatedOffset(l[0], l[1], getParent().getRotation());
+            int[] p2 = MiscMath.getRotatedOffset(l[2], l[3], getParent().getRotation());
+            lx = (int)MiscMath.min(lx, MiscMath.min(p1[0], p2[0]));
+            ly = (int)MiscMath.min(ly, MiscMath.min(p1[1], p2[1]));
+            ux = (int)MiscMath.max(ux, MiscMath.max(p1[0], p2[0]));
+            uy = (int)MiscMath.max(uy, MiscMath.max(p1[1], p2[1]));
+            rotated_lines.add(new int[]{p1[0], p1[1], p2[0], p2[1]});
+        }
+        width = ux-lx; height = uy-ly;
+    }
+    
+    public int getWidth() { return width; }
+    public int getHeight() { return height; }
+    
+    public void offset(double x, double y) { offset_x = x; offset_y = y; }
     
     public boolean intersects(double wx, double wy) {
         double[] line = {wx, wy, Integer.MAX_VALUE, wy};
         int count = 0;
         //if odd, intersecting. even, no.
-        for (int[] l: lines) {
+        for (int[] l: rotated_lines) {
             count += MiscMath.linesIntersect(wx, wy, Integer.MAX_VALUE, wy, 
                     l[0]+getParent().getWorldX()+offset_x, 
                     l[1]+getParent().getWorldY()+offset_y, 
@@ -46,8 +70,8 @@ public class Hitbox extends Component {
     
     public boolean intersects(Hitbox h) {
         //check if any of the lines intersect
-        for (int[] l1: lines) {
-            for (int[] l2: h.lines) {
+        for (int[] l1: rotated_lines) {
+            for (int[] l2: h.rotated_lines) {
                 if (MiscMath.linesIntersect(
                         l1[0]+getParent().getWorldX()+offset_x, 
                     l1[1]+getParent().getWorldY()+offset_y, 
@@ -61,7 +85,7 @@ public class Hitbox extends Component {
                 }
             }
         }
-        for (int[] l1: lines) {
+        for (int[] l1: rotated_lines) {
             if (h.intersects(l1[0]+getParent().getWorldX()+offset_x, 
                     l1[1]+getParent().getWorldY()+offset_y)) return true;
             if (h.intersects(l1[2]+getParent().getWorldX()+offset_x, 
@@ -72,7 +96,7 @@ public class Hitbox extends Component {
     
     public boolean intersects(int x, int y, int w, int h) {
         Entity e = getParent();
-        for (int[] l: lines) {
+        for (int[] l: rotated_lines) {
             if (l.length != 4) continue;
             if (MiscMath.rectContainsLine(x, y, w, h, e.getWorldX()+l[0], 
                     e.getWorldY()+l[1], e.getWorldX()+l[2], e.getWorldY()+l[3])) return true;
@@ -97,6 +121,7 @@ public class Hitbox extends Component {
         ((Hitbox)c).collides = collides;
         ((Hitbox)c).lines.clear();
         for (int[] l: lines) ((Hitbox)c).lines.add(new int[]{l[0], l[1], l[2], l[3]});
+        for (int[] l: rotated_lines) ((Hitbox)c).rotated_lines.add(new int[]{l[0], l[1], l[2], l[3]});
     }
     
     public int lineCount() {
@@ -104,7 +129,7 @@ public class Hitbox extends Component {
     }
     
     public int[] getLine(int index) {
-        return index >= 0 && index < lines.size() ? lines.get(index) : null;
+        return index > -1 && index < lines.size() ? lines.get(index) : null;
     }
     
 }
