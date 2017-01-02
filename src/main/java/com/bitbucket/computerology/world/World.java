@@ -339,7 +339,7 @@ public class World {
         
         for (Entity e: render_entities) { 
             int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
-            if (MiscMath.pointIntersects(osc[0], osc[1], -Entity.maxSizePixels(), -Entity.maxSizePixels(), 
+            if (MiscMath.pointIntersectsRect(osc[0], osc[1], -Entity.maxSizePixels(), -Entity.maxSizePixels(), 
                     Display.getWidth()+Entity.maxSizePixels(), Display.getWidth()+Entity.maxSizePixels())) {
                 e.draw(g);
             }

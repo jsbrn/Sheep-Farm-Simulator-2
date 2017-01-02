@@ -22,6 +22,13 @@ public class Entity {
     String name, type;
     int id;
     
+    //references to commonly used components (to avoid repeated searches)
+    Hitbox hitbox; 
+    Position position; 
+    Texture texture;
+    Forces forces;
+    
+    
     /**
      * Creates a new entity.
      * as well as the systems Movement and Render.
@@ -43,6 +50,9 @@ public class Entity {
         return e;
     }
     
+    public static int maxSizeChunks() { return 16; }
+    public static int maxSizePixels() { return maxSizeChunks()*Chunk.sizePixels(); }
+    
     public Entity() {
         this.systems = new ArrayList<ComponentSystem>();
         this.components = new ArrayList<Component>();
@@ -52,17 +62,18 @@ public class Entity {
         this.id = -1;
     }
     
-    /**
-     * Overrides Object.toString.
-     * @return Returns a string of the following format: type+(#id)
-     */
-    @Override
-    public String toString() {
-        return type+" (#"+id+")";
+    public final void update() {
+        //update all systems but Movement, which is separate
+        for (ComponentSystem s: systems) 
+            if (!s.id.equals("Movement")) s.update();
     }
     
-    public static int maxSizeChunks() { return 16; }
-    public static int maxSizePixels() { return maxSizeChunks()*Chunk.sizePixels(); }
+    public final void draw(Graphics g) { for (ComponentSystem s: systems) s.draw(g); }
+    
+    public final void move() {
+        ComponentSystem c = getSystem("Movement");
+        if (c != null) c.update();
+    }
     
     public final boolean intersects(Entity e) {
         Hitbox h = null;
@@ -96,158 +107,35 @@ public class Entity {
      */
     public boolean renders() { return getSystem("Render") != null; }
     
-    public final void save(BufferedWriter bw) {
-        try {
-            bw.write("e\n");
-            bw.write("t="+type+"\n");
-            bw.write("n="+name+"\n");
-            bw.write("id="+id+"\n");
-            for (Component c: components) c.save(bw);
-            bw.write("/e\n");
-        } catch (IOException ex) {
-            Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    public final int getWorldX() { return position == null ? 0 : (int)position.getWorldX(); }
+    public final int getWorldY() { return position == null ? 0 : (int)position.getWorldY(); }
     
-    public final boolean load(BufferedReader br) {
-        try {
-            while (true) {
-                String line = br.readLine();
-                if (line == null) break;
-                line = line.trim();
-                if (line.equals("/e")) return true;
-                if (line.indexOf("t=") == 0) {
-                    Entity copy = Entity.create(line.replace("t=", "").trim());
-                    if (copy != null) copy.copyTo(this);
-                }
-                if (line.indexOf("n=") == 0) name = line.replace("n=", "").trim();
-                if (line.indexOf("id=") == 0) id = Integer.parseInt(line.replace("n=", "").trim());
-                if (line.indexOf("c - ") == 0) {
-                    //takes the component that already exists (because of entity.copy()) and
-                    //calls the custom load on it
-                    Component c = this.getComponent(line.replace("c - ", "").trim());
-                    if (c != null) {
-                        if (c.load(br) == false) return false;
-                    }
-                }
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
-    }
+    public final void setWorldX(int wx) { if (position == null) return; position.setWorldX(wx); }
+    public final void setWorldY(int wy) { if (position == null) return; position.setWorldY(wy); }
     
-    public final int getWorldX() {
-        Component p = getComponent("Position");
-        if (p != null) {
-            return (int)((Position)p).getWorldX();
-        }
-        return 0;
-    }
+    public final void addWorldX(double wx) { if (position == null) return; position.addWorldX(wx); }
+    public final void addWorldY(double wy) { if (position == null) return; position.addWorldY(wy); }
     
-    public final int getWorldY() {
-        Component p = getComponent("Position");
-        if (p != null) {
-            return (int)((Position)p).getWorldY();
-        }
-        return 0;
-    }
+    public final Force getForce(String name) { return forces == null ? null : forces.getForce(name); }
+    public final void addForce(Force f) { if (forces == null) return; forces.addForce(f); }
+    public final void removeForce(String f) { if (forces == null) return; forces.removeForce(f); }
     
-    public final void setWorldX(int w_x) {
-        Component c = getComponent("Position");
-        if (c == null) return;
-        Position p = ((Position)c);
-        p.setWorldX(w_x);
-    }
-    
-    public final void setWorldY(int w_y) {
-        Component c = getComponent("Position");
-        if (c == null) return;
-        Position p = ((Position)c);
-        p.setWorldY(w_y);
-    }
-    
-    public final void addWorldX(double w_x) {
-        Component c = getComponent("Position");
-        if (c == null) return;
-        Position p = ((Position)c);
-        p.addWorldX(w_x);
-    }
-    
-    public final void addWorldY(double w_y) {
-        Component c = getComponent("Position");
-        if (c == null) return;
-        Position p = ((Position)c);
-        p.addWorldY(w_y);
-    }
-    
-    public final Force getForce(String name) {
-        Component c = getComponent("Forces");
-        Forces f = c != null ? ((Forces)c) : null;
-        if (f == null) return null;
-        return f.getForce(name);
-    }
-    
-    public final void addForce(Force f) {
-        Component c = getComponent("Forces");
-        Forces fs = c != null ? ((Forces)c) : null;
-        if (fs == null) return;
-        fs.addForce(f);
-    }
-    
-    public final void removeForce(String f) {
-        Component c = getComponent("Forces");
-        Forces fs = c != null ? ((Forces)c) : null;
-        if (fs == null) return;
-        fs.removeForce(f);
-    }
-    
-    /**
-     * Gets the entity width, currently just the texture's original width.
-     * IN THE FUTURE, IT WILL RETURN THE ACTUAL WIDTH BASED ON ROTATION AND HITBOX.
-     * @return The width, or 0 if no width.
-     */
-    public final int getWidth() {
-        Component tc = getComponent("Texture");
-        if (tc == null) return 0;
-        Texture t = (Texture)tc;
-        if (t.getTexture() == null) return 0;
-        return t.getTexture().getWidth();
-    }
-    
-    /**
-     * Gets the entity height, currently just the texture's original height.
-     * IN THE FUTURE, IT WILL RETURN THE ACTUAL WIDTH BASED ON ROTATION AND HITBOX.
-     * @return The height, or 0 if no height.
-     */
-    public final int getHeight() {
-        Component tc = getComponent("Texture");
-        if (tc == null) return 0;
-        Texture t = (Texture)tc;
-        if (t.getTexture() == null) return 0;
-        return t.getTexture().getWidth();
-    }
+    public final int getWidth() { return hitbox == null ? 0 : hitbox.getWidth(); }
+    public final int getHeight() { return hitbox == null ? 0 : hitbox.getHeight(); }
     
     public final String getType() { return type; }
     public final String getName() { return name; }
     public final void setName(String n) { name = n; }
     
-    public final void update() {
-        //update all systems but Movement, which is separate
-        for (ComponentSystem s: systems) 
-            if (!s.id.equals("Movement")) s.update();
+    public final void addComponent(Component c) {
+        components.remove(c);
+        components.add(c);
+        c.setParent(this);
+        if (c.getID().equals("Position")) position = ((Position)c);
+        if (c.getID().equals("Hitbox")) hitbox = ((Hitbox)c);
+        if (c.getID().equals("Texture")) texture = ((Texture)c);
+        if (c.getID().equals("Forces")) forces = ((Forces)c);
     }
-    
-    public final void draw(Graphics g) {
-        for (ComponentSystem s: systems) s.draw(g);
-    }
-    
-    public final void move() {
-        ComponentSystem c = getSystem("Movement");
-        if (c != null) c.update();
-    }
-    
-    public final void addComponent(Component c) {components.remove(c);components.add(c);c.setParent(this);}
     public final void removeComponent(Component c) {if (!components.contains(c) && c != null) components.remove(c);}
     public final Component getComponent(String s) {
         for (Component c: components) {
@@ -303,22 +191,54 @@ public class Entity {
         }
     }
     
+    public final void save(BufferedWriter bw) {
+        try {
+            bw.write("e\n");
+            bw.write("t="+type+"\n");
+            bw.write("n="+name+"\n");
+            bw.write("id="+id+"\n");
+            for (Component c: components) c.save(bw);
+            bw.write("/e\n");
+        } catch (IOException ex) {
+            Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public final boolean load(BufferedReader br) {
+        try {
+            while (true) {
+                String line = br.readLine();
+                if (line == null) break;
+                line = line.trim();
+                if (line.equals("/e")) return true;
+                if (line.indexOf("t=") == 0) {
+                    Entity copy = Entity.create(line.replace("t=", "").trim());
+                    if (copy != null) copy.copyTo(this);
+                }
+                if (line.indexOf("n=") == 0) name = line.replace("n=", "").trim();
+                if (line.indexOf("id=") == 0) id = Integer.parseInt(line.replace("n=", "").trim());
+                if (line.indexOf("c - ") == 0) {
+                    //takes the component that already exists (because of entity.copy()) and
+                    //calls the custom load on it
+                    Component c = this.getComponent(line.replace("c - ", "").trim());
+                    if (c != null) {
+                        if (c.load(br) == false) return false;
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+    
     /**
-     * Compares the sector's x and y coordinates (like -2, 5) to the given coordinates,
-     * for use in a sorted list of sectors. INCOMPLETE!
-     * @param x Sector x coordinate to compare to.
-     * @param y Sector y coordinate to compare to.
-     * @return -1 if the sector is to the "left" of the given coordinates,
-     * and 1 if it is to the "right". 0 if neither.
+     * Overrides Object.toString.
+     * @return Returns a string of the following format: type+(#id)
      */
-    public final int compareTo(int x, int y) {
-        int tx = this.getWorldX();
-        int ty = this.getWorldY();
-        if (tx > x) return 1;
-        if (tx < x) return -1;
-        if (ty > y) return 1;
-        if (ty < y) return -1;
-        return 0;
+    @Override
+    public String toString() {
+        return type+" (#"+id+")";
     }
     
 }

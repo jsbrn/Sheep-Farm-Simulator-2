@@ -121,7 +121,7 @@ public class GUIElement {
     }
     
     public boolean mouseIntersecting() {
-        return isVisible() && MiscMath.pointIntersects(Mouse.getX(), Display.getHeight()-Mouse.getY(), 
+        return isVisible() && MiscMath.pointIntersectsRect(Mouse.getX(), Display.getHeight()-Mouse.getY(), 
                 getOnscreenX(), getOnscreenY(), getWidth(), getHeight());
     }
     
@@ -135,7 +135,7 @@ public class GUIElement {
     public GUIElement getGUIElement(int x, int y) {
         for (int i = components.size()-1; i > -1; i--) {
             GUIElement g = components.get(i);
-            if (g.isVisible() && MiscMath.pointIntersects(getOnscreenX()+x, getOnscreenY()+y, 
+            if (g.isVisible() && MiscMath.pointIntersectsRect(getOnscreenX()+x, getOnscreenY()+y, 
                 g.getOnscreenX(), g.getOnscreenY(), g.getWidth(), g.getHeight())) {
                 return g.getGUIElement(getOnscreenX()+x-g.getOnscreenX(), getOnscreenY()+y-g.getOnscreenY());
             }
@@ -208,7 +208,7 @@ public class GUIElement {
         for (int i = components.size()-1; i >= 0; i--) {
             if (components.get(i).applyMouseClick(button, x, y, click_count)) return true;
         }
-        if (MiscMath.pointIntersects(x, y, 
+        if (MiscMath.pointIntersectsRect(x, y, 
                 getOnscreenX(), getOnscreenY(), getWidth(), getHeight())) {
             onMouseClick(button, x, y, click_count);
             return true;
@@ -221,7 +221,7 @@ public class GUIElement {
         for (int i = components.size()-1; i >= 0; i--) {
             if (components.get(i).applyMousePress(button, x, y)) return true;
         }
-        if (MiscMath.pointIntersects(x, y, 
+        if (MiscMath.pointIntersectsRect(x, y, 
                 getOnscreenX(), getOnscreenY(), getWidth(), getHeight())) {
             onMousePress(button, x, y);
             return true;

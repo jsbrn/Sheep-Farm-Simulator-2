@@ -49,10 +49,10 @@ public class Panel extends GUIElement {
     
     @Override
     public void onMousePress(int button, int x, int y) {
-        if (MiscMath.pointIntersects(x, y, getOnscreenX(), getOnscreenY(), getWidth(), getHeaderHeight())) {
+        if (MiscMath.pointIntersectsRect(x, y, getOnscreenX(), getOnscreenY(), getWidth(), getHeaderHeight())) {
             dragging = true;
             last_x = x; last_y = y;
-        } else if (MiscMath.pointIntersects(x, y, getOnscreenX()+getWidth()-16, getOnscreenY()+getHeight()-16, 16, 16)) {
+        } else if (MiscMath.pointIntersectsRect(x, y, getOnscreenX()+getWidth()-16, getOnscreenY()+getHeight()-16, 16, 16)) {
             resizing = true;
             last_x = x; last_y = y;
         }

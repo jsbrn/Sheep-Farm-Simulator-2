@@ -87,7 +87,7 @@ public class GUI {
     public final GUIElement getGUIElement(int onscreen_x, int onscreen_y) {
         for (int i = components.size()-1; i > -1; i--) {
             GUIElement g = components.get(i);
-            if (g.isVisible() && MiscMath.pointIntersects(onscreen_x, onscreen_y, 
+            if (g.isVisible() && MiscMath.pointIntersectsRect(onscreen_x, onscreen_y, 
                 g.getOnscreenX(), g.getOnscreenY(), g.getWidth(), g.getHeight())) {
                 return g.getGUIElement(onscreen_x-g.getOnscreenX(), onscreen_y-g.getOnscreenY());
             }

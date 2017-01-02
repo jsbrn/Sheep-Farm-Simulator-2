@@ -64,7 +64,7 @@ public class TextField extends GUIElement {
     
     @Override
     public void onMouseRelease(int button, int x, int y) {
-        if (!MiscMath.pointIntersects(x, y, getOnscreenX(), getOnscreenY(), getWidth(), getHeight()))
+        if (!MiscMath.pointIntersectsRect(x, y, getOnscreenX(), getOnscreenY(), getWidth(), getHeight()))
             releaseFocus();
     }
     

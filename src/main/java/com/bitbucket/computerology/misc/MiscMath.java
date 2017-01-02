@@ -32,6 +32,7 @@ public class MiscMath {
      */
     public static double get24HourConstant(double amount_to_add, double per_ingame_minutes) {
         //divides the second parameter by 1.6 because each minute in game takes 1/1.6 seconds in real life
+        //(arbitrary setting by me)
         return MiscMath.getConstant(amount_to_add, per_ingame_minutes/1.6);
     }
     
@@ -40,9 +41,7 @@ public class MiscMath {
      * @return The distance between (x1, y1) and (x2, y2).
      */
     public static double distanceBetween(double x1, double y1, double x2, double y2) {
-        double distance_squared = Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2);
-        double distance = Math.sqrt(distance_squared);
-        return distance;
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
     
     /**
@@ -61,7 +60,6 @@ public class MiscMath {
             y = (y1 - y2);
             new_rotation = (((float)Math.atan(y/x) * 60) + 180);
         }
-
         new_rotation += 90;
         return new_rotation % 360;
     }
@@ -76,13 +74,9 @@ public class MiscMath {
      * @param rh The height of the rectangle.
      * @return A boolean indicating whether the point intersects.
      */
-    public static boolean pointIntersects(double x, double y, double rx, double ry, int rw, int rh) {
-        if (x > rx && x < rx + rw) {
-            if (y > ry && y < ry + rh) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean pointIntersectsRect(double x, double y, 
+            double rx, double ry, int rw, int rh) {
+        return x > rx && x < rx + rw && y > ry && y < ry + rh;
     }
     
     /**
@@ -96,36 +90,20 @@ public class MiscMath {
      * @param ly1 y value of line endpoint #1
      * @param lx2 x value of line endpoint #2
      * @param ly2 y value of line endpoint #2
-     * @return
+     * @return A boolean indicating intersection.
      */
-    public static boolean rectangleIntersectsLine(double x, double y, int w, int h, double lx1, double ly1, double lx2, double ly2) {
-        //determine values to be used in the equation for the line
-        double m = (ly2-ly1)/(lx2-lx1);
-        double p = lx1, q = ly1; //p = the offset from left side of screen, q = offset from bottom
-        //if point l2 is closer to x = 0 than l1, set p and q to lx2's coordinates
-        if (lx2 < lx1) {
-            p = lx2;
-            q = ly2;
-        }
-        //test if both end points of line are on left side, right, top, or bottom
-        //if any is true, then the line does not intersect
-        boolean on_left = (lx1 < x && lx2 < x), on_right = (lx1 > x+w && lx2 > x+w), 
-                on_top = (ly1 < y && ly2 < y), on_bottom = (ly1 > y+h && ly2 > y+h); 
-        if (!on_left && !on_right && !on_top && !on_bottom) {
-            if (((y < (m*(x-p)+q)) && (y+h > (m*(x-p)+q)))
-                    || ((y < (m*(x+w-p)+q)) && (y+h > (m*(x+w-p)+q)))) { //if left side or right side of rectangle intersects line
-                return true;
-            } 
-            if ((x < (((y-q)/m)+p) && x+w > (((y-q)/m)+p))
-                || (x < (((y+h-m)/q)+p) && x+w > (((y+h-q)/m)+p))) { //if top side or bottom side of rectangle intersects line
-                return true;
-            }
-        }
+    public static boolean rectContainsLine(double x, double y, int w, int h, double lx1, double ly1, double lx2, double ly2) {
+        if (pointIntersectsRect(lx1, ly1, x, y, w, h) || pointIntersectsRect(lx2, ly2, x, y, w, h)) return true;
+        if (linesIntersect(lx1, ly1, lx2, ly2, x, y, x+w, y)) return true;
+        if (linesIntersect(lx1, ly1, lx2, ly2, x, y+h, x+w, y+h)) return true;
+        if (linesIntersect(lx1, ly1, lx2, ly2, x, y, x, y+h)) return true;
+        if (linesIntersect(lx1, ly1, lx2, ly2, x+w, y, x+w, y+h)) return true;
         return false;
     }
 
     /**
-     * Determines if two rectangles intersect each other.
+     * Determines if two rectangles intersect each other. Checks each point to see if they
+     * intersect the other rectangle. Calls on pointIntersects().
      * @param x The x of the first rectangle.
      * @param y The y of the first rectangle.
      * @param w The width of the first rectangle.
@@ -134,24 +112,17 @@ public class MiscMath {
      * @param y2 The y of the second rectangle.
      * @param w2 The width of the second rectangle.
      * @param h2 The height of the second rectangle.
-     * @return A boolean indicating if the two rectangles intersect.
+     * @return A boolean indicating intersection.
      */
     public static boolean rectanglesIntersect(double x, double y, int w, int h, double x2, double y2, int w2, int h2) {
-        //if any of the corners of rectangle 1 intersect rectangle 2
-        if (MiscMath.pointIntersects(x, y, x2, y2, w2, h2)
-                || MiscMath.pointIntersects(x + w, y, x2, y2, w2, h2)
-                || MiscMath.pointIntersects(x + w, y + h, x2, y2, w2, h2)
-                || MiscMath.pointIntersects(x, y + h, x2, y2, w2, h2)) {
+        if (MiscMath.pointIntersectsRect(x, y, x2, y2, w2, h2) || MiscMath.pointIntersectsRect(x + w, y, x2, y2, w2, h2)
+                || MiscMath.pointIntersectsRect(x + w, y + h, x2, y2, w2, h2) || MiscMath.pointIntersectsRect(x, y + h, x2, y2, w2, h2)) {
             return true;
         }
-        //and vice versa
-        if (MiscMath.pointIntersects(x2, y2, x, y, w, h)
-                || MiscMath.pointIntersects(x2 + w2, y2, x, y, w, h)
-                || MiscMath.pointIntersects(x2 + w2, y2 + h2, x, y, w, h)
-                || MiscMath.pointIntersects(x2, y2 + h2, x, y, w, h)) {
+        if (MiscMath.pointIntersectsRect(x2, y2, x, y, w, h) || MiscMath.pointIntersectsRect(x2 + w2, y2, x, y, w, h)
+                || MiscMath.pointIntersectsRect(x2 + w2, y2 + h2, x, y, w, h) || MiscMath.pointIntersectsRect(x2, y2 + h2, x, y, w, h)) {
             return true;
         }
-        //else return false
         return false;
     }
     
@@ -168,41 +139,70 @@ public class MiscMath {
                 && MiscMath.distanceBetween(r_y, 0, cy, 0) < min_height;
     }
     
-    public static boolean linesIntersect(int[] l1, int[] l2) {
-        if (l1.length != 4 || l2.length != 4) {
-            System.err.println("MiscMath.linesIntersect: you must input two lines!");
-            return false;
-        }
+    public static double min(double a, double b) { return a <= b ? a : b; }
+    public static double max(double a, double b) { return a >= b ? a : b; }
+    
+    public static boolean linesIntersect(int[] l, int[] l2) {
+        if (l == l2) return true;
+        if (l.length != 4 || l2.length != 4) return false;
+        return linesIntersect(l[0], l[1], l[2], l[3], l2[0], l2[1], l2[2], l2[3]);
+    }
+    
+    public static boolean linesIntersect(double l1x1, double l1y1, double l1x2, double l1y2, 
+            double l2x1, double l2y1, double l2x2, double l2y2) {
         
-        //determine the 4 points (of lines AB, CD; where A and C are the leftmost points of each line)
+        //determine the 4 points (of lines P1->P2, P3->P4; where P1 and P3 are the leftmost points of each line)
         double[] p1, p2, p3, p4;
-        p1 = new double[]{l1[0] < l1[2] ? l1[0] : l1[2], l1[1] < l1[3] ? l1[1] : l1[3]};
-        p2 = new double[]{l1[0] > l1[2] ? l1[0] : l1[2], l1[1] > l1[3] ? l1[1] : l1[3]};
-        p3 = new double[]{l2[0] < l2[2] ? l2[0] : l2[2], l2[1] < l2[3] ? l2[1] : l2[3]};
-        p4 = new double[]{l2[0] > l2[2] ? l2[0] : l2[2], l2[1] > l2[3] ? l2[1] : l2[3]};
+        p1 = l1x1 <= l1x2 ? new double[]{l1x1, l1y1} : new double[]{l1x2, l1y2};
+        p2 = l1x1 > l1x2 ? new double[]{l1x1, l1y1} : new double[]{l1x2, l1y2};
+        p3 = l2x1 <= l2x2 ? new double[]{l2x1, l2y1} : new double[]{l2x2, l2y2};
+        p4 = l2x1 > l2x2 ? new double[]{l2x1, l2y1} : new double[]{l2x2, l2y2};
         
-        double m1 = (p2[1]-p1[1])/(p2[0]-p1[0]);
-        double m2 = (p4[1]-p3[1])/(p4[0]-p3[0]);
+        //calculate the slopes and y-intercepts of both lines
+        double run1 = (p2[0]-p1[0]), run2 = (p4[0]-p3[0]), m1, m2, b1, b2;
+        //set the slope to the highest integer value if the line is vertical
+        //this value is never used, as I have special cases below
+        m1 = run1 != 0 ? (p2[1]-p1[1])/run1 : Integer.MAX_VALUE;
+        m2 = run2 != 0 ? (p4[1]-p3[1])/run2 : Integer.MAX_VALUE;
+        b1 = p1[1]-(p1[0]*m1);
+        b2 = p3[1]-(p3[0]*m2);
         
-        double b1 = p1[1]+(p1[0]*m1);
-        double b2 = p3[1]+(p3[0]*m2);
-        
-        double rx = p1[0] < p3[0] ? p1[0] : p3[0];
-        double ry = p1[1] < p3[1] ? p1[1] : p3[1];
-        double rw = (p2[0] > p4[0] ? p2[0] : p4[0]) - rx;
-        double rh = (p2[1] > p4[1] ? p2[1] : p4[1]) - ry;
-        
-        double a = m1, b = -1, c = m2, d = -1;
+        //special case for if both lines are vertical
+        if (run1 == 0 && run2 == 0) {
+            if (p1[0] != p3[0]) return false; //if x values don't match, no intersection
+            //if any of the 4 y values are touching the other line segment, intersection
+            if (p1[1] >= min(p3[1], p4[1]) && p1[1] <= max(p3[1], p4[1])) return true;
+            if (p2[1] >= min(p3[1], p4[1]) && p2[1] <= max(p3[1], p4[1])) return true;
+            if (p3[1] >= min(p1[1], p2[1]) && p3[1] <= max(p1[1], p2[1])) return true;
+            if (p4[1] >= min(p1[1], p2[1]) && p4[1] <= max(p1[1], p2[1])) return true;
+        }
+        //special cases for if only one of the lines are vertical
+        //use the line formula to find the point of intersection at x = line 2, and then compare x/y values
+        if (run1 == 0) { 
+            if (p1[0] > p4[0] || p1[0] < p3[0]) return false;
+            double y2 = (m2*p1[0]) + b2; return y2 >= min(p1[1], p2[1]) && y2 <= max(p1[1], p2[1]); 
+        }
+        if (run2 == 0) {
+            if (p3[0] > p2[0] || p3[0] < p1[0]) return false;
+            double y1 = (m1*p3[0]) + b1; return y1 >= min(p3[1], p4[1]) && y1 <= max(p3[1], p4[1]); 
+        }
+
+        //for when neither lines are vertical, use Cramer's rule to determine a point of intersection
+        double a = 1, b = -m1, c = 1, d = -m2;
         double det = (a*d)-(b*c);
         if (det != 0) {
-            double detx = (b1*d)-(b*b2);
-            double dety = (a*b2)-(b1*c);
+            double detx = (a*b2)-(b1*c);
+            double dety = (b1*d)-(b*b2);
             double x = detx/det, y = dety/det;
-            return MiscMath.pointIntersects(x, y, rx, ry, (int)rw, (int)rh);
-        } else {
-            //handle the case in which the lines are paralell
+            if ((x >= p1[0] && x <= p2[0]) && (x >= p3[0] && x <= p4[0])) return true;
+        } else { //if no point to be found, then they are paralell
+            if ((int)b1 != (int)b2) return false; //if they have different y-intercepts, no intersection
+            //otherwise, check each x value to see if they are touching the other segment
+            if (p1[0] >= p3[0] && p1[0] <= p4[0]) return true;
+            if (p2[0] >= p3[0] && p2[0] <= p4[0]) return true;
+            if (p3[0] >= p1[0] && p3[0] <= p2[0]) return true;
+            if (p4[0] >= p1[0] && p4[0] <= p2[0]) return true;
         }
-        //take the line with the x that was used for the top left corner
         return false;
     }
 
