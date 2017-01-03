@@ -77,17 +77,11 @@ public class Entity {
     }
     
     public final boolean intersects(Entity e) {
-        Hitbox h = null;
-        Component c = getComponent("Hitbox");
-        if (c != null) h = ((Hitbox)c);
-        return h == null ? false : h.intersects(e);
+        return hitbox == null ? false : hitbox.intersects(e);
     }
     
     public final boolean intersects(int x, int y, int width, int height) {
-        Hitbox h = null;
-        Component c = getComponent("Hitbox");
-        if (c != null) h = ((Hitbox)c);
-        return h == null ? false : h.intersects(x, y, width, height);
+        return hitbox == null ? false : hitbox.intersects(x, y, width, height);
     }
     
     /**
@@ -179,6 +173,11 @@ public class Entity {
         }
         return null;
     }
+    
+    public Hitbox getHitbox() { return hitbox; }
+    public Position getPosition() { return position; }
+    public Texture getTexture() { return texture; }
+    public Forces getForces() { return forces; }
     
     public final void copyTo(Entity e) {
         e.type = this.type;

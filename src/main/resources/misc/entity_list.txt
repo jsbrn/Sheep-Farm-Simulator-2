@@ -4,14 +4,23 @@ c
 id=Position
 
 
+
+
+
 /c
 c
 id=Texture
 texture=tree.png
 
+
+
+
 /c
 c
 id=Hitbox
+
+
+
 
 
 /c
@@ -25,4 +34,15 @@ id=Render
 s
 id=Movement
 /s
+h
+-3 -11 -11 -6
+-12 -1 -11 5
+-11 5 -4 11
+-4 11 5 12
+5 12 10 7
+10 7 12 -2
+12 -2 7 -10
+7 -10 0 -12
+-12 0 -10 -6
+/h
 /e

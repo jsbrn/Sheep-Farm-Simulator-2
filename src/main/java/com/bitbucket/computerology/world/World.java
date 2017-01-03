@@ -92,6 +92,7 @@ public class World {
      */
     public ArrayList<Chunk> getChunks(int x, int y, int w, int h) {
         ArrayList<Chunk> list = new ArrayList<Chunk>();
+        if (w <= 0 || h <= 0) return list;
         int max_w = w < Chunk.sizePixels() ? w : w+Chunk.sizePixels();
         int max_h = h < Chunk.sizePixels() ? h : h+Chunk.sizePixels();
         int i_inc = w < Chunk.sizePixels() ? w : Chunk.sizePixels();
