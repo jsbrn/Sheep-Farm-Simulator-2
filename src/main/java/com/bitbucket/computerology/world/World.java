@@ -82,6 +82,9 @@ public class World {
         return getTown(s);
     }
     
+    public int movableEntityCount() { return moving_entities.size(); }
+    public int activeEntityCount() { return active_entities.size(); }
+    
     /**
      * Gets all of the chunks intersecting the specified rectangle.
      * @param x World coordinates.
@@ -117,7 +120,7 @@ public class World {
         Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
         if (c != null) {
             for (int i = c.getEntities().size()-1; i > -1; i--) {
-                if (c.getEntities().get(i).intersects(x, y, 1, 1)) 
+                if (c.getEntities().get(i).intersects(x, y)) 
                     return c.getEntities().get(i);
             }
         }

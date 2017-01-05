@@ -31,7 +31,9 @@ public class GrassBiomeGen extends Generator {
             int ry2 = ry+(parent.getWorld().rng().nextInt() % rr);
             Entity tree = Entity.create("Tree");
             Force f = new Force("move");
-            f.setXVelocity(1);
+            f.setXVelocity(25);
+            f.setXAcceleration(-1);
+            f.setYAcceleration(-1);
             tree.addForce(f);
             tree.setWorldX(parent.worldCoords()[0]+rx2);
             tree.setWorldY(parent.worldCoords()[1]+ry2);

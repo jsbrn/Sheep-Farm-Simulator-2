@@ -7,7 +7,6 @@ import com.bitbucket.computerology.gui.elements.GameCanvas;
 import com.bitbucket.computerology.gui.elements.MiniMap;
 import com.bitbucket.computerology.gui.elements.Panel;
 import com.bitbucket.computerology.gui.elements.StatusBar;
-import com.bitbucket.computerology.gui.elements.TextField;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.Camera;
@@ -33,7 +32,7 @@ public class GameScreen extends BasicGameState {
     
     public static GUI GUI;
     public static MiniMap MINI_MAP;
-    public static boolean DEBUG_MODE = true;
+    public static boolean DEBUG_MODE = false;
     
     static StateBasedGame game;
     
@@ -146,6 +145,7 @@ public class GameScreen extends BasicGameState {
             g.setColor(Color.white);
             g.setFont(Assets.getFont(8));
             
+            g.drawString("Entities: "+World.getWorld().activeEntityCount()+"A, "+World.getWorld().movableEntityCount()+"M", 5, 32);
             g.drawString("Sectors: "+World.getWorld().sectorCount(), 5, 42);
             g.drawString("Camera: "+Camera.getX()+", "+Camera.getY(), 5, 52);
             
@@ -163,7 +163,7 @@ public class GameScreen extends BasicGameState {
             g.drawString("  - Chunk: "+cc[0]+", "+cc[1]+" (t: "+(c != null ? c.getTerrain() : "null")+")", 5, 112);
             
             Entity en = World.getWorld().getEntity(wc[0], wc[1]);
-            g.drawString(en != null ? en.toString() : "null", 5, 132);
+            g.drawString("Entity at mouse: "+(en != null ? en.toString() : "null"), 5, 132);
             
             g.setColor(Color.blue);
             g.drawRect(x-200, y-200, 200, 200);

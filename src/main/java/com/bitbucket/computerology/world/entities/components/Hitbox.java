@@ -61,11 +61,12 @@ public class Hitbox extends Component {
     }
     
     public boolean intersects(double wx, double wy) {
-        double[] line = {wx, wy, Integer.MAX_VALUE, wy};
+        if (!MiscMath.pointIntersectsRect(wx, wy, 
+                getParent().getWorldX()-(width/2), getParent().getWorldY()-(height/2), width, height)) return false;
         int count = 0;
         //if odd, intersecting. even, no.
         for (int[] l: rotated_lines) {
-            count += MiscMath.linesIntersect(wx, wy, Integer.MAX_VALUE, wy, 
+            count += MiscMath.linesIntersect(wx, wy, Integer.MAX_VALUE, wy+1, 
                     l[0]+getParent().getWorldX()+offset_x, 
                     l[1]+getParent().getWorldY()+offset_y, 
                     l[2]+getParent().getWorldX()+offset_x, 
@@ -76,14 +77,14 @@ public class Hitbox extends Component {
     
     public boolean intersects(Entity e) {
         if (e == null) return false;
-        Hitbox h2;
-        Component c = e.getComponent("Hitbox");
-        if (c != null) h2 = ((Hitbox)c); else h2 = null;
-        if (h2 == null) return false;
-        return intersects(h2);
+        return intersects(e.getHitbox());
     }
     
     public boolean intersects(Hitbox h) {
+        if (h == null) return false;
+        if (!MiscMath.rectanglesIntersect(
+                h.getParent().getWorldX()-(h.width/2), h.getParent().getWorldY()-(h.height/2), h.width, h.height, 
+                getParent().getWorldX()-(width/2), getParent().getWorldY()-(height/2), width, height)) return false;
         //check if any of the lines intersect
         for (int[] l1: rotated_lines) {
             for (int[] l2: h.rotated_lines) {
@@ -110,6 +111,9 @@ public class Hitbox extends Component {
     }
     
     public boolean intersects(int x, int y, int w, int h) {
+        if (!MiscMath.rectanglesIntersect(
+                x, y, w, h, 
+                getParent().getWorldX()-(width/2), getParent().getWorldY()-(height/2), width, height)) return false;
         Entity e = getParent();
         for (int[] l: rotated_lines) {
             if (l.length != 4) continue;
@@ -123,6 +127,10 @@ public class Hitbox extends Component {
             if (MiscMath.pointIntersectsRect(e.getWorldX()+l[2]+offset_x, 
                     e.getWorldY()+l[3]+offset_y, x, y, w, h)) return true;
         }
+        if (intersects(x, y)) return true;
+        if (intersects(x+w, y)) return true;
+        if (intersects(x, y+h)) return true;
+        if (intersects(x+w, y+h)) return true;
         return false;
     }
     

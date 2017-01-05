@@ -31,7 +31,7 @@ public class Generator {
     public static void brush(int wx, int wy, int diametre, int terrain) {
         for (int w = (-diametre/2); w != (diametre/2); w++) {
             for (int h = (-diametre/2); h != (diametre/2); h++) {
-                if (MiscMath.distanceBetween(w, h, 0, 0) <= (diametre/2)) {
+                if (MiscMath.distance(w, h, 0, 0) <= (diametre/2)) {
                     int sc[] = World.getWorld().getSectorCoords(wx+(w*Chunk.sizePixels()), wy+(h*Chunk.sizePixels()));
                     int cc[] = World.getWorld().getChunkCoords(wx+(w*Chunk.sizePixels()), wy+(h*Chunk.sizePixels()));
                     Sector s = World.getWorld().getSector(sc[0], sc[1]);

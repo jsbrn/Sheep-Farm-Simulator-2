@@ -9,10 +9,10 @@ import java.util.logging.Logger;
 
 public class Position extends Component {
     
-    double x, y;
+    double x, y, last_x, last_y;
     float rotation;
     
-    public Position() {}
+    public Position() {last_x = 0; last_y = 0;}
     
     @Override
     public void customSave(BufferedWriter bw) {
@@ -33,14 +33,16 @@ public class Position extends Component {
     }
 
     public void setWorldX(double x) {
-        World.getWorld().refreshEntity(getParent(), false);
+        if (Math.abs(x-last_y) > 1) World.getWorld().refreshEntity(getParent(), false);
         this.x = x; 
-        World.getWorld().refreshEntity(getParent(), true);
+        if (Math.abs(x-last_y) > 1) World.getWorld().refreshEntity(getParent(), true);
+        if (Math.abs(x-last_y) > 1) this.last_x = x;
     }
-    public void setWorldY(double y) { 
-        World.getWorld().refreshEntity(getParent(), false);
+    public void setWorldY(double y) {
+        if (Math.abs(x-last_y) > 1) World.getWorld().refreshEntity(getParent(), false);
         this.y = y; 
-        World.getWorld().refreshEntity(getParent(), true);
+        if (Math.abs(x-last_y) > 1) World.getWorld().refreshEntity(getParent(), true);
+        if (Math.abs(x-last_y) > 1) this.last_y = y;
     }
     public void addWorldX(double x) { 
         this.setWorldX(getWorldX()+x);
@@ -49,9 +51,10 @@ public class Position extends Component {
         this.setWorldY(getWorldY()+y);
     }
     public void setRotation(int r) { 
-        World.getWorld().refreshEntity(getParent(), false);
+        if (r != rotation) World.getWorld().refreshEntity(getParent(), false);
         this.rotation = r % 360;
-        World.getWorld().refreshEntity(getParent(), true);
+        if (r != rotation) World.getWorld().refreshEntity(getParent(), true);
+        if (getParent().getHitbox() == null) return; getParent().getHitbox().refresh();
     }
     
     public double getWorldX() { return x; }

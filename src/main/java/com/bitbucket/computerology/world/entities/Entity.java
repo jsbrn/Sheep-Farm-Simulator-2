@@ -84,6 +84,10 @@ public class Entity {
         return hitbox == null ? false : hitbox.intersects(x, y, width, height);
     }
     
+    public final boolean intersects(int x, int y) {
+        return hitbox == null ? false : hitbox.intersects(x, y);
+    }
+    
     /**
      * Does this entity have logic that needs to be updated?
      * @return A boolean.
@@ -112,10 +116,7 @@ public class Entity {
     public final void addWorldY(double wy) { if (position == null) return; position.addWorldY(wy); }
     
     public final int getRotation() { return position == null ? 0 : (int)position.getRotation(); }
-    public final void setRotation(int wx) { 
-        if (position == null) return; position.setRotation(wx); 
-        if (hitbox == null) return; hitbox.refresh();
-    }
+    public final void setRotation(int wx) { if (position == null) return; position.setRotation(wx); }
     
     public final Force getForce(String name) { return forces == null ? null : forces.getForce(name); }
     public final void addForce(Force f) { if (forces == null) return; forces.addForce(f); }

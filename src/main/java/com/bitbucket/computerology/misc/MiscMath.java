@@ -23,7 +23,8 @@ public class MiscMath {
     
     /**
      * Performs the same function as MiscMath.getConstant, however, the second parameter specifies the
-     * number of in-game minutes that will pass before the amount to add is reached.
+     * number of in-game minutes that will pass before the amount to add is reached. Divides the second
+     * parametre by 1.6, because each in-game minute takes roughly 0.625 seconds.
      * @param amount_to_add The amount to add.
      * @param per_ingame_minutes The number of in-game minutes it should take to add.
      * @param frame_skip_multiplier Whether the output is multiplied by the frame skip multiplier
@@ -32,16 +33,19 @@ public class MiscMath {
      */
     public static double get24HourConstant(double amount_to_add, double per_ingame_minutes) {
         //divides the second parameter by 1.6 because each minute in game takes 1/1.6 seconds in real life
-        //(arbitrary setting by me)
         return MiscMath.getConstant(amount_to_add, per_ingame_minutes/1.6);
     }
     
     /**
-     * Calculates distance between two points.
+     * Calculates distance between two points. sqrt()
      * @return The distance between (x1, y1) and (x2, y2).
      */
-    public static double distanceBetween(double x1, double y1, double x2, double y2) {
+    public static double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+    
+    public static double distanceSquared(double x1, double y1, double x2, double y2) {
+        return (Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
     
     /**
@@ -135,8 +139,8 @@ public class MiscMath {
     public static boolean rectangleIntersectsCircle(double x, double y, int w, int h, double cx, double cy, int r) {
         double r_x = x+(w/2), r_y = y+(h/2);
         double min_width = (w/2)+r, min_height = (h/2)+r;
-        return MiscMath.distanceBetween(r_x, 0, cx, 0) < min_width 
-                && MiscMath.distanceBetween(r_y, 0, cy, 0) < min_height;
+        return MiscMath.distance(r_x, 0, cx, 0) < min_width 
+                && MiscMath.distance(r_y, 0, cy, 0) < min_height;
     }
     
     public static double min(double a, double b) { return a <= b ? a : b; }
