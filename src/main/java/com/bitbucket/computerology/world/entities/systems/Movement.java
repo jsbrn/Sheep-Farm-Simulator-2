@@ -39,6 +39,7 @@ public class Movement extends ComponentSystem {
         if (hitbox != null) {
             ArrayList<Entity> entities = 
                     World.getWorld().getEntities((int)A[0], (int)A[1], (int)(B[0]-A[0]), (int)(B[1]-A[1]));
+
             double total_dist = MiscMath.distance(0, 0, dx, dy);
             double dist = 0, i = 0, incr_x = dx*(4/total_dist), incr_y = dy*(4/total_dist);
             boolean stop = false;
@@ -55,6 +56,7 @@ public class Movement extends ComponentSystem {
                 }
             }
             if (stop) { dx = incr_x*i; dy = incr_y*i; }
+            
         }
         pos.addWorldX(dx);
         pos.addWorldY(dy);

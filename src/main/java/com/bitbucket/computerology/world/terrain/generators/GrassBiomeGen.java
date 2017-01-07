@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.terrain.generators;
 
+import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.entities.Force;
 import com.bitbucket.computerology.world.terrain.Chunk;
@@ -12,12 +13,14 @@ public class GrassBiomeGen extends Generator {
     public GrassBiomeGen(Sector s) { super(s); }
     
     @Override
-    public void generate() {
-        //if (isRiver()) createRiver();
-        
-        int c_count = Math.abs(parent.getWorld().rng().nextInt() % 5);
+    public void generateTerrain() {
+        if (isRiver()) createRiver();
+    }
+    
+    @Override
+    public void generateObjects() {
+        int c_count = Math.abs(parent.getWorld().rng().nextInt() % 15)+5;
         for (int i = 0; i < c_count; i++) treeCluster();
-        
     }
     
     public void treeCluster() {
@@ -27,17 +30,17 @@ public class GrassBiomeGen extends Generator {
         int rd = Math.abs(parent.getWorld().rng().nextInt() % 50);
         
         for (int i = 0; i < rd; i++) {
-            int rx2 = rx+(parent.getWorld().rng().nextInt() % rr);
-            int ry2 = ry+(parent.getWorld().rng().nextInt() % rr);
+            int x = parent.worldCoords()[0]+rx+(parent.getWorld().rng().nextInt() % rr);
+            int y = parent.worldCoords()[1]+ry+(parent.getWorld().rng().nextInt() % rr);
             Entity tree = Entity.create("Tree");
-            Force f = new Force("move");
-            f.setXVelocity(25);
-            f.setXAcceleration(-1);
-            f.setYAcceleration(-1);
-            tree.addForce(f);
-            tree.setWorldX(parent.worldCoords()[0]+rx2);
-            tree.setWorldY(parent.worldCoords()[1]+ry2);
-            parent.getWorld().addEntity(tree);
+            if (World.getWorld().getEntities(x - tree.getWidth()/2, y - tree.getHeight()/2, 
+                    tree.getWidth(), tree.getHeight()).isEmpty()
+                    && World.getWorld().getChunks(x, y, 1, 1).isEmpty() == false) {
+                tree.setWorldX(x);
+                tree.setWorldY(y);
+                parent.getWorld().addEntity(tree);
+                break;
+            }
         }
     }
     

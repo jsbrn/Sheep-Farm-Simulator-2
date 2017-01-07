@@ -222,7 +222,6 @@ public class World {
      * @return A Sector instance, or null if none found at (x, y).
      */
     private Sector getSector(int x, int y, int l, int u, ArrayList<Sector> list) {
-        
         if (list.isEmpty()) return null;
         //if the sector is beyond the first and last, return null
         //if the sector is the first or last, return the first or last, respectively
@@ -340,15 +339,16 @@ public class World {
      * In the future it will not loop through ALL entities.
      */
     void drawEntities(Graphics g) {
-        
-        for (Entity e: render_entities) { 
-            int osc[] = getOnscreenCoords(e.getWorldX(), e.getWorldY());
-            if (MiscMath.pointIntersectsRect(osc[0], osc[1], -Entity.maxSizePixels(), -Entity.maxSizePixels(), 
-                    Display.getWidth()+Entity.maxSizePixels(), Display.getWidth()+Entity.maxSizePixels())) {
+        int wc[] = getWorldCoords(0, 0);
+        int wc2[] = getWorldCoords(Display.getWidth(), Display.getHeight());
+        ArrayList<Chunk> chunks = getChunks(wc[0], wc[1], wc2[0]-wc[0], wc2[1]-wc[1]);
+        for (Chunk c: chunks) {
+            for (int i = 0; i < c.entities.size(); i++) {
+                if (i < 0 || i >= c.entities.size()) break;
+                Entity e = c.entities.get(i);
                 e.draw(g);
             }
         }
-
     }
     
     public static void save() {
@@ -438,8 +438,8 @@ public class World {
      */
     public void generateAround(int world_x, int world_y) {
         int sc[] = getSectorCoords(world_x, world_y);
-        createSectors(sc[0], sc[1], 2);
-        fillSectors(sc[0], sc[1], 1);
+        createSectors(sc[0], sc[1], 3);
+        fillSectors(sc[0], sc[1], 2);
     }
     
     private void createSectors(int sector_x, int sector_y, int r) {
@@ -455,13 +455,18 @@ public class World {
     }
     
     private void fillSectors(int sector_x, int sector_y, int r) {
-        for (int h = -r; h != r+1; h++) {
-            for (int w = -r; w != r+1; w++) {
-                Sector s = getSector(sector_x+w, sector_y+h);
-                if (s != null) {
-                    if (!s.generated()) s.generate();
+        int pass = 0;
+        while (pass < 2) {
+            for (int h = -r; h != r+1; h++) {
+                for (int w = -r; w != r+1; w++) {
+                    Sector s = getSector(sector_x+w, sector_y+h);
+                    if (s != null) {
+                        if (pass == 0) { if (!s.generatedTerrain()) s.generateTerrain(); }
+                        if (pass == 1) { if (!s.generatedObjects()) s.generateObjects(); }
+                    }
                 }
             }
+            pass++;
         }
     }
     

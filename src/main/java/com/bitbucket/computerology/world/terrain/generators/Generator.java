@@ -18,7 +18,9 @@ public class Generator {
     
     public Generator(Sector s) { this.parent = s; }
     
-    public void generate() {}
+    public void generateObjects() {}
+    
+    public void generateTerrain() {}
     
     /**
      * Applies a circular brush to the terrain.

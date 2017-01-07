@@ -4,12 +4,11 @@ import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.terrain.Sector;
 
 public class WaterBiomeGen extends Generator {
-    
-    
+
     public WaterBiomeGen(Sector s) { super(s); }
     
     @Override
-    public void generate() {
+    public void generateTerrain() {
         Sector[] adj = parent.getAdjacentSectors();
         for (int i = 0; i < adj.length; i++) {
             Sector s = adj[i];

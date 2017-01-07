@@ -16,7 +16,7 @@ public class Sector {
     private World parent;
     private Chunk[][] chunks;
     private int x, y, biome;
-    private boolean generated, town_sector;
+    private boolean generated_terrain, generated_objects, town_sector;
     
     ArrayList<Entity> entities;
     
@@ -27,7 +27,8 @@ public class Sector {
     public Sector(int x, int y, World parent) {
         this.x = x; this.y = y;
         this.parent = parent;
-        this.generated = false;
+        this.generated_terrain = false;
+        this.generated_objects = false;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
         this.biome = -1;
         for (int h = 0; h != sizeChunks(); h++) {
@@ -67,9 +68,9 @@ public class Sector {
     
     public boolean isTownSector() { return town_sector; }
     
-    public boolean generated() {
-        return generated;
-    }
+    public boolean generatedTerrain() { return generated_terrain; }
+    
+    public boolean generatedObjects() { return generated_objects; }
     
     public int[] offsets() {
         return new int[]{x, y};
@@ -189,7 +190,8 @@ public class Sector {
                 if (line.indexOf("x=") == 0) x = Integer.parseInt(line.replace("x=", ""));
                 if (line.indexOf("y=") == 0) y = Integer.parseInt(line.replace("y=", ""));
                 if (line.indexOf("b=") == 0) setBiome(Integer.parseInt(line.replace("b=", "")));
-                if (line.indexOf("g=") == 0) generated = Boolean.parseBoolean(line.replace("g=", ""));
+                if (line.indexOf("gt=") == 0) generated_terrain = Boolean.parseBoolean(line.replace("g=", ""));
+                if (line.indexOf("go=") == 0) generated_objects = Boolean.parseBoolean(line.replace("g=", ""));
             }
         } catch (IOException ex) {
             Logger.getLogger(Sector.class.getName()).log(Level.SEVERE, null, ex);
@@ -203,7 +205,8 @@ public class Sector {
                 bw.write("x="+x+"\n");
                 bw.write("y="+y+"\n");
                 bw.write("b="+biome+"\n");
-                bw.write("g="+generated+"\n");
+                bw.write("gt="+generated_terrain+"\n");
+                bw.write("go="+generated_objects+"\n");
                 for (int h = 0; h != chunks.length; h++) {
                     for (int w = 0; w != chunks[h].length; w++) {
                         chunks[w][h].save(bw);
@@ -219,8 +222,8 @@ public class Sector {
      * Generator code below; these functions should not be called outside of generate() or World.init(). *
      *****************************************************************************************************/
     
-    public final void generate() {
-        if (generated) return;
+    public final void generateTerrain() {
+        if (generated_terrain) return;
         
         //blend with the other surrounding sectors
         int section = Sector.sizeChunks()/8, schunks = Sector.sizeChunks();
@@ -228,7 +231,7 @@ public class Sector {
             for (int by = 0; by < schunks; by+=section) {
                 if ((bx > section*2 && bx < schunks-(section*2)) //if not on the edge, continue
                         && (by > section*2 && by < schunks-(section*2))) continue;
-                int d = Math.abs(parent.rng().nextInt() % schunks/2)+6;
+                int d = Math.abs(parent.rng().nextInt() % schunks)+6;
                 Generator.brush(worldCoords()[0]+(bx*Chunk.sizePixels()), 
                         worldCoords()[1]+(by*Chunk.sizePixels()), 
                         d, biome);
@@ -236,11 +239,15 @@ public class Sector {
         }
         
         //call on its generator to add some biome specific terrain details
-        if (generator != null) generator.generate();
-        
-        //mark as generated so that it will not regenerate
-        generated = true;
-        
+        if (generator != null) generator.generateTerrain();
+        generated_terrain = true;
+    }
+    
+    public final void generateObjects() {
+        if (generated_objects) return;
+        //call on its generator to add some biome specific terrain details
+        if (generator != null) generator.generateObjects();
+        generated_objects = true;
     }
     
     public Generator generator() { return generator; }
@@ -250,7 +257,7 @@ public class Sector {
      * around it. Desert will never be adjacent to tundra.
      */
     public void randomizeBiome() {
-        if (!generated) setBiome(randomValidBiome(-1));
+        if ((generated_terrain || generated_objects) == false) setBiome(randomValidBiome(-1));
     }
 
 }
