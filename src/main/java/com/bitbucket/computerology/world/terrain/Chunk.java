@@ -80,27 +80,7 @@ public class Chunk {
         return d;
     }
     
-    /**
-     * Gives the sector a random biome that takes into consideration the sectors
-     * around it. Desert will never be adjacent to tundra.
-     */
-    void randomizeTerrain(boolean allow_sector_biome) {
-        terrain = randomValidTerrain((allow_sector_biome ? -1 : parent.getBiome()));
-    }
-    
     public Sector getSector() { return parent; }
-    
-    public boolean isTerrainAllowed(int b) {
-        if (b < 0 || b >= Chunk.BIOME_COUNT) return false;
-        Chunk adj[] = getAdjacentChunks(true);
-        ArrayList<Chunk> non_null = new ArrayList<Chunk>();
-        for (Chunk s: adj) {if (s != null) { non_null.add(s); }}
-        if (non_null.isEmpty()) return true;
-        for (Chunk s: non_null) {
-            if (b == Chunk.SNOW && parent.getBiome() != Chunk.SNOW) return false;
-        }
-        return true;
-    }
     
     public int[] offsets() {
         return new int[]{x, y};
@@ -111,50 +91,16 @@ public class Chunk {
     }
     
     public int getTerrain() {
-        return terrain > -1 ? terrain : parent.getBiome();
+        return terrain;
     }
     
     public int[] onScreenCoords() {
         return World.getWorld().getOnscreenCoords(worldCoords()[0], worldCoords()[1]);
     }
-    
-    /**
-     * Gets a random valid biome for this particular sector.
-     * @param exception Will not return this biome in any case.
-     * @return An Integer representing the randomly chosen biome.
-     */
-    public int randomValidTerrain(int exception) {
-        int b = exception;
-        while (!isTerrainAllowed(b) || b == exception) {
-            Chunk adj[] = getAdjacentChunks(true);
-            ArrayList<Chunk> non_null = new ArrayList<Chunk>();
-            for (Chunk s: adj) {if (s != null) { non_null.add(s); }}
-            
-            if (non_null.isEmpty() || Math.abs(parent.getWorld().rng().nextInt() % 100) <= 30) 
-                b = Math.abs(parent.getWorld().rng().nextInt() % Chunk.BIOME_COUNT);
-            else
-                b = non_null.get(Math.abs(parent.getWorld().rng().nextInt() % non_null.size())).getTerrain();
-            
-        }
-        return b;
-    }
-    
+
     public boolean intersects(int x, int y, int w, int h) {
         return MiscMath.rectanglesIntersect(worldCoords()[0], 
                 worldCoords()[1], Chunk.sizePixels(), Chunk.sizePixels(), x, y, w, h);
-    }
-    
-    public boolean isOrphan(boolean stay_in_sector) {
-        int count = 0;
-        Chunk[] adj = getAdjacentChunks(true);
-        for (int a = 0; a != adj.length; a++) { if (adj[a] == null) continue; 
-            if (adj[a].getTerrain() == getTerrain()) { 
-                if (!stay_in_sector || ((stay_in_sector && parent.equals(adj[a].getSector())))) {
-                    count++; 
-                }
-            }
-        }
-        return count <= 3;
     }
 
     public void setTerrain(int biome) {

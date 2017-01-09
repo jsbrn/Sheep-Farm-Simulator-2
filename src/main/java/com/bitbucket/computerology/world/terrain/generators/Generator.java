@@ -11,8 +11,6 @@ public class Generator {
 
     public static Generator create(Sector s) {
         if (s == null) return null;
-        if (s.getBiome() == Chunk.GRASS_FIELD) return new GrassBiomeGen(s);
-        if (s.getBiome() == Chunk.WATER) return new WaterBiomeGen(s);
         return null;
     }
     

@@ -15,8 +15,10 @@ public class Sector {
     
     private World parent;
     private Chunk[][] chunks;
-    private int x, y, biome;
-    private boolean generated_terrain, generated_objects, town_sector;
+    private int x, y;
+    private boolean town_sector, imported_terrain = false, imported_forest = false;
+    
+    private double[] biome_percentages;
     
     ArrayList<Entity> entities;
     
@@ -27,18 +29,11 @@ public class Sector {
     public Sector(int x, int y, World parent) {
         this.x = x; this.y = y;
         this.parent = parent;
-        this.generated_terrain = false;
-        this.generated_objects = false;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
-        this.biome = -1;
-        for (int h = 0; h != sizeChunks(); h++) {
-            for (int w = 0; w != sizeChunks(); w++) {
-                chunks[w][h] = new Chunk(w, h, this);
-            }
-        }
         this.town_sector = Math.abs(parent.rng().nextInt() % 50) == 0;
         this.entities = new ArrayList<Entity>();
         this.entities.ensureCapacity(1000);
+        this.biome_percentages = new double[Chunk.BIOME_COUNT];
         this.generator = null;
     }
     
@@ -68,10 +63,6 @@ public class Sector {
     
     public boolean isTownSector() { return town_sector; }
     
-    public boolean generatedTerrain() { return generated_terrain; }
-    
-    public boolean generatedObjects() { return generated_objects; }
-    
     public int[] offsets() {
         return new int[]{x, y};
     }
@@ -84,22 +75,8 @@ public class Sector {
     public static int sizePixels() { return Chunk.sizePixels()*sizeChunks(); }
     public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
     
-    public int getBiome() {
-        return biome;
-    }
-    
     public int[] onScreenCoords() {
         return World.getWorld().getOnscreenCoords(worldCoords()[0], worldCoords()[1]);
-    }
-    
-    /**
-     * Sets the sector biome to the specified biome. Applies a new generator
-     * instance to the sector, so use this instead of just giving biome a new value.
-     * @param biome An integer defining the biome (i.e. Chunk.DESERT)
-     */
-    void setBiome(int biome) {
-        this.biome = biome;
-        this.generator = Generator.create(this);
     }
     
     /**
@@ -126,6 +103,45 @@ public class Sector {
         };
     }
     
+    public void importTerrain(int[][] map) {
+        System.out.println("Importing terrain map: "+map.length+"x"+map[0].length);
+        if (imported_terrain) return;
+        this.chunks = new Chunk[sizeChunks()][sizeChunks()];
+        int[] mc = parent.getMapCoords(x, y, 0, 0);
+        System.out.println("Sector "+x+", "+y+" has map coords "+mc[0]+", "+mc[1]);
+        for (int i = 0; i < sizeChunks(); i++) {
+            for (int j = 0; j < sizeChunks(); j++) {
+                System.out.print("terrain_map("+(mc[0]+i)+", "+(mc[1]+j)+") = ");
+                int terrain = map[mc[0]+i][mc[1]+j];
+                System.out.println(terrain);
+                chunks[i][j] = new Chunk(i, j, this);
+                chunks[i][j].setTerrain(terrain);
+            }
+        }
+        imported_terrain = true;
+    }
+    
+    public void importForest(int[][] map) {
+        if (imported_forest) return;
+        int trees = 0;
+        int[] mc = parent.getMapCoords(x, y, 0, 0);
+        for (int i = 0; i < sizeChunks(); i++) {
+            for (int j = 0; j < sizeChunks(); j++) {
+                int spawn = map[mc[0]+i][mc[1]+j];
+                if (spawn == 1) {
+                    Entity tree = Entity.create("Tree");
+                    int wc[] = parent.getWorldCoordsFromMap(i, j);
+                    tree.setWorldX(wc[0]+(Chunk.sizePixels()/4));
+                    tree.setWorldY(wc[1]+Chunk.sizePixels()/4);
+                    if (parent.addEntity(tree)) trees++;
+                }
+            }
+        }
+        System.out.println("Importing forest map: "+map.length+"x"+map[0].length);
+        System.out.println(trees+" trees imported!");
+        imported_forest = true;
+    }  
+    
     public World getWorld() {
         return parent;
     }
@@ -141,41 +157,6 @@ public class Sector {
         return null;
     }
     
-    /**
-     * Gets a random valid biome for this particular sector. Will be more likely to
-     * return the biome of the most frequent type from the adjacent sectors.
-     * @param exception Will not return this biome in any case. Pass -1 if no exception.
-     * @return An Integer representing the randomly chosen biome.
-     */
-    public int randomValidBiome(int exception) {
-        int b = -1;
-        while (!isBiomeAllowed(b) || b == exception) {
-            Sector adj[] = getAdjacentSectors();
-            ArrayList<Sector> non_null = new ArrayList<Sector>();
-            for (Sector s: adj) {if (s != null) { non_null.add(s); }}
-            
-            if (non_null.isEmpty() || Math.abs(parent.rng().nextInt() % 100) <= 10) 
-                b = Math.abs(parent.rng().nextInt() % Chunk.BIOME_COUNT);
-            else
-                b = non_null.get(Math.abs(parent.rng().nextInt() % non_null.size())).getBiome();
-            
-        }
-        return b;
-    }
-    
-    public boolean isBiomeAllowed(int b) {
-        if (b < 0 || b >= Chunk.BIOME_COUNT) return false;
-        Sector adj[] = getAdjacentSectors();
-        ArrayList<Sector> non_null = new ArrayList<Sector>();
-        for (Sector s: adj) {if (s != null) { non_null.add(s); }}
-        if (non_null.isEmpty()) return true;
-        for (Sector s: non_null) {
-            if (b == Chunk.SAND && s.getBiome() == Chunk.SNOW) return false;
-            if (b == Chunk.SNOW && s.getBiome() == Chunk.SAND) return false;
-        }
-        return true;
-    }
-    
     public final boolean load(BufferedReader br) {
         try {
             while (true) {
@@ -183,15 +164,15 @@ public class Sector {
                 if (line == null) break;
                 line = line.trim();
                 if (line.equals("/s")) return true;
+                
                 if (line.equals("c")) {
                     Chunk c = new Chunk(0, 0, this);
                     if (c.load(br)) chunks[c.offsets()[0]][c.offsets()[1]] = c;
                 }
                 if (line.indexOf("x=") == 0) x = Integer.parseInt(line.replace("x=", ""));
+                if (line.indexOf("it=") == 0) imported_terrain = Boolean.parseBoolean(line.replace("it=", ""));
+                if (line.indexOf("if=") == 0) imported_forest = Boolean.parseBoolean(line.replace("if=", ""));
                 if (line.indexOf("y=") == 0) y = Integer.parseInt(line.replace("y=", ""));
-                if (line.indexOf("b=") == 0) setBiome(Integer.parseInt(line.replace("b=", "")));
-                if (line.indexOf("gt=") == 0) generated_terrain = Boolean.parseBoolean(line.replace("g=", ""));
-                if (line.indexOf("go=") == 0) generated_objects = Boolean.parseBoolean(line.replace("g=", ""));
             }
         } catch (IOException ex) {
             Logger.getLogger(Sector.class.getName()).log(Level.SEVERE, null, ex);
@@ -204,9 +185,8 @@ public class Sector {
             bw.write("s\n");
                 bw.write("x="+x+"\n");
                 bw.write("y="+y+"\n");
-                bw.write("b="+biome+"\n");
-                bw.write("gt="+generated_terrain+"\n");
-                bw.write("go="+generated_objects+"\n");
+                bw.write("it="+imported_terrain+"\n");
+                bw.write("if="+imported_forest+"\n");
                 for (int h = 0; h != chunks.length; h++) {
                     for (int w = 0; w != chunks[h].length; w++) {
                         chunks[w][h].save(bw);
@@ -218,46 +198,6 @@ public class Sector {
         }
     }
     
-    /*****************************************************************************************************
-     * Generator code below; these functions should not be called outside of generate() or World.init(). *
-     *****************************************************************************************************/
-    
-    public final void generateTerrain() {
-        if (generated_terrain) return;
-        
-        //blend with the other surrounding sectors
-        int section = Sector.sizeChunks()/8, schunks = Sector.sizeChunks();
-        for (int bx = 0; bx < schunks; bx+=section) {
-            for (int by = 0; by < schunks; by+=section) {
-                if ((bx > section*2 && bx < schunks-(section*2)) //if not on the edge, continue
-                        && (by > section*2 && by < schunks-(section*2))) continue;
-                int d = Math.abs(parent.rng().nextInt() % schunks)+6;
-                Generator.brush(worldCoords()[0]+(bx*Chunk.sizePixels()), 
-                        worldCoords()[1]+(by*Chunk.sizePixels()), 
-                        d, biome);
-            }
-        }
-        
-        //call on its generator to add some biome specific terrain details
-        if (generator != null) generator.generateTerrain();
-        generated_terrain = true;
-    }
-    
-    public final void generateObjects() {
-        if (generated_objects) return;
-        //call on its generator to add some biome specific terrain details
-        if (generator != null) generator.generateObjects();
-        generated_objects = true;
-    }
-    
     public Generator generator() { return generator; }
-    
-    /**
-     * Gives the sector a random biome that takes into consideration the sectors
-     * around it. Desert will never be adjacent to tundra.
-     */
-    public void randomizeBiome() {
-        if ((generated_terrain || generated_objects) == false) setBiome(randomValidBiome(-1));
-    }
 
 }

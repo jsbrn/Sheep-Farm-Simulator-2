@@ -4,6 +4,7 @@ import com.bitbucket.computerology.world.terrain.Sector;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.misc.SimplexNoise;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.events.EventHandler;
 import com.bitbucket.computerology.world.towns.Town;
@@ -18,12 +19,19 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.opengl.Display;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 
 public class World {
     
     private static World world;
     public static int SECTOR_LIST = 0, ACTIVE_SECTOR_LIST = 1;
+    
+    private Image map_texture;
+    private int[][] terrain_map, forest_map;
+    private int size_sectors;
     
     private ArrayList<Sector> sectors;
     private Random rng;
@@ -62,6 +70,11 @@ public class World {
         this.render_entities = new ArrayList<Entity>();
         this.render_entities.ensureCapacity(1000);
         this.towns = new ArrayList<Town>();
+        try {
+            this.map_texture = new Image(Sector.sizeChunks(), Sector.sizeChunks());
+        } catch (SlickException e) {
+            e.printStackTrace();
+        }
     }
     
     public static World getWorld() {
@@ -152,27 +165,24 @@ public class World {
     
     public boolean addEntity(Entity e) {
         if (e == null) return false;
-        refreshEntity(e, true);
-        if (e.moves()) moving_entities.add(e);
-        if (e.updates()) active_entities.add(e);
-        if (e.renders()) render_entities.add(e);
-        return e.moves() || e.updates() || e.renders();
+        if (refreshEntity(e, true)) {
+            if (e.moves()) moving_entities.add(e);
+            if (e.updates()) active_entities.add(e);
+            if (e.renders()) render_entities.add(e);
+            return true;
+        }
+        return false;
     }
     
     public boolean removeEntity(Entity e) {
         if (e == null) return false;
-        refreshEntity(e, false);
-        if (e.moves()) moving_entities.remove(e);
-        if (e.updates()) active_entities.remove(e);
-        if (e.renders()) render_entities.remove(e);
-        return e.moves() || e.updates() || e.renders();
-    }
-    
-    /**
-     * Generates in a radius around (0,0).
-     */
-    public void generate() {
-        generateAround(0, 0);
+        if (refreshEntity(e, false)) {
+            if (e.moves()) moving_entities.remove(e);
+            if (e.updates()) active_entities.remove(e);
+            if (e.renders()) render_entities.remove(e);
+            return true;
+        }
+        return false;
     }
     
     public final void update() {
@@ -431,6 +441,76 @@ public class World {
         return s;
     }
     
+    public void generate() { generate(32, 1, 0.095, 0.905, 0.1, 0.39); }
+    
+    /**
+     * Generates a large section of terrain.
+     * @param size_sectors The width and height in sectors.
+     * @param scale The scale of each landmass (input 0-1).
+     * @param sea_level The height of the sea. (input 0-1).
+     * @param g_height The height of the grass biome (same as sea level input).
+     * @param d_height
+     * @param t_height 
+     */
+    public void generate(int size_sectors, double scale, double sea_level, 
+            double g_height, double d_height, double t_height) {
+        generate(size_sectors, scale, sea_level, g_height, d_height, t_height, 0.075, 0.6, 8);
+    }
+    
+    private void generate(int size_sectors, double scale, double sea_level, 
+            double g_height, double d_height, double t_height, 
+            double forest_scale, double forest_height, int forest_passes) {
+        this.terrain_map = new int[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
+        this.forest_map = new int[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
+        this.size_sectors = size_sectors;
+        double[][] grass = generate(size_sectors*Sector.sizeChunks(), 
+                size_sectors*Sector.sizeChunks(), 1/(1000*scale)/2, (1-(sea_level)), 4);
+        double[][] tundra = generate(size_sectors*Sector.sizeChunks(), 
+                size_sectors*Sector.sizeChunks(), 1/(1000*scale)/2, (1-(sea_level)), 4);
+        double[][] desert = generate(size_sectors*Sector.sizeChunks(), 
+                size_sectors*Sector.sizeChunks(), 1/(1000*scale)/2, (1-(sea_level)), 4);
+        double[][] forest = generate(size_sectors*Sector.sizeChunks(), 
+                size_sectors*Sector.sizeChunks(), 1/(1000*forest_scale)/2, (1-(forest_height)), forest_passes);
+        
+        for (int i = 0; i < grass.length; i++) {
+            for (int j = 0; j < grass.length; j++) {
+                //System.out.println("Alpha for "+i+", "+j+": "+(noise[i][j]*255));
+                double max = MiscMath.max(grass[i][j], 
+                        MiscMath.max(tundra[i][j], desert[i][j]));
+                terrain_map[i][j] = Chunk.WATER;
+                if (grass[i][j] > sea_level && max == grass[i][j] && grass[i][j] > 1-g_height)
+                    terrain_map[i][j] = Chunk.GRASS_FIELD;
+                if (tundra[i][j] > sea_level && max == tundra[i][j] && tundra[i][j] > 1-t_height)
+                    terrain_map[i][j] = Chunk.SNOW;
+                if (desert[i][j] > sea_level && max == desert[i][j] && desert[i][j] > 1-d_height)
+                    terrain_map[i][j] = Chunk.SAND;
+                if (forest[i][j] <= forest_height && terrain_map[i][j] == Chunk.GRASS_FIELD) {
+                    forest_map[i][j] = 1;
+                }
+            }
+        }
+    }
+    
+    private double[][] generate(int width, int height, double freq, double weight, int passes) {
+        if (passes < 1) passes = 1;
+        SimplexNoise.reseed();
+        double[][] noise = new double[width][height];
+        //Frequency = features. Higher frequency = more features
+        //Weight = smoothness. Lower weight = more smoothness
+        for (int i = 0; i < passes; i++) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    noise[x][y] += (double) SimplexNoise.noise(x * freq, y * freq) * weight;
+                    //clamp it down to anywhere between 0 and 1.0
+                    noise[x][y] = (noise[x][y] > 1.0 ? 1.0 : (noise[x][y] < 0 ? 0 : noise[x][y]));
+                }
+            }
+            freq *= 3.5f;
+            weight *= 0.5f;
+        }
+        return noise;
+    }
+    
     /**
      * Generates around the specified world coordinates.
      * @param world_x World x.
@@ -447,26 +527,29 @@ public class World {
             for (int w = -r; w != r+1; w++) {
                 Sector s = getSector(sector_x+w, sector_y+h);
                 if (s == null) {
-                    s = createSector(sector_x+w, sector_y+h);
-                    s.randomizeBiome();
+                    if (validSector(sector_x+w, sector_y+h)) {
+                        s = createSector(sector_x+w, sector_y+h);
+                        s.importTerrain(terrain_map);
+                    }
                 }
             }
         }
     }
     
+    private boolean validSector(int x, int y) {
+        x += size_sectors/2; y += size_sectors/2;
+        return x >= 0 && x < size_sectors
+                && y >= 0 && y < size_sectors;
+    }
+    
     private void fillSectors(int sector_x, int sector_y, int r) {
-        int pass = 0;
-        while (pass < 2) {
-            for (int h = -r; h != r+1; h++) {
-                for (int w = -r; w != r+1; w++) {
-                    Sector s = getSector(sector_x+w, sector_y+h);
-                    if (s != null) {
-                        if (pass == 0) { if (!s.generatedTerrain()) s.generateTerrain(); }
-                        if (pass == 1) { if (!s.generatedObjects()) s.generateObjects(); }
-                    }
+        for (int h = -r; h != r+1; h++) {
+            for (int w = -r; w != r+1; w++) {
+                Sector s = getSector(sector_x+w, sector_y+h);
+                if (s != null) {
+                    s.importForest(forest_map);
                 }
             }
-            pass++;
         }
     }
     
@@ -506,4 +589,15 @@ public class World {
         return cc;
     }
     
+    public int[] getMapCoords(int sector_x, int sector_y, int chunk_x, int chunk_y) {
+        int[] origin = {Sector.sizeChunks()*size_sectors/2, Sector.sizeChunks()*size_sectors/2};
+        return new int[]{origin[0]+(Sector.sizeChunks()*sector_x)+chunk_x,
+            origin[1]+(Sector.sizeChunks()*sector_y)+chunk_y};
+    }
+    
+    public int[] getWorldCoordsFromMap(int x, int y) {
+        int[] c = new int[]{(x-(Sector.sizeChunks()*size_sectors/2))*Chunk.sizePixels(),
+            y-(Sector.sizeChunks()*size_sectors/2)*Chunk.sizePixels()};
+        return c;
+    }
 }
