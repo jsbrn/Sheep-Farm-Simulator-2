@@ -4,6 +4,8 @@ import com.bitbucket.computerology.world.entities.Entity;
 
 public class Building {
     
+    public static int RESIDENTIAL = 0, COMMERCIAL = 1, INDUSTRIAL = 2;
+    
     int[] demand_multipliers, amounts_recieved;
     Town parent_town; Entity parent;
     double popularity_mult;

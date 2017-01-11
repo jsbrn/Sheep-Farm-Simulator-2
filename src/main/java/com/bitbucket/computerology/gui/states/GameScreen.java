@@ -4,7 +4,7 @@ import com.bitbucket.computerology.gui.GUI;
 import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.elements.Button;
 import com.bitbucket.computerology.gui.elements.GameCanvas;
-import com.bitbucket.computerology.gui.elements.MiniMap;
+import com.bitbucket.computerology.gui.elements.MapCanvas;
 import com.bitbucket.computerology.gui.elements.Panel;
 import com.bitbucket.computerology.gui.elements.StatusBar;
 import com.bitbucket.computerology.misc.Assets;
@@ -31,7 +31,7 @@ public class GameScreen extends BasicGameState {
     Input input;
     
     public static GUI GUI;
-    public static MiniMap MINI_MAP;
+    public static MapCanvas MINI_MAP;
     public static boolean DEBUG_MODE = false;
     
     static StateBasedGame game;
@@ -118,7 +118,7 @@ public class GameScreen extends BasicGameState {
         map_menu.setYOffsetMode(GUIElement.ORIGIN_BOTTOM);
         map_menu.setXOffsetMode(GUIElement.ORIGIN_RIGHT);
         
-        MINI_MAP = new MiniMap();
+        MINI_MAP = new MapCanvas();
         MINI_MAP.setWidth(180);
         MINI_MAP.setHeight(140);
         MINI_MAP.setX(-MINI_MAP.getWidth()/2);

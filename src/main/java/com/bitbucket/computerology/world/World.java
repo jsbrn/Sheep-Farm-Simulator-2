@@ -28,7 +28,7 @@ public class World {
     
     private static World world;
     
-    private Image map_texture;
+    Image map_texture;
     private int[][] biome_map;
     private int[] spawn;
     private boolean[][] forest_map, road_map;
@@ -65,11 +65,11 @@ public class World {
         this.event_handlers = new ArrayList<EventHandler>();
         this.event_handlers.add(new EventHandler());
         this.active_entities = new ArrayList<Entity>();
-        this.active_entities.ensureCapacity(1000);
+        this.active_entities.ensureCapacity(500);
         this.moving_entities = new ArrayList<Entity>();
-        this.moving_entities.ensureCapacity(1000);
+        this.moving_entities.ensureCapacity(500);
         this.render_entities = new ArrayList<Entity>();
-        this.render_entities.ensureCapacity(1000);
+        this.render_entities.ensureCapacity(500);
         this.towns = new ArrayList<Town>();
         try {
             this.map_texture = new Image(Sector.sizeChunks(), Sector.sizeChunks());
