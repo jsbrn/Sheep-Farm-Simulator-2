@@ -26,14 +26,13 @@ import org.newdawn.slick.SlickException;
 public class World {
     
     private static World world;
-    public static int SECTOR_LIST = 0, ACTIVE_SECTOR_LIST = 1;
     
     private Image map_texture;
     private int[][] biome_map;
     private int[] spawn;
-    private boolean[][] forest_map;
-    private int size_sectors;
+    private boolean[][] forest_map, road_map;
     
+    private int size_sectors;
     private ArrayList<Sector> sectors;
     private Random rng;
     private int seed;
@@ -498,7 +497,9 @@ public class World {
                 if (forest[i][j] <= forest_height && biome_map[i][j] == Chunk.GRASS_FIELD) {
                     forest_map[i][j] = true;
                 }
-                biome_distribution[i][j][biome_map[i][j]]++; //tally the selected biome
+                int sx = i/Sector.sizeChunks();
+                int sy = i/Sector.sizeChunks();
+                biome_distribution[sx][sy][biome_map[i][j]]++; //tally the selected biome
             }
         }
         
@@ -507,7 +508,7 @@ public class World {
         //create the road map from the town map and empty sector map
         boolean[][] empty_sector_map = createEmptySectorMap(biome_distribution);
         boolean[][] town_map = createTownMap(empty_sector_map, town_ratio);
-        
+        road_map = createRoadMap(empty_sector_map, town_map);
     }
     
     private boolean[][] createEmptySectorMap(double biome_distribution[][][]) {
@@ -543,6 +544,7 @@ public class World {
             }
         }
         
+        //use the town ratio to determine the number of towns
         int tcount = (int)(ratio*(float)valid_locations.size());
         spawn = new int[]{-1, -1};
         boolean chosen_spawn = false;
@@ -565,10 +567,67 @@ public class World {
         return map;
     }
     
-    //TODO: UNFINISHED
     private boolean[][] createRoadMap(boolean empty_sector_map[][], boolean[][] town_map) {
         boolean map[][] = new boolean[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
+        //now place roads between the towns
+        for (int i = 0; i < town_map.length; i++) {
+            for (int j = 0; j < town_map.length; j++) {
+                int x = i*32, y = j*32;
+                if (!town_map[i][j]) continue;
+                int ox = 0, oy = 0; 
+                boolean up = true, down = true, left = true, right = true;
+                while (true) { 
+                    if (i-ox <= -1) left = false;
+                    if (i+ox >= empty_sector_map.length) right = false;
+                    if (j+oy >= empty_sector_map.length) down = false;
+                    if (j-oy <= -1) up = false;
+                    
+                    if (right) {
+                        if (empty_sector_map[i+ox][j]) {
+                            placeRoadSegment(map, x+(ox*32), y, 1, 0);
+                            placeRoadSegment(map, x+(ox*32)+31, y+31, 3, 2);
+                        } else { right = false; }
+                    }
+                    if (left) { 
+                        if (empty_sector_map[i-ox][j]) {
+                            placeRoadSegment(map, x-(ox*32), y, 1, 0);
+                            placeRoadSegment(map, x-(ox*32)+31, y+31, 3, 2);
+                        } else { left = false; }
+                    }
+                    if (down) { 
+                        if (empty_sector_map[i][j+oy]) {
+                            placeRoadSegment(map, x, y+(oy*32), 2, 3);
+                            placeRoadSegment(map, x+31, y+(oy*32)+31, 0, 1);
+                        } else { down = false; }
+                    }
+                    if (up) { 
+                        if (empty_sector_map[i][j-oy]) {
+                            placeRoadSegment(map, x, y-(oy*32), 2, 3);
+                            placeRoadSegment(map, x+31, y-(oy*32)+31, 0, 1);
+                        } else { up = false; }
+                    }
+                    ox++; oy++;
+                    if ((left || right || up || down) == false) break;
+                }
+            }
+        }
         return map;
+    }
+    
+    private void placeRoadSegment(boolean map[][], int x, int y, int dir, int rot) {
+        if (map == null) return;
+        int ox = rot == 1 ? 1 : (rot == 3 ? -1 : 0);
+        int oy = rot == 0 ? -1 : (rot == 2 ? 1 : 0);
+        int incr_y = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
+        int incr_x = dir == 1 ? 1 : (dir == 3 ? -1 : 0);
+        for (int i = 0; i <= 32; i++) {
+            if (x > -1 && x < map.length 
+                    && y > -1 && y < map[0].length) road_map[x][y] = true;
+            if (x+ox > -1 && x+ox < map.length 
+                    && y+oy > -1 && y+oy < map[0].length) road_map[x+ox][y+oy] = true;
+            x+=incr_x;
+            y+=incr_y;
+        }
     }
     
     /**
