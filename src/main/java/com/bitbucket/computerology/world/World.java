@@ -19,6 +19,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.opengl.Display;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
@@ -477,7 +478,6 @@ public class World {
         //blend all the biomes together and form the biome map and the empty sector map
         for (int i = 0; i < grass.length; i++) {
             for (int j = 0; j < grass.length; j++) {
-                //System.out.println("Alpha for "+i+", "+j+": "+(noise[i][j]*255));
                 double max = MiscMath.max(grass[i][j], 
                         MiscMath.max(tundra[i][j], desert[i][j]));
                 //extra rules beforehand
@@ -485,15 +485,15 @@ public class World {
                     tundra[i][j] *= ((float)Math.abs((biome_map[0].length/2)-(j+(biome_map.length/5)))/(float)biome_map[0].length);
                 if (!desert_near_tundra) desert[i][j] *= 1f-(tundra[i][j]);
                 //calculate which biome each chunk should be
-                biome_map[i][j] = Chunk.WATER;
+                biome_map[i][j] = Chunk.WATER; Color map_color = Color.green;
                 if (grass[i][j] > sea_level && max == grass[i][j] && grass[i][j] > 1-g_height)
-                    biome_map[i][j] = Chunk.GRASS_FIELD;
+                    { biome_map[i][j] = Chunk.GRASS_FIELD; map_color = Color.green; }
                 if (tundra[i][j] > sea_level && max == tundra[i][j] && tundra[i][j] > 1-t_height)
-                    biome_map[i][j] = Chunk.SNOW;
+                    { biome_map[i][j] = Chunk.SNOW; map_color = Color.white; }
                 if (desert[i][j] > sea_level && max == desert[i][j] && desert[i][j] > 1-d_height)
-                    biome_map[i][j] = Chunk.SAND;
+                    { biome_map[i][j] = Chunk.SAND; map_color = Color.yellow; }
                 if (forest[i][j] <= forest_height && biome_map[i][j] == Chunk.GRASS_FIELD) {
-                    forest_map[i][j] = true;
+                    { forest_map[i][j] = true; map_color = Color.green.darker(); }
                 }
                 int sx = i/Sector.sizeChunks();
                 int sy = j/Sector.sizeChunks();
@@ -650,10 +650,18 @@ public class World {
      */
     public void generateAround(int world_x, int world_y) {
         int sc[] = getSectorCoords(world_x, world_y);
-        createSectors(sc[0], sc[1], 3);
+        initializeSectors(sc[0], sc[1], 2);
     }
     
-    private void createSectors(int sector_x, int sector_y, int r) {
+    /**
+     * Initializes the sectors in a radius around the specified sector coordinate.
+     * Imports terrain data for each from the maps in World. Once they are created and initialized,
+     * they can be saved and loaded as usual.
+     * @param sector_x
+     * @param sector_y
+     * @param r 
+     */
+    private void initializeSectors(int sector_x, int sector_y, int r) {
         for (int h = -r; h != r+1; h++) {
             for (int w = -r; w != r+1; w++) {
                 Sector s = getSector(sector_x+w, sector_y+h);

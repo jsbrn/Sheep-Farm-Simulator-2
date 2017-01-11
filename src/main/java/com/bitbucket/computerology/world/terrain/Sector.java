@@ -147,7 +147,15 @@ public class Sector {
                 boolean spawn = map[mc[0]+i][mc[1]+j];
                 if (spawn) {
                     Chunk c = getChunk(i, j);
-                    c.setTerrain(Chunk.ROAD_INTERSECTION);
+                    c.setTerrain(
+                            (i == Sector.sizeChunks()-1 && j == 0) ||
+                            i == j || (i == 0 && j == Sector.sizeChunks()-1) ? Chunk.ROAD_INTERSECTION : Chunk.ROAD_STRAIGHT);
+                    if (c.getTerrain() == Chunk.ROAD_STRAIGHT) {
+                        if (i == 0) c.setRotation(0);
+                        if (i == Sector.sizeChunks()-1) c.setRotation(2);
+                        if (j == 0) c.setRotation(1);
+                        if (j == Sector.sizeChunks()-1) c.setRotation(3);
+                    }
                 }
             }
         }

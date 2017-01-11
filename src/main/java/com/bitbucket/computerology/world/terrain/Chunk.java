@@ -36,6 +36,16 @@ public class Chunk {
         this.entities = new ArrayList<Entity>();
     }
     
+    /**
+     * Sets the rotation index to 0 through 3 (0 being up, 1 being right).
+     * @param r A number from 0-3. Sets the rotation index to the absolute value of r mod 4.
+     */
+    public void setRotation(int r) {
+        rot = Math.abs(r % 4);
+    }
+    
+    public int getRotation() { return rot; }
+    
     public static int sizePixels() { return 32; }
     public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
     
@@ -44,9 +54,7 @@ public class Chunk {
         return false;
     }
     
-    public boolean removeEntity(Entity e) {
-        return entities.remove(e);
-    }
+    public boolean removeEntity(Entity e) { return entities.remove(e); }
     
     public ArrayList<Entity> getEntities() { return entities; }
     
