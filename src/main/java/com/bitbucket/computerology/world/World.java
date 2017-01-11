@@ -19,7 +19,6 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.opengl.Display;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
@@ -30,7 +29,9 @@ public class World {
     public static int SECTOR_LIST = 0, ACTIVE_SECTOR_LIST = 1;
     
     private Image map_texture;
-    private int[][] terrain_map, forest_map;
+    private int[][] biome_map;
+    private int[] spawn;
+    private boolean[][] forest_map;
     private int size_sectors;
     
     private ArrayList<Sector> sectors;
@@ -454,61 +455,120 @@ public class World {
      */
     public void generate(int size_sectors, double scale, double sea_level, 
             double g_height, double d_height, double t_height) {
-        generate(size_sectors, scale, sea_level, g_height, d_height, t_height, 0.075, 0.6, 8);
+        generate(size_sectors, scale, sea_level, g_height, d_height, t_height, 0.058, 0.083, 8, 0.05, false, true);
     }
     
     private void generate(int size_sectors, double scale, double sea_level, 
             double g_height, double d_height, double t_height, 
-            double forest_scale, double forest_height, int forest_passes) {
-        this.terrain_map = new int[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
-        this.forest_map = new int[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
+            double forest_scale, double forest_height, int forest_passes,
+            double town_ratio,
+            boolean desert_near_tundra, boolean tundra_at_poles) {
+        this.biome_map = new int[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
+        this.forest_map = new boolean[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
         this.size_sectors = size_sectors;
-        double[][] grass = generate(size_sectors*Sector.sizeChunks(), 
+        double[][] grass = SimplexNoise.generate(size_sectors*Sector.sizeChunks(), 
                 size_sectors*Sector.sizeChunks(), 1/(1000*scale)/2, (1-(sea_level)), 4);
-        double[][] tundra = generate(size_sectors*Sector.sizeChunks(), 
+        double[][] tundra = SimplexNoise.generate(size_sectors*Sector.sizeChunks(), 
                 size_sectors*Sector.sizeChunks(), 1/(1000*scale)/2, (1-(sea_level)), 4);
-        double[][] desert = generate(size_sectors*Sector.sizeChunks(), 
+        double[][] desert = SimplexNoise.generate(size_sectors*Sector.sizeChunks(), 
                 size_sectors*Sector.sizeChunks(), 1/(1000*scale)/2, (1-(sea_level)), 4);
-        double[][] forest = generate(size_sectors*Sector.sizeChunks(), 
+        double[][] forest = SimplexNoise.generate(size_sectors*Sector.sizeChunks(), 
                 size_sectors*Sector.sizeChunks(), 1/(1000*forest_scale)/2, (1-(forest_height)), forest_passes);
         
+        double[][][] biome_distribution = new double[size_sectors][size_sectors][Chunk.BIOME_COUNT];
+        
+        //blend all the biomes together and form the biome map and the empty sector map
         for (int i = 0; i < grass.length; i++) {
             for (int j = 0; j < grass.length; j++) {
                 //System.out.println("Alpha for "+i+", "+j+": "+(noise[i][j]*255));
                 double max = MiscMath.max(grass[i][j], 
                         MiscMath.max(tundra[i][j], desert[i][j]));
-                terrain_map[i][j] = Chunk.WATER;
+                //extra rules beforehand
+                if (tundra_at_poles) 
+                    tundra[i][j] *= ((float)Math.abs((biome_map[0].length/2)-(j+(biome_map.length/5)))/(float)biome_map[0].length);
+                if (!desert_near_tundra) desert[i][j] *= 1f-(tundra[i][j]);
+                //calculate which biome each chunk should be
+                biome_map[i][j] = Chunk.WATER;
                 if (grass[i][j] > sea_level && max == grass[i][j] && grass[i][j] > 1-g_height)
-                    terrain_map[i][j] = Chunk.GRASS_FIELD;
+                    biome_map[i][j] = Chunk.GRASS_FIELD;
                 if (tundra[i][j] > sea_level && max == tundra[i][j] && tundra[i][j] > 1-t_height)
-                    terrain_map[i][j] = Chunk.SNOW;
+                    biome_map[i][j] = Chunk.SNOW;
                 if (desert[i][j] > sea_level && max == desert[i][j] && desert[i][j] > 1-d_height)
-                    terrain_map[i][j] = Chunk.SAND;
-                if (forest[i][j] <= forest_height && terrain_map[i][j] == Chunk.GRASS_FIELD) {
-                    forest_map[i][j] = 1;
+                    biome_map[i][j] = Chunk.SAND;
+                if (forest[i][j] <= forest_height && biome_map[i][j] == Chunk.GRASS_FIELD) {
+                    forest_map[i][j] = true;
                 }
+                biome_distribution[i][j][biome_map[i][j]]++; //tally the selected biome
             }
         }
+        
+        //create the empty sector map from the biome_distribution map
+        //create the town map from the empty sector map
+        //create the road map from the town map and empty sector map
+        boolean[][] empty_sector_map = createEmptySectorMap(biome_distribution);
+        boolean[][] town_map = createTownMap(empty_sector_map, town_ratio);
+        
     }
     
-    private double[][] generate(int width, int height, double freq, double weight, int passes) {
-        if (passes < 1) passes = 1;
-        SimplexNoise.reseed();
-        double[][] noise = new double[width][height];
-        //Frequency = features. Higher frequency = more features
-        //Weight = smoothness. Lower weight = more smoothness
-        for (int i = 0; i < passes; i++) {
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    noise[x][y] += (double) SimplexNoise.noise(x * freq, y * freq) * weight;
-                    //clamp it down to anywhere between 0 and 1.0
-                    noise[x][y] = (noise[x][y] > 1.0 ? 1.0 : (noise[x][y] < 0 ? 0 : noise[x][y]));
+    private boolean[][] createEmptySectorMap(double biome_distribution[][][]) {
+        boolean map[][] = new boolean[size_sectors][size_sectors];
+        for (int i = 0; i < size_sectors; i++) {
+            for (int j = 0; j < size_sectors; j++) {
+                for (int b = 0; b < Chunk.BIOME_COUNT; b++) {
+                    if (biome_distribution[i][j][b] == 0) continue;
+                    if (biome_distribution[i][j][b] == Sector.sizeChunks()*Sector.sizeChunks()) { 
+                        map[i][j] = true;
+                        //if (b != Chunk.WATER) available_town_sectors.add(new int[]{i, j}); 
+                        break; 
+                    }
+                    if (biome_distribution[i][j][b] != Sector.sizeChunks()*Sector.sizeChunks()) break;
                 }
             }
-            freq *= 3.5f;
-            weight *= 0.5f;
         }
-        return noise;
+        return map;
+    }
+    
+    private boolean[][] createTownMap(boolean empty_sector_map[][], double ratio) {
+        boolean map[][] = new boolean[size_sectors][size_sectors];
+        ArrayList<int[]> valid_locations = new ArrayList<int[]>();
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map.length; j++) {
+                for (int b = 0; b < Chunk.BIOME_COUNT; b++) {
+                    if (empty_sector_map[i][j]) { //if sector is only one biome
+                        if (biome_map[i*Sector.sizeChunks()][j*Sector.sizeChunks()] != Chunk.WATER) {
+                            valid_locations.add(new int[]{i, j});
+                        }
+                    }
+                }
+            }
+        }
+        
+        int tcount = (int)(ratio*(float)valid_locations.size());
+        spawn = new int[]{-1, -1};
+        boolean chosen_spawn = false;
+        while (tcount > 0) {
+            if (valid_locations.isEmpty()) break;
+            int random = Math.abs(rng.nextInt()) % valid_locations.size();
+            int[] chosen = valid_locations.get(random);
+            if (!map[chosen[0]][chosen[1]]) {
+                map[chosen[0]][chosen[1]] = true;
+                valid_locations.remove(chosen);
+                if (!chosen_spawn && chosen[0] > 0) { //place the starting sector next to the first town
+                    if (empty_sector_map[chosen[0]-1][chosen[1]]) {
+                        spawn = new int[]{chosen[0]-1, chosen[1]};
+                        chosen_spawn = true;
+                    }
+                }          
+                tcount--;
+            }
+        }
+        return map;
+    }
+    
+    //TODO: UNFINISHED
+    private boolean[][] createRoadMap(boolean empty_sector_map[][], boolean[][] town_map) {
+        boolean map[][] = new boolean[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
+        return map;
     }
     
     /**
@@ -529,7 +589,7 @@ public class World {
                 if (s == null) {
                     if (validSector(sector_x+w, sector_y+h)) {
                         s = createSector(sector_x+w, sector_y+h);
-                        s.importTerrain(terrain_map);
+                        s.importTerrain(biome_map);
                     }
                 }
             }
@@ -597,7 +657,7 @@ public class World {
     
     public int[] getWorldCoordsFromMap(int x, int y) {
         int[] c = new int[]{(x-(Sector.sizeChunks()*size_sectors/2))*Chunk.sizePixels(),
-            y-(Sector.sizeChunks()*size_sectors/2)*Chunk.sizePixels()};
+            (y-(Sector.sizeChunks()*size_sectors/2))*Chunk.sizePixels()};
         return c;
     }
 }

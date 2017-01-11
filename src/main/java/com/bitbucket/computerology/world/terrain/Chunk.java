@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+
 public class Chunk {
     
     public static int BIOME_COUNT = 5, GRASS_FIELD = 0, GRASS_FOREST = 1, SAND = 2, WATER = 3, SNOW = 4;

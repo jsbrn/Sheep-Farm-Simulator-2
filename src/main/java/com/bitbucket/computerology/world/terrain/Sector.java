@@ -121,18 +121,18 @@ public class Sector {
         imported_terrain = true;
     }
     
-    public void importForest(int[][] map) {
+    public void importForest(boolean[][] map) {
         if (imported_forest) return;
         int trees = 0;
         int[] mc = parent.getMapCoords(x, y, 0, 0);
         for (int i = 0; i < sizeChunks(); i++) {
             for (int j = 0; j < sizeChunks(); j++) {
-                int spawn = map[mc[0]+i][mc[1]+j];
-                if (spawn == 1) {
+                boolean spawn = map[mc[0]+i][mc[1]+j];
+                if (spawn) {
                     Entity tree = Entity.create("Tree");
-                    int wc[] = parent.getWorldCoordsFromMap(i, j);
-                    tree.setWorldX(wc[0]+(Chunk.sizePixels()/4));
-                    tree.setWorldY(wc[1]+Chunk.sizePixels()/4);
+                    int wc[] = parent.getWorldCoordsFromMap(mc[0]+i, mc[1]+j);
+                    tree.setWorldX(wc[0]+(Chunk.sizePixels()/2)+(parent.rng().nextInt() % 8));
+                    tree.setWorldY(wc[1]+(Chunk.sizePixels()/2)+(+(parent.rng().nextInt() % 8)));
                     if (parent.addEntity(tree)) trees++;
                 }
             }

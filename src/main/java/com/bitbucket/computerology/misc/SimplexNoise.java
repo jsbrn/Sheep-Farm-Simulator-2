@@ -9,7 +9,6 @@ import java.util.Random;
  * is a link to his paper on the subject, which also contains the original
  * source.
  */
-
 public class SimplexNoise {  // Simplex noise in 2D
     private static Grad grad3[] = {new Grad(1,1),new Grad(-1,1),new Grad(1,-1),new Grad(-1,-1),
                                    new Grad(1,0),new Grad(-1,0),new Grad(1,0),new Grad(-1,0),
@@ -46,7 +45,26 @@ public class SimplexNoise {  // Simplex noise in 2D
 
     private static double dot(Grad g, double x, double y) {
         return g.x*x + g.y*y; }
-
+    
+    public static double[][] generate(int width, int height, double freq, double weight, int passes) {
+        if (passes < 1) passes = 1;
+        SimplexNoise.reseed();
+        double[][] noise = new double[width][height];
+        //Frequency = features. Higher frequency = more features
+        //Weight = smoothness. Lower weight = more smoothness
+        for (int i = 0; i < passes; i++) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    noise[x][y] += (double) SimplexNoise.noise(x * freq, y * freq) * weight;
+                    //clamp it down to anywhere between 0 and 1.0
+                    noise[x][y] = (noise[x][y] > 1.0 ? 1.0 : (noise[x][y] < 0 ? 0 : noise[x][y]));
+                }
+            }
+            freq *= 3.5f;
+            weight *= 0.5f;
+        }
+        return noise;
+    }
 
     public static void reseed() {
         p = p_temp.clone();
