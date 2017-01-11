@@ -147,6 +147,9 @@ public class MainMenu extends BasicGameState {
                             } else {
                                 World.newWorld();
                                 World.getWorld().generate();
+                                int[] spawn = World.getWorld().getSpawn();
+                                Camera.setX(spawn[0]);
+                                Camera.setY(spawn[1]);
                             }
                             game.enterState(Assets.GAME_SCREEN);
                         }

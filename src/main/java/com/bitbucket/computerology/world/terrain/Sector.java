@@ -16,7 +16,7 @@ public class Sector {
     private World parent;
     private Chunk[][] chunks;
     private int x, y;
-    private boolean town_sector, imported_terrain = false, imported_forest = false;
+    private boolean filled = false;
     
     private double[] biome_percentages;
     
@@ -30,9 +30,8 @@ public class Sector {
         this.x = x; this.y = y;
         this.parent = parent;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
-        this.town_sector = Math.abs(parent.rng().nextInt() % 50) == 0;
         this.entities = new ArrayList<Entity>();
-        this.entities.ensureCapacity(1000);
+        this.entities.ensureCapacity(Sector.sizeChunks()*Sector.sizeChunks());
         this.biome_percentages = new double[Chunk.BIOME_COUNT];
         this.generator = null;
     }
@@ -57,11 +56,7 @@ public class Sector {
         return 0;
     }
     
-    public boolean hasTown() {
-        return World.getWorld().getTown(this) != null;
-    }
-    
-    public boolean isTownSector() { return town_sector; }
+    public boolean isTownSector() { return World.getWorld().getTown(x, y) != null; }
     
     public int[] offsets() {
         return new int[]{x, y};
@@ -71,7 +66,7 @@ public class Sector {
         return new int[]{x*sizePixels(), y*sizePixels()};
     }
     
-    public static int sizeChunks() { return 32; }
+    public static int sizeChunks() { return 64; }
     public static int sizePixels() { return Chunk.sizePixels()*sizeChunks(); }
     public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
     
@@ -103,44 +98,60 @@ public class Sector {
         };
     }
     
-    public void importTerrain(int[][] map) {
-        System.out.println("Importing terrain map: "+map.length+"x"+map[0].length);
-        if (imported_terrain) return;
+    public void markFilled() {
+        
+    }
+    
+    public boolean filled() {
+        return filled;
+    }
+    
+    public void importBiomes(int[][] map) {
+        if (filled) return;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
         int[] mc = parent.getMapCoords(x, y, 0, 0);
-        System.out.println("Sector "+x+", "+y+" has map coords "+mc[0]+", "+mc[1]);
         for (int i = 0; i < sizeChunks(); i++) {
             for (int j = 0; j < sizeChunks(); j++) {
-                System.out.print("terrain_map("+(mc[0]+i)+", "+(mc[1]+j)+") = ");
                 int terrain = map[mc[0]+i][mc[1]+j];
-                System.out.println(terrain);
                 chunks[i][j] = new Chunk(i, j, this);
                 chunks[i][j].setTerrain(terrain);
             }
         }
-        imported_terrain = true;
     }
     
     public void importForest(boolean[][] map) {
-        if (imported_forest) return;
-        int trees = 0;
+        if (filled) return;
         int[] mc = parent.getMapCoords(x, y, 0, 0);
         for (int i = 0; i < sizeChunks(); i++) {
             for (int j = 0; j < sizeChunks(); j++) {
                 boolean spawn = map[mc[0]+i][mc[1]+j];
                 if (spawn) {
+                    int terrain = getChunk(i, j).getTerrain();
+                    if (terrain != Chunk.GRASS_FIELD && terrain != Chunk.SNOW) continue;
                     Entity tree = Entity.create("Tree");
                     int wc[] = parent.getWorldCoordsFromMap(mc[0]+i, mc[1]+j);
                     tree.setWorldX(wc[0]+(Chunk.sizePixels()/2)+(parent.rng().nextInt() % 8));
                     tree.setWorldY(wc[1]+(Chunk.sizePixels()/2)+(+(parent.rng().nextInt() % 8)));
-                    if (parent.addEntity(tree)) trees++;
+                    parent.addEntity(tree);
+                    
                 }
             }
         }
-        System.out.println("Importing forest map: "+map.length+"x"+map[0].length);
-        System.out.println(trees+" trees imported!");
-        imported_forest = true;
-    }  
+    }
+    
+    public void importRoads(boolean[][] map) {
+        if (filled) return;
+        int[] mc = parent.getMapCoords(x, y, 0, 0);
+        for (int i = 0; i < sizeChunks(); i++) {
+            for (int j = 0; j < sizeChunks(); j++) {
+                boolean spawn = map[mc[0]+i][mc[1]+j];
+                if (spawn) {
+                    Chunk c = getChunk(i, j);
+                    c.setTerrain(Chunk.ROAD_INTERSECTION);
+                }
+            }
+        }
+    }
     
     public World getWorld() {
         return parent;
@@ -170,8 +181,6 @@ public class Sector {
                     if (c.load(br)) chunks[c.offsets()[0]][c.offsets()[1]] = c;
                 }
                 if (line.indexOf("x=") == 0) x = Integer.parseInt(line.replace("x=", ""));
-                if (line.indexOf("it=") == 0) imported_terrain = Boolean.parseBoolean(line.replace("it=", ""));
-                if (line.indexOf("if=") == 0) imported_forest = Boolean.parseBoolean(line.replace("if=", ""));
                 if (line.indexOf("y=") == 0) y = Integer.parseInt(line.replace("y=", ""));
             }
         } catch (IOException ex) {
@@ -185,8 +194,6 @@ public class Sector {
             bw.write("s\n");
                 bw.write("x="+x+"\n");
                 bw.write("y="+y+"\n");
-                bw.write("it="+imported_terrain+"\n");
-                bw.write("if="+imported_forest+"\n");
                 for (int h = 0; h != chunks.length; h++) {
                     for (int w = 0; w != chunks[h].length; w++) {
                         chunks[w][h].save(bw);

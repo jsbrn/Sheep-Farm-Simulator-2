@@ -1,25 +1,29 @@
 package com.bitbucket.computerology.world.towns;
 
+import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.terrain.Sector;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Town {
     
-    int population;
-    Sector parent;
+    int population, x, y;
     ArrayList<Building> buildings;
     
-    public Town(Sector s) {
+    public Town(int sector_x, int sector_y) {
         this.buildings = new ArrayList<Building>();
-        this.parent = s;
         this.population = Math.abs(new Random().nextInt() % 90)+10;
     }
     
     public void update() {}
     
-    public void setParent(Sector s) { parent = s; }
-    public Sector getParent() { return parent; }
+    public void generate() {
+        //generate the noise map describing the building distribution
+        //generate buildingss and roads within the parent sector
+    }
+    
+    public int[] getSectorCoordinates() { return new int[]{x, y}; }
+    public Sector getParent() { return World.getWorld().getSector(x, y); }
     
     public int getPopulation() { return population; }
     

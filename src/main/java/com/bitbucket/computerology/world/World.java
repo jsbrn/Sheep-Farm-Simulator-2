@@ -85,14 +85,12 @@ public class World {
         world = new World();
     }
     
-    public Town getTown(Sector s) {
-        for (Town t: towns) if (t.getParent().equals(s)) return t;
-        return null;
-    }
-    
     public Town getTown(int sector_x, int sector_y) {
-        Sector s = getSector(sector_x, sector_y);
-        return getTown(s);
+        for (Town t: towns) { 
+            int[] sc = t.getSectorCoordinates();
+            if (sc[0] == sector_x && sc[1] == sector_y) return t;
+        }
+        return null;
     }
     
     public int movableEntityCount() { return moving_entities.size(); }
@@ -322,7 +320,7 @@ public class World {
 
     public void draw(Graphics g) {
         drawTerrain(false, g);
-        drawTerrain(true, g);
+        //drawTerrain(true, g);
         drawEntities(g);
     }
     
@@ -498,7 +496,7 @@ public class World {
                     forest_map[i][j] = true;
                 }
                 int sx = i/Sector.sizeChunks();
-                int sy = i/Sector.sizeChunks();
+                int sy = j/Sector.sizeChunks();
                 biome_distribution[sx][sy][biome_map[i][j]]++; //tally the selected biome
             }
         }
@@ -518,6 +516,7 @@ public class World {
                 for (int b = 0; b < Chunk.BIOME_COUNT; b++) {
                     if (biome_distribution[i][j][b] == 0) continue;
                     if (biome_distribution[i][j][b] == Sector.sizeChunks()*Sector.sizeChunks()) { 
+                        System.out.println("Sector @ map["+i+", "+j+"] is empty!");
                         map[i][j] = true;
                         //if (b != Chunk.WATER) available_town_sectors.add(new int[]{i, j}); 
                         break; 
@@ -531,6 +530,7 @@ public class World {
     
     private boolean[][] createTownMap(boolean empty_sector_map[][], double ratio) {
         boolean map[][] = new boolean[size_sectors][size_sectors];
+        //compile a list of al valid town locations in the map
         ArrayList<int[]> valid_locations = new ArrayList<int[]>();
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map.length; j++) {
@@ -553,12 +553,21 @@ public class World {
             int random = Math.abs(rng.nextInt()) % valid_locations.size();
             int[] chosen = valid_locations.get(random);
             if (!map[chosen[0]][chosen[1]]) {
+                //mark the town map
                 map[chosen[0]][chosen[1]] = true;
+                //create a new town instance
+                Town t = new Town(chosen[0], chosen[1]);
+                towns.add(t);
+                System.out.println("Sector @ map["+chosen[0]+", "+chosen[1]+"] is a town!");
                 valid_locations.remove(chosen);
                 if (!chosen_spawn && chosen[0] > 0) { //place the starting sector next to the first town
                     if (empty_sector_map[chosen[0]-1][chosen[1]]) {
-                        spawn = new int[]{chosen[0]-1, chosen[1]};
-                        chosen_spawn = true;
+                        //check if the biome is grass
+                        if (biome_map[(chosen[0]-1)*Sector.sizeChunks()][chosen[1]*Sector.sizeChunks()] == Chunk.GRASS_FIELD) {
+                            spawn = new int[]{chosen[0], chosen[1]};
+                            chosen_spawn = true;
+                            System.out.println("Sector @ map["+chosen[0]+", "+chosen[1]+"] is the spawn region!");
+                        }
                     }
                 }          
                 tcount--;
@@ -572,7 +581,7 @@ public class World {
         //now place roads between the towns
         for (int i = 0; i < town_map.length; i++) {
             for (int j = 0; j < town_map.length; j++) {
-                int x = i*32, y = j*32;
+                int x = i*Sector.sizeChunks(), y = j*Sector.sizeChunks();
                 if (!town_map[i][j]) continue;
                 int ox = 0, oy = 0; 
                 boolean up = true, down = true, left = true, right = true;
@@ -584,26 +593,26 @@ public class World {
                     
                     if (right) {
                         if (empty_sector_map[i+ox][j]) {
-                            placeRoadSegment(map, x+(ox*32), y, 1, 0);
-                            placeRoadSegment(map, x+(ox*32)+31, y+31, 3, 2);
+                            placeRoadSegment(map, x+(ox*Sector.sizeChunks()), y, 1, 0);
+                            placeRoadSegment(map, x+(ox*Sector.sizeChunks())+Sector.sizeChunks()-1, y+Sector.sizeChunks()-1, 3, 2);
                         } else { right = false; }
                     }
                     if (left) { 
                         if (empty_sector_map[i-ox][j]) {
-                            placeRoadSegment(map, x-(ox*32), y, 1, 0);
-                            placeRoadSegment(map, x-(ox*32)+31, y+31, 3, 2);
+                            placeRoadSegment(map, x-(ox*Sector.sizeChunks()), y, 1, 0);
+                            placeRoadSegment(map, x-(ox*Sector.sizeChunks())+Sector.sizeChunks()-1, y+Sector.sizeChunks()-1, 3, 2);
                         } else { left = false; }
                     }
                     if (down) { 
                         if (empty_sector_map[i][j+oy]) {
-                            placeRoadSegment(map, x, y+(oy*32), 2, 3);
-                            placeRoadSegment(map, x+31, y+(oy*32)+31, 0, 1);
+                            placeRoadSegment(map, x, y+(oy*Sector.sizeChunks()), 2, 3);
+                            placeRoadSegment(map, x+Sector.sizeChunks()-1, y+(oy*Sector.sizeChunks())+Sector.sizeChunks()-1, 0, 1);
                         } else { down = false; }
                     }
                     if (up) { 
                         if (empty_sector_map[i][j-oy]) {
-                            placeRoadSegment(map, x, y-(oy*32), 2, 3);
-                            placeRoadSegment(map, x+31, y-(oy*32)+31, 0, 1);
+                            placeRoadSegment(map, x, y-(oy*Sector.sizeChunks()), 2, 3);
+                            placeRoadSegment(map, x+Sector.sizeChunks()-1, y-(oy*Sector.sizeChunks())+Sector.sizeChunks()-1, 0, 1);
                         } else { up = false; }
                     }
                     ox++; oy++;
@@ -614,17 +623,21 @@ public class World {
         return map;
     }
     
+    public int[] getSpawn() { return spawn == null ? 
+            new int[]{Sector.sizePixels()/2, Sector.sizePixels()/2} : 
+            new int[]{spawn[0]+(Sector.sizePixels()/2), spawn[1]+(Sector.sizePixels()/2)}; }
+    
     private void placeRoadSegment(boolean map[][], int x, int y, int dir, int rot) {
         if (map == null) return;
         int ox = rot == 1 ? 1 : (rot == 3 ? -1 : 0);
         int oy = rot == 0 ? -1 : (rot == 2 ? 1 : 0);
         int incr_y = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
         int incr_x = dir == 1 ? 1 : (dir == 3 ? -1 : 0);
-        for (int i = 0; i <= 32; i++) {
+        for (int i = 0; i <= Sector.sizeChunks(); i++) {
             if (x > -1 && x < map.length 
-                    && y > -1 && y < map[0].length) road_map[x][y] = true;
+                    && y > -1 && y < map[0].length) map[x][y] = true;
             if (x+ox > -1 && x+ox < map.length 
-                    && y+oy > -1 && y+oy < map[0].length) road_map[x+ox][y+oy] = true;
+                    && y+oy > -1 && y+oy < map[0].length) map[x+ox][y+oy] = true;
             x+=incr_x;
             y+=incr_y;
         }
@@ -638,7 +651,6 @@ public class World {
     public void generateAround(int world_x, int world_y) {
         int sc[] = getSectorCoords(world_x, world_y);
         createSectors(sc[0], sc[1], 3);
-        fillSectors(sc[0], sc[1], 2);
     }
     
     private void createSectors(int sector_x, int sector_y, int r) {
@@ -648,7 +660,10 @@ public class World {
                 if (s == null) {
                     if (validSector(sector_x+w, sector_y+h)) {
                         s = createSector(sector_x+w, sector_y+h);
-                        s.importTerrain(biome_map);
+                        s.importBiomes(biome_map);
+                        s.importRoads(road_map);
+                        if (s.isTownSector()) getTown(sector_x+w, sector_y+h).generate();
+                        s.importForest(forest_map);
                     }
                 }
             }
@@ -659,17 +674,6 @@ public class World {
         x += size_sectors/2; y += size_sectors/2;
         return x >= 0 && x < size_sectors
                 && y >= 0 && y < size_sectors;
-    }
-    
-    private void fillSectors(int sector_x, int sector_y, int r) {
-        for (int h = -r; h != r+1; h++) {
-            for (int w = -r; w != r+1; w++) {
-                Sector s = getSector(sector_x+w, sector_y+h);
-                if (s != null) {
-                    s.importForest(forest_map);
-                }
-            }
-        }
     }
     
     public int seed() {

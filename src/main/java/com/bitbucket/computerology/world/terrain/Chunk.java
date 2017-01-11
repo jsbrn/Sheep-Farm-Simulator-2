@@ -18,7 +18,8 @@ import org.newdawn.slick.Image;
 
 public class Chunk {
     
-    public static int BIOME_COUNT = 5, GRASS_FIELD = 0, GRASS_FOREST = 1, SAND = 2, WATER = 3, SNOW = 4;
+    public static int BIOME_COUNT = 6, 
+            GRASS_FIELD = 0, SAND = 1, WATER = 2, SNOW = 3, ROAD_INTERSECTION = 4, ROAD_STRAIGHT = 5;
     private int terrain, x, y, rot;
     private Sector parent;
     

@@ -194,8 +194,6 @@ public class GameScreen extends BasicGameState {
                 g.drawRect(s.onScreenCoords()[0], s.onScreenCoords()[1], 
                         Sector.onScreenSize(), Sector.onScreenSize());
                 
-            } else {
-                System.out.println("Chunk at "+cc[0]+", "+cc[1]+" is null!");
             }
             
             
