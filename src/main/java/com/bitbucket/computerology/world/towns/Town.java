@@ -37,9 +37,10 @@ public class Town {
                     distribution[i][j] = Building.RESIDENTIAL;
             }
         }
-        //generate buildings and roads within the parent sector
-        //according to the district map
-        //I DON'T HAVE ANY BUILDINGS DRAWN LMAOAOAOAOAOAOAOAOAO
+        
+        //place the buildings and towns
+        
+        //use them to generate initial stats
         
     }
     

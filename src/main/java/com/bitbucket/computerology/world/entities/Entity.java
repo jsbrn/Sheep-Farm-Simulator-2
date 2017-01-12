@@ -228,7 +228,7 @@ public class Entity {
                     if (copy != null) copy.copyTo(this);
                 }
                 if (line.indexOf("n=") == 0) name = line.replace("n=", "").trim();
-                if (line.indexOf("id=") == 0) id = Integer.parseInt(line.replace("n=", "").trim());
+                if (line.indexOf("id=") == 0) id = Integer.parseInt(line.replace("id=", "").trim());
                 if (line.indexOf("c - ") == 0) {
                     //takes the component that already exists (because of entity.copy()) and
                     //calls the custom load on it

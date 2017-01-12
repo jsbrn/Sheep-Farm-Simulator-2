@@ -114,7 +114,7 @@ public class Sector {
             for (int j = 0; j < sizeChunks(); j++) {
                 int terrain = map[mc[0]+i][mc[1]+j];
                 chunks[i][j] = new Chunk(i, j, this);
-                chunks[i][j].setTerrain(terrain);
+                chunks[i][j].setBiome(terrain);
             }
         }
     }

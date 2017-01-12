@@ -160,7 +160,7 @@ public class GameScreen extends BasicGameState {
             g.drawString("  - Onscreen: "+x+", "+y, 5, 82);
             g.drawString("  - World: "+wc[0]+", "+wc[1], 5, 92);
             g.drawString("  - Sector: "+sc[0]+", "+sc[1], 5, 102);
-            g.drawString("  - Chunk: "+cc[0]+", "+cc[1]+" (t: "+(c != null ? c.getTerrain() : "null")+")", 5, 112);
+            g.drawString("  - Chunk: "+cc[0]+", "+cc[1]+" (b: "+(c != null ? c.getBiome() : "null")+")", 5, 112);
             
             Entity en = World.getWorld().getEntity(wc[0], wc[1]);
             g.drawString("Entity at mouse: "+(en != null ? en.toString() : "null"), 5, 132);

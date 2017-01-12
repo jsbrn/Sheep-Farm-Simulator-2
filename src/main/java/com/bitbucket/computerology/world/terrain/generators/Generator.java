@@ -26,9 +26,9 @@ public class Generator {
      * @param os_y Center of the terrain circle.
      * @param diametre The diametre of the circle.
      * @param terrain Terrain type to paint.
-     * @param overwrite Overwrite chunks with existing terrain data?
+     * @param biome Do you want to paint the chunk's biome or the terrain?
      */
-    public static void brush(int wx, int wy, int diametre, int terrain) {
+    public static void brush(int wx, int wy, int diametre, int terrain, boolean biome) {
         for (int w = (-diametre/2); w != (diametre/2); w++) {
             for (int h = (-diametre/2); h != (diametre/2); h++) {
                 if (MiscMath.distance(w, h, 0, 0) <= (diametre/2)) {
@@ -36,7 +36,7 @@ public class Generator {
                     int cc[] = World.getWorld().getChunkCoords(wx+(w*Chunk.sizePixels()), wy+(h*Chunk.sizePixels()));
                     Sector s = World.getWorld().getSector(sc[0], sc[1]);
                     Chunk c = (s != null) ? s.getChunk(cc[0], cc[1]) : null;
-                    if (c != null) c.setTerrain(terrain);
+                    if (c != null) { if (biome) c.setBiome(terrain); else c.setTerrain(terrain); }
                 }
             }
         }

@@ -17,9 +17,9 @@ public class Position extends Component {
     @Override
     public void customSave(BufferedWriter bw) {
         try {
-            bw.write("x="+(int)x);
-            bw.write("y="+(int)y);
-            bw.write("r="+(int)rotation);
+            bw.write("x="+(int)x+"\n");
+            bw.write("y="+(int)y+"\n");
+            bw.write("r="+(int)rotation+"\n");
         } catch (IOException ex) {
             Logger.getLogger(Position.class.getName()).log(Level.SEVERE, null, ex);
         }
