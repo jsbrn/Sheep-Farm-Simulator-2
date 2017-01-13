@@ -56,11 +56,11 @@ public class Sector {
     
     public boolean isTownSector() { return World.getWorld().getTown(x, y) != null; }
     
-    public int[] offsets() {
+    public int[] getSectorCoords() {
         return new int[]{x, y};
     }
     
-    public int[] worldCoords() {
+    public int[] getWorldCoords() {
         return new int[]{x*sizePixels(), y*sizePixels()};
     }
     
@@ -69,7 +69,7 @@ public class Sector {
     public static int onScreenSize() { return sizePixels()*Camera.getZoom(); }
     
     public int[] onScreenCoords() {
-        return World.getWorld().getOnscreenCoords(worldCoords()[0], worldCoords()[1]);
+        return World.getWorld().getOnscreenCoords(getWorldCoords()[0], getWorldCoords()[1]);
     }
     
     /**

@@ -78,8 +78,8 @@ public class Chunk {
                 s_y = (y+h < 0 ? -1 : (y+h >= Sector.sizeChunks() ? 1 : 0));
                 //if s_x and s_y are the parent sector's coords, then s = parent
                 //else, s is the sector at (parent x + s_x, parent y + s_y)
-                s = (s_x+w == parent.offsets()[0] && s_y+h == parent.offsets()[1] ? parent : 
-                        World.getWorld().getSector(parent.offsets()[0] + s_x, parent.offsets()[1] + s_y));
+                s = (s_x+w == parent.getSectorCoords()[0] && s_y+h == parent.getSectorCoords()[1] ? parent : 
+                        World.getWorld().getSector(parent.getSectorCoords()[0] + s_x, parent.getSectorCoords()[1] + s_y));
                 //the Ith element in d is the chunk (cx, cy) in s, where (cx, cy) is the chunk coordinates relative
                 //to this chunk's parent sector's origin, mod Sector.SIZE (which right now is 32)
                 d[i] = (s != null ? s.getChunk((x+w+Sector.sizeChunks()) % Sector.sizeChunks(), 
@@ -114,7 +114,7 @@ public class Chunk {
     }
     
     public int[] worldCoords() {
-        return new int[]{parent.worldCoords()[0] + (x*sizePixels()), parent.worldCoords()[1] + (y*sizePixels())};
+        return new int[]{parent.getWorldCoords()[0] + (x*sizePixels()), parent.getWorldCoords()[1] + (y*sizePixels())};
     }
     
     public int[] onScreenCoords() {

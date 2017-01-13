@@ -22,6 +22,7 @@ public class Town {
     public void update() {}
     
     public void generate() {
+        System.out.println("Generating town at sector "+getParent().getSectorCoords()[0]+", "+getParent().getSectorCoords()[1]);
         //generate the noise map describing the building distribution
         double residential[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
         double commercial[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
@@ -42,27 +43,44 @@ public class Town {
         
         //place the buildings and towns
         Entity supermarket = Entity.create("Supermarket 1");
-        supermarket.setWorldX(getParent().worldCoords()[0] + (Chunk.sizePixels()*2));
-        supermarket.setWorldY(getParent().worldCoords()[1] + (Chunk.sizePixels()*2));
+        supermarket.setWorldX(getParent().getWorldCoords()[0] + (Chunk.sizePixels()*2));
+        supermarket.setWorldY(getParent().getWorldCoords()[1] + (Chunk.sizePixels()*2));
         World.getWorld().addEntity(supermarket);
+        
+        for (int i = 1; i <= 3; i++) {
+            this.placeRoadSegment(i*16, 0, Sector.sizeChunks(), 2);
+        }
+        
         //use them to generate initial stats
         
     }
     
-    private void placeRoadSegment(int cx, int cy, int dir, int rot) {
-        /*int ox = rot == 1 ? 1 : (rot == 3 ? -1 : 0);
-        int oy = rot == 0 ? -1 : (rot == 2 ? 1 : 0);
+    /**
+     * Creates a proper road segment (2 in width with traffic lines) of any length.
+     * @param cx The number of chunks along the x away from the Town's parent sector. Can overlap into
+     * different sectors if need be. Facing upwards, the origin road tile is at cx, cy and the second
+     * road tile is to the left of it.
+     * @param cy Number of chunks along the y.
+     * @param length The length of the road segment.
+     * @param dir The direction of the road segment, 0-3.
+     */
+    private void placeRoadSegment(int cx, int cy, int length, int dir) {
+        int ox = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
+        int oy = dir == 1 ? -1 : (dir == 3 ? 1 : 0);
         int incr_y = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
         int incr_x = dir == 1 ? 1 : (dir == 3 ? -1 : 0);
-        for (int i = 0; i <= Sector.sizeChunks(); i++) {
-            //int[] 
-            Chunk c = World.getWorld().getChunk(x, y);
+        int rot1 = dir, rot2 = dir+2;
+        for (int i = 0; i <= length; i++) {
+            int wc[] = getParent().getWorldCoords(); 
+            wc[0]+=Chunk.sizePixels()*cx; wc[1]+=cy*Chunk.sizePixels();
             
-            if (x+ox > -1 && x+ox < map.length 
-                    && y+oy > -1 && y+oy < map[0].length) map[x+ox][y+oy] = true;
-            x+=incr_x;
-            y+=incr_y;
-        }*/
+            World.getWorld().placeTerrain(wc[0], wc[1], Chunk.ROAD_INTERSECTION, rot1);
+            World.getWorld().placeTerrain(wc[0]+(ox*Chunk.sizePixels()), 
+                    wc[1]+(oy*Chunk.sizePixels()), Chunk.ROAD_INTERSECTION, rot2);
+            
+            cx+=incr_x;
+            cy+=incr_y;
+        }
     }
     
     public int[] getSectorCoordinates() { return new int[]{x, y}; }

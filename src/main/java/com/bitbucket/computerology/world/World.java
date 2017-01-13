@@ -97,6 +97,17 @@ public class World {
     public int movableEntityCount() { return moving_entities.size(); }
     public int activeEntityCount() { return active_entities.size(); }
     
+    public void placeTerrain(int wx, int wy, int terrain, int rot) {
+        int[] sc = getSectorCoords(wx, wy);
+        int[] cc = getChunkCoords(wx, wy);
+        Sector s = getSector(sc[0], sc[1]);
+        Chunk c = s != null ? s.getChunk(wx, wy) : null;
+        if (c != null) {
+            c.setRotation(rot);
+            c.setTerrain(terrain);
+        }
+    }
+    
     /**
      * Gets all of the chunks intersecting the specified rectangle.
      * @param x World coordinates.
@@ -242,8 +253,8 @@ public class World {
         //if the sector is beyond the first and last, return null
         //if the sector is the first or last, return the first or last, respectively
         if (list.get(0).compareTo(x, y) > 0 || list.get(list.size()-1).compareTo(x, y) < 0) return null;
-        if (list.get(u).offsets()[0] == x && list.get(u).offsets()[1] == y) return list.get(u);
-        if (list.get(l).offsets()[0] == x && list.get(l).offsets()[1] == y) return list.get(l);
+        if (list.get(u).getSectorCoords()[0] == x && list.get(u).getSectorCoords()[1] == y) return list.get(u);
+        if (list.get(l).getSectorCoords()[0] == x && list.get(l).getSectorCoords()[1] == y) return list.get(l);
         
         int lsize = (u+1)-l;
         int index = lsize/2 + l;
@@ -258,10 +269,10 @@ public class World {
         int sub_bounds[] = new int[]{cmp > 0 ? l : index, cmp > 0 ? index : u};
         if ((sub_bounds[1]+1)-sub_bounds[0] <= 2) { //if sublist is two in length
             if (cmp > 0) if (sub_bounds[0] > -1) 
-                if (list.get(sub_bounds[0]).offsets()[0] == x && list.get(sub_bounds[0]).offsets()[1] == y) 
+                if (list.get(sub_bounds[0]).getSectorCoords()[0] == x && list.get(sub_bounds[0]).getSectorCoords()[1] == y) 
                     return list.get(sub_bounds[0]);
             if (cmp < 0) if (sub_bounds[1] < list.size()) 
-                if (list.get(sub_bounds[1]).offsets()[0] == x && list.get(sub_bounds[1]).offsets()[1] == y) 
+                if (list.get(sub_bounds[1]).getSectorCoords()[0] == x && list.get(sub_bounds[1]).getSectorCoords()[1] == y) 
                     return list.get(sub_bounds[1]);
             return null;
         } else {
@@ -279,7 +290,7 @@ public class World {
     }
     
     private boolean addSector(Sector s, int l, int u) {
-        int index = getPotentialSectorIndex(s.offsets()[0], s.offsets()[1], l, u);
+        int index = getPotentialSectorIndex(s.getSectorCoords()[0], s.getSectorCoords()[1], l, u);
         if (index <= -1 || index > sectors.size()) { 
             return false; 
         }
@@ -562,18 +573,20 @@ public class World {
             if (!map[chosen[0]][chosen[1]]) {
                 //mark the town map
                 map[chosen[0]][chosen[1]] = true;
+                int[] wcm = getWorldCoordsFromMap(chosen[0], chosen[1]);
+                int sc[] = getSectorCoords(wcm[0], wcm[1]);
                 //create a new town instance
-                Town t = new Town(chosen[0], chosen[1]);
+                Town t = new Town(sc[0], sc[1]);
                 towns.add(t);
-                System.out.println("Sector @ map["+chosen[0]+", "+chosen[1]+"] is a town!");
+                System.out.println("Sector "+sc[0]+", "+sc[1]+" is a town!");
                 valid_locations.remove(chosen);
                 if (!chosen_spawn && chosen[0] > 0) { //place the starting sector next to the first town
                     if (empty_sector_map[chosen[0]-1][chosen[1]]) {
                         //check if the biome is grass
                         if (biome_map[(chosen[0]-1)*Sector.sizeChunks()][chosen[1]*Sector.sizeChunks()] == Chunk.GRASS_FIELD) {
-                            spawn = new int[]{chosen[0], chosen[1]};
+                            spawn = new int[]{sc[0]-1, sc[1]};
                             chosen_spawn = true;
-                            System.out.println("Sector @ map["+chosen[0]+", "+chosen[1]+"] is the spawn region!");
+                            System.out.println("Sector "+spawn[0]+", "+spawn[1]+" is the spawn region!");
                         }
                     }
                 }          
