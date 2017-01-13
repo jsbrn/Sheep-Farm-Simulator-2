@@ -2,13 +2,33 @@ e
 id=Tree
 c
 id=Position
+
+
+
+
+
+
+
 /c
 c
 id=Texture
 texture=tree.png
+
+
+
+
+
+
 /c
 c
 id=Hitbox
+
+
+
+
+
+
+
 /c
 s
 id=Render
@@ -23,5 +43,100 @@ h
 12 -2 7 -10
 7 -10 0 -12
 -12 0 -10 -6
+/h
+/e
+e
+id=House 1
+c
+id=Position
+
+
+/c
+c
+id=Texture
+texture=house1.png
+
+/c
+c
+id=Hitbox
+
+
+/c
+s
+id=Render
+/s
+h
+-64 -64 -64 63
+-64 63 63 64
+63 64 63 0
+63 0 0 0
+0 0 0 -18
+0 -18 63 -18
+63 -18 64 -23
+64 -23 0 -24
+0 -24 0 -40
+0 -40 63 -39
+63 -39 64 -48
+64 -48 0 -49
+0 -49 0 -64
+0 -64 -64 -64
+/h
+/e
+e
+id=Supermarket 1
+c
+id=Position
+
+
+/c
+c
+id=Texture
+texture=supermarket1.png
+/c
+c
+id=Hitbox
+texture=supermarket1.png
+
+/c
+s
+id=Render
+/s
+h
+/h
+/e
+e
+id=Factory 1
+c
+id=Position
+
+
+/c
+c
+id=Texture
+texture=factory1.png
+/c
+c
+id=Hitbox
+
+
+/c
+s
+id=Render
+/s
+h
+-131 -124 -131 3
+-131 3 -117 5
+-117 5 -118 124
+-118 124 119 124
+119 124 119 116
+119 116 -109 115
+-109 115 -107 47
+-107 47 -66 37
+-66 37 -55 4
+-55 4 -1 4
+-1 4 0 69
+0 69 129 69
+129 69 128 -125
+128 -125 -131 -124
 /h
 /e

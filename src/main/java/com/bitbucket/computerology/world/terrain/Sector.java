@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 public class Sector {
     
-    private World parent;
     private Chunk[][] chunks;
     private int x, y;
     private boolean filled = false;
@@ -26,9 +25,8 @@ public class Sector {
     
     int chunk_update_index = 0;
     
-    public Sector(int x, int y, World parent) {
+    public Sector(int x, int y) {
         this.x = x; this.y = y;
-        this.parent = parent;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
         this.entities = new ArrayList<Entity>();
         this.entities.ensureCapacity(Sector.sizeChunks()*Sector.sizeChunks());
@@ -86,15 +84,16 @@ public class Sector {
      * @return A Sector[] with 8 elements.
      */
     public Sector[] getAdjacentSectors() {
+        World world = World.getWorld();
         return new Sector[]{
-            parent.getSector(x-1, y-1),
-            parent.getSector(x, y-1),
-            parent.getSector(x+1, y-1),
-            parent.getSector(x-1, y),
-            parent.getSector(x+1, y),
-            parent.getSector(x-1, y+1),
-            parent.getSector(x, y+1),
-            parent.getSector(x+1, y+1)
+            world.getSector(x-1, y-1),
+            world.getSector(x, y-1),
+            world.getSector(x+1, y-1),
+            world.getSector(x-1, y),
+            world.getSector(x+1, y),
+            world.getSector(x-1, y+1),
+            world.getSector(x, y+1),
+            world.getSector(x+1, y+1)
         };
     }
     
@@ -109,7 +108,7 @@ public class Sector {
     public void importBiomes(int[][] map) {
         if (filled) return;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
-        int[] mc = parent.getMapCoords(x, y, 0, 0);
+        int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
         for (int i = 0; i < sizeChunks(); i++) {
             for (int j = 0; j < sizeChunks(); j++) {
                 int terrain = map[mc[0]+i][mc[1]+j];
@@ -121,7 +120,8 @@ public class Sector {
     
     public void importForest(boolean[][] map) {
         if (filled) return;
-        int[] mc = parent.getMapCoords(x, y, 0, 0);
+        World world = World.getWorld();
+        int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
         for (int i = 0; i < sizeChunks(); i++) {
             for (int j = 0; j < sizeChunks(); j++) {
                 boolean spawn = map[mc[0]+i][mc[1]+j];
@@ -129,10 +129,10 @@ public class Sector {
                     int terrain = getChunk(i, j).getTerrain();
                     if (terrain != Chunk.GRASS_FIELD && terrain != Chunk.SNOW) continue;
                     Entity tree = Entity.create("Tree");
-                    int wc[] = parent.getWorldCoordsFromMap(mc[0]+i, mc[1]+j);
-                    tree.setWorldX(wc[0]+(Chunk.sizePixels()/2)+(parent.rng().nextInt() % 8));
-                    tree.setWorldY(wc[1]+(Chunk.sizePixels()/2)+(+(parent.rng().nextInt() % 8)));
-                    parent.addEntity(tree);
+                    int wc[] = world.getWorldCoordsFromMap(mc[0]+i, mc[1]+j);
+                    tree.setWorldX(wc[0]+(Chunk.sizePixels()/2)+(world.rng().nextInt() % 8));
+                    tree.setWorldY(wc[1]+(Chunk.sizePixels()/2)+(+(world.rng().nextInt() % 8)));
+                    world.addEntity(tree);
                     
                 }
             }
@@ -141,7 +141,7 @@ public class Sector {
     
     public void importRoads(boolean[][] map) {
         if (filled) return;
-        int[] mc = parent.getMapCoords(x, y, 0, 0);
+        int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
         for (int i = 0; i < sizeChunks(); i++) {
             for (int j = 0; j < sizeChunks(); j++) {
                 boolean spawn = map[mc[0]+i][mc[1]+j];
@@ -159,10 +159,6 @@ public class Sector {
                 }
             }
         }
-    }
-    
-    public World getWorld() {
-        return parent;
     }
     
     /**

@@ -38,6 +38,8 @@ public class Texture extends Component {
     public void copyTo(Component c) {
         super.copyTo(c);
         if (c instanceof Texture == false) return;
+        
+        if (this.texture == null) return;
         ((Texture)c).texture = this.texture.getScaledCopy(1);
         ((Texture)c).texture_url = this.texture_url;
     }

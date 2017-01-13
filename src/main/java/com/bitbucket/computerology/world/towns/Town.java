@@ -3,6 +3,8 @@ package com.bitbucket.computerology.world.towns;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.misc.SimplexNoise;
 import com.bitbucket.computerology.world.World;
+import com.bitbucket.computerology.world.entities.Entity;
+import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.terrain.Sector;
 import java.util.ArrayList;
 
@@ -39,9 +41,28 @@ public class Town {
         }
         
         //place the buildings and towns
-        
+        Entity supermarket = Entity.create("Supermarket 1");
+        supermarket.setWorldX(getParent().worldCoords()[0] + (Chunk.sizePixels()*2));
+        supermarket.setWorldY(getParent().worldCoords()[1] + (Chunk.sizePixels()*2));
+        World.getWorld().addEntity(supermarket);
         //use them to generate initial stats
         
+    }
+    
+    private void placeRoadSegment(int cx, int cy, int dir, int rot) {
+        /*int ox = rot == 1 ? 1 : (rot == 3 ? -1 : 0);
+        int oy = rot == 0 ? -1 : (rot == 2 ? 1 : 0);
+        int incr_y = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
+        int incr_x = dir == 1 ? 1 : (dir == 3 ? -1 : 0);
+        for (int i = 0; i <= Sector.sizeChunks(); i++) {
+            //int[] 
+            Chunk c = World.getWorld().getChunk(x, y);
+            
+            if (x+ox > -1 && x+ox < map.length 
+                    && y+oy > -1 && y+oy < map[0].length) map[x+ox][y+oy] = true;
+            x+=incr_x;
+            y+=incr_y;
+        }*/
     }
     
     public int[] getSectorCoordinates() { return new int[]{x, y}; }

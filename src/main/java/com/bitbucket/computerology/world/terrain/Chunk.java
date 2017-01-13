@@ -79,7 +79,7 @@ public class Chunk {
                 //if s_x and s_y are the parent sector's coords, then s = parent
                 //else, s is the sector at (parent x + s_x, parent y + s_y)
                 s = (s_x+w == parent.offsets()[0] && s_y+h == parent.offsets()[1] ? parent : 
-                        parent.getWorld().getSector(parent.offsets()[0] + s_x, parent.offsets()[1] + s_y));
+                        World.getWorld().getSector(parent.offsets()[0] + s_x, parent.offsets()[1] + s_y));
                 //the Ith element in d is the chunk (cx, cy) in s, where (cx, cy) is the chunk coordinates relative
                 //to this chunk's parent sector's origin, mod Sector.SIZE (which right now is 32)
                 d[i] = (s != null ? s.getChunk((x+w+Sector.sizeChunks()) % Sector.sizeChunks(), 

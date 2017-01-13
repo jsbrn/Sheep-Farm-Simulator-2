@@ -125,6 +125,13 @@ public class World {
         return list;
     }
     
+    public Chunk getChunk(int wx, int wy) {
+        int[] sc = getSectorCoords(wx, wy);
+        int[] cc = getChunkCoords(wx, wy);
+        Sector s = getSector(sc[0], sc[1]);
+        return s == null ? null : s.getChunk(cc[0], cc[1]);
+    }
+    
     public Entity getEntity(int x, int y) {
         int sc[] = getSectorCoords(x, y);
         int cc[] = getChunkCoords(x, y);
@@ -413,7 +420,7 @@ public class World {
                 if (line.contains("cy=")) Camera.setY(Integer.parseInt(line.replace("cy=", "").trim()));
                 if (line.contains("cz=")) Camera.setZoom(Integer.parseInt(line.replace("cz=", "").trim()));
                 if (line.equals("s")) {
-                    Sector s = new Sector(0, 0, world);
+                    Sector s = new Sector(0, 0);
                     if (s.load(br)) world.addSector(s);
                 }
                 if (line.equals("e")) {
@@ -435,7 +442,7 @@ public class World {
      * @param y Sector coordinate y
      */
     public Sector createSector(int x, int y) {
-        Sector s = new Sector(x, y, this);
+        Sector s = new Sector(x, y);
         addSector(s);
         return s;
     }
