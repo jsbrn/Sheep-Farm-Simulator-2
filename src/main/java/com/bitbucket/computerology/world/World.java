@@ -548,7 +548,7 @@ public class World {
     
     private boolean[][] createTownMap(boolean empty_sector_map[][], double ratio) {
         boolean map[][] = new boolean[size_sectors][size_sectors];
-        //compile a list of al valid town locations in the map
+        //compile a list of all valid town locations in the map
         ArrayList<int[]> valid_locations = new ArrayList<int[]>();
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map.length; j++) {
@@ -581,7 +581,7 @@ public class World {
                 System.out.println("Sector "+sc[0]+", "+sc[1]+" is a town!");
                 valid_locations.remove(chosen);
                 if (!chosen_spawn && chosen[0] > 0) { //place the starting sector next to the first town
-                    if (empty_sector_map[chosen[0]-1][chosen[1]]) {
+                    if (empty_sector_map[chosen[0]][chosen[1]]) {
                         //check if the biome is grass
                         if (biome_map[(chosen[0]-1)*Sector.sizeChunks()][chosen[1]*Sector.sizeChunks()] == Chunk.GRASS_FIELD) {
                             spawn = new int[]{sc[0]-1, sc[1]};

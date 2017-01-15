@@ -70,7 +70,10 @@ public class TextField extends GUIElement {
     
     @Override
     public void onKeyPress(char c) {
-        if (!(c == '\b')) addText(c+""); else backspace();
+        if (!(c == '\b')) { 
+            //if within the range of proper key characters
+            if (c >= 32 && c < 127) addText(c+"");
+        } else { backspace(); }
     }
 
     @Override
@@ -82,7 +85,7 @@ public class TextField extends GUIElement {
         g.setColor(Color.white);
         g.fillRect(getOnscreenX(), getOnscreenY(), getWidth(), getHeight());
         g.setColor(Color.black);
-        if (blink > blink_speed && hasFocus()) g.fillRect(getOnscreenX()+5+Assets.getFont(12).getWidth(text), getOnscreenY()+2, 2, getHeight()-4);
+        if (blink > blink_speed && hasFocus()) g.fillRect(getOnscreenX()+5+Assets.getFont(12).getWidth(text), getOnscreenY()+3, 2, getHeight()-6);
         g.setFont(Assets.getFont(12));
         if (text.length() > 0) {
             g.setColor(text_color);

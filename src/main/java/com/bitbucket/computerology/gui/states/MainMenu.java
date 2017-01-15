@@ -53,21 +53,13 @@ public class MainMenu extends BasicGameState {
         edit_save_panel.setVisible(false);
         edit_save_panel.setTitle("Rename");
         
-        final TextField rename_field = new TextField() {
-            @Override
-            public void addText(String s) {
-                super.addText(s);
-                if (getText().length() == 0) {
-                    
-                }
-            }
-        };
+        final TextField rename_field = new TextField();
         rename_field.setWidth(260);
         rename_field.setHeight(32);
         rename_field.setX(10);
         rename_field.setY(60);
         
-        Button accept_rename = new Button() {
+        final Button accept_rename = new Button() {
             @Override
             public void onMouseClick(int button, int x, int y, int click_count) {
                 File folder = new File(Assets.ROOT_DIR+"/saves/"+rename_field.getAltText());
