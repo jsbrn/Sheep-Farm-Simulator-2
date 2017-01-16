@@ -17,6 +17,8 @@ public class Town {
     
     public Town(int sector_x, int sector_y) {
         this.buildings = new ArrayList<Building>();
+        this.x = sector_x;
+        this.y = sector_y;
     }
     
     public void update() {}
@@ -42,14 +44,15 @@ public class Town {
         }
         
         //place the buildings and towns
-        Entity supermarket = Entity.create("Supermarket 1");
-        supermarket.setWorldX(getParent().getWorldCoords()[0] + (Chunk.sizePixels()*2));
-        supermarket.setWorldY(getParent().getWorldCoords()[1] + (Chunk.sizePixels()*2));
+        Entity supermarket = Entity.create("House 1");
+        supermarket.setWorldX(getParent().getWorldCoords()[0] + 32);
+        supermarket.setWorldY(getParent().getWorldCoords()[1] + 32);
         World.getWorld().addEntity(supermarket);
         
-        for (int i = 1; i <= 3; i++) {
+        /*for (int i = 1; i <= 3; i++) {
             this.placeRoadSegment(i*16, 0, Sector.sizeChunks(), 2);
-        }
+            this.placeRoadSegment(0, i*16, Sector.sizeChunks(), 1);
+        }*/
         
         //use them to generate initial stats
         
@@ -74,9 +77,13 @@ public class Town {
             int wc[] = getParent().getWorldCoords(); 
             wc[0]+=Chunk.sizePixels()*cx; wc[1]+=cy*Chunk.sizePixels();
             
-            World.getWorld().placeTerrain(wc[0], wc[1], Chunk.ROAD_INTERSECTION, rot1);
-            World.getWorld().placeTerrain(wc[0]+(ox*Chunk.sizePixels()), 
-                    wc[1]+(oy*Chunk.sizePixels()), Chunk.ROAD_INTERSECTION, rot2);
+            int t = World.getWorld().getTerrain(wc[0], wc[1]);
+            
+            World.getWorld().setTerrain(wc[0], wc[1], 
+                    t == Chunk.ROAD_STRAIGHT ? Chunk.ROAD_INTERSECTION : Chunk.ROAD_STRAIGHT, rot1);
+            World.getWorld().setTerrain(wc[0]+(ox*Chunk.sizePixels()), 
+                    wc[1]+(oy*Chunk.sizePixels()), 
+                    t == Chunk.ROAD_STRAIGHT ? Chunk.ROAD_INTERSECTION : Chunk.ROAD_STRAIGHT, rot2);
             
             cx+=incr_x;
             cy+=incr_y;

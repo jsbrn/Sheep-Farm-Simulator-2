@@ -4,7 +4,6 @@ import com.bitbucket.computerology.gui.GUI;
 import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.elements.*;
 
-import com.bitbucket.computerology.main.SlickInitializer;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.misc.Window;
@@ -140,6 +139,7 @@ public class MainMenu extends BasicGameState {
                                 World.newWorld();
                                 World.getWorld().generate();
                                 int[] spawn = World.getWorld().getSpawn();
+                                System.out.println("Setting camera to "+spawn[0]+", "+spawn[1]);
                                 Camera.setX(spawn[0]);
                                 Camera.setY(spawn[1]);
                             }

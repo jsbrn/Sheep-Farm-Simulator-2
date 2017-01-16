@@ -29,7 +29,7 @@ public class World {
     private static World world;
     
     Image map_texture;
-    private int[][] biome_map;
+    private short[][] biome_map;
     private int[] spawn;
     private boolean[][] forest_map, road_map;
     
@@ -97,15 +97,27 @@ public class World {
     public int movableEntityCount() { return moving_entities.size(); }
     public int activeEntityCount() { return active_entities.size(); }
     
-    public void placeTerrain(int wx, int wy, int terrain, int rot) {
+    public void setTerrain(int wx, int wy, int terrain, int rot) {
         int[] sc = getSectorCoords(wx, wy);
         int[] cc = getChunkCoords(wx, wy);
         Sector s = getSector(sc[0], sc[1]);
-        Chunk c = s != null ? s.getChunk(wx, wy) : null;
+        Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
         if (c != null) {
+            System.out.println("Placing terrain "+terrain+" at rotation "+rot);
             c.setRotation(rot);
             c.setTerrain(terrain);
         }
+    }
+    
+    public int getTerrain(int wx, int wy) {
+        int[] sc = getSectorCoords(wx, wy);
+        int[] cc = getChunkCoords(wx, wy);
+        Sector s = getSector(sc[0], sc[1]);
+        Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
+        if (c != null) {
+            return c.getTerrain();
+        }
+        return -1;
     }
     
     /**
@@ -172,9 +184,11 @@ public class World {
         if (s != null) {if (add) s.addEntity(e); else s.removeEntity(e);}
         ArrayList<Chunk> chunks = getChunks(e.getWorldX()-e.getWidth()/2,
                 e.getWorldY()-e.getHeight()/2,e.getWidth(), e.getHeight());
+        //System.out.println(e+" dimensions: "+e.getWidth()+", "+e.getHeight());
         boolean success = true;
         for (Chunk c: chunks) {
-            if (add) if (!c.addEntity(e)) success = false;
+            //System.out.println(add ? "Adding "+e+" to "+c : "Removing "+e+" from "+c);
+            if (add) { if (!c.addEntity(e)) success = false; }
             if (!add) c.removeEntity(e);
         }
         return success;
@@ -186,6 +200,7 @@ public class World {
             if (e.moves()) moving_entities.add(e);
             if (e.updates()) active_entities.add(e);
             if (e.renders()) render_entities.add(e);
+            System.out.println("Added entity  "+e+"! ("+e.getWorldX()+", "+e.getWorldY());
             return true;
         }
         return false;
@@ -479,7 +494,7 @@ public class World {
             double forest_scale, double forest_height, int forest_passes,
             double town_ratio,
             boolean desert_near_tundra, boolean tundra_at_poles) {
-        this.biome_map = new int[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
+        this.biome_map = new short[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
         this.forest_map = new boolean[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
         this.size_sectors = size_sectors;
         double[][] grass = SimplexNoise.generate(size_sectors*Sector.sizeChunks(), 
@@ -534,6 +549,8 @@ public class World {
                 for (int b = 0; b < Chunk.BIOME_COUNT; b++) {
                     if (biome_distribution[i][j][b] == 0) continue;
                     if (biome_distribution[i][j][b] == Sector.sizeChunks()*Sector.sizeChunks()) { 
+                        int[] wcm = getWorldCoordsFromMap(i*Sector.sizeChunks(), j*Sector.sizeChunks());
+                        int sc[] = getSectorCoords(wcm[0], wcm[1]);
                         System.out.println("Sector @ map["+i+", "+j+"] is empty!");
                         map[i][j] = true;
                         //if (b != Chunk.WATER) available_town_sectors.add(new int[]{i, j}); 
@@ -573,12 +590,12 @@ public class World {
             if (!map[chosen[0]][chosen[1]]) {
                 //mark the town map
                 map[chosen[0]][chosen[1]] = true;
-                int[] wcm = getWorldCoordsFromMap(chosen[0], chosen[1]);
+                int[] wcm = getWorldCoordsFromMap(chosen[0]*Sector.sizeChunks(), chosen[1]*Sector.sizeChunks());
                 int sc[] = getSectorCoords(wcm[0], wcm[1]);
                 //create a new town instance
                 Town t = new Town(sc[0], sc[1]);
                 towns.add(t);
-                System.out.println("Sector "+sc[0]+", "+sc[1]+" is a town!");
+                System.out.println("Sector "+sc[0]+", "+sc[1]+"(mc "+chosen[0]+", "+chosen[1]+") is a town!");
                 valid_locations.remove(chosen);
                 if (!chosen_spawn && chosen[0] > 0) { //place the starting sector next to the first town
                     if (empty_sector_map[chosen[0]][chosen[1]]) {
@@ -613,26 +630,26 @@ public class World {
                     
                     if (right) {
                         if (empty_sector_map[i+ox][j]) {
-                            placeRoadSegment(map, x+(ox*Sector.sizeChunks()), y, 1, 0);
-                            placeRoadSegment(map, x+(ox*Sector.sizeChunks())+Sector.sizeChunks()-1, y+Sector.sizeChunks()-1, 3, 2);
+                            placeRoadSegment(map, x+(ox*Sector.sizeChunks()), y, 1);
+                            placeRoadSegment(map, x+(ox*Sector.sizeChunks()), y+Sector.sizeChunks(), 1);
                         } else { right = false; }
                     }
                     if (left) { 
                         if (empty_sector_map[i-ox][j]) {
-                            placeRoadSegment(map, x-(ox*Sector.sizeChunks()), y, 1, 0);
-                            placeRoadSegment(map, x-(ox*Sector.sizeChunks())+Sector.sizeChunks()-1, y+Sector.sizeChunks()-1, 3, 2);
+                            placeRoadSegment(map, x-(ox*Sector.sizeChunks()), y, 3);
+                            placeRoadSegment(map, x-(ox*Sector.sizeChunks()), y+Sector.sizeChunks(), 3);
                         } else { left = false; }
                     }
                     if (down) { 
                         if (empty_sector_map[i][j+oy]) {
-                            placeRoadSegment(map, x, y+(oy*Sector.sizeChunks()), 2, 3);
-                            placeRoadSegment(map, x+Sector.sizeChunks()-1, y+(oy*Sector.sizeChunks())+Sector.sizeChunks()-1, 0, 1);
+                            placeRoadSegment(map, x, y+(oy*Sector.sizeChunks()), 2);
+                            placeRoadSegment(map, x+Sector.sizeChunks(), y+(oy*Sector.sizeChunks()), 2);
                         } else { down = false; }
                     }
                     if (up) { 
                         if (empty_sector_map[i][j-oy]) {
-                            placeRoadSegment(map, x, y-(oy*Sector.sizeChunks()), 2, 3);
-                            placeRoadSegment(map, x+Sector.sizeChunks()-1, y-(oy*Sector.sizeChunks())+Sector.sizeChunks()-1, 0, 1);
+                            placeRoadSegment(map, x, y-(oy*Sector.sizeChunks()), 2);
+                            placeRoadSegment(map, x+Sector.sizeChunks(), y-(oy*Sector.sizeChunks()), 2);
                         } else { up = false; }
                     }
                     ox++; oy++;
@@ -643,24 +660,36 @@ public class World {
         return map;
     }
     
-    public int[] getSpawn() { return spawn == null ? 
-            new int[]{Sector.sizePixels()/2, Sector.sizePixels()/2} : 
-            new int[]{spawn[0]+(Sector.sizePixels()/2), spawn[1]+(Sector.sizePixels()/2)}; }
-    
-    private void placeRoadSegment(boolean map[][], int x, int y, int dir, int rot) {
-        if (map == null) return;
-        int ox = rot == 1 ? 1 : (rot == 3 ? -1 : 0);
-        int oy = rot == 0 ? -1 : (rot == 2 ? 1 : 0);
+    /**
+     * Creates a proper road segment on the road map. Two tiles wide and of the specified length.
+     * Facing upwards (dir = 0), the origin road tile is at map[x, y] and the second road tile is to the left of it.
+     * @param x The x coordinate on the road map.
+     * @param y The y coordinate. 
+     * @param length The length of the road segment.
+     * @param dir The direction of the road segment, 0-3.
+     */
+    private void placeRoadSegment(boolean map[][], int x, int y, int dir) {
+        int ox = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
+        int oy = dir == 1 ? -1 : (dir == 3 ? 1 : 0);
         int incr_y = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
         int incr_x = dir == 1 ? 1 : (dir == 3 ? -1 : 0);
+        int rot1 = dir, rot2 = dir+2;
         for (int i = 0; i <= Sector.sizeChunks(); i++) {
+            
             if (x > -1 && x < map.length 
                     && y > -1 && y < map[0].length) map[x][y] = true;
             if (x+ox > -1 && x+ox < map.length 
                     && y+oy > -1 && y+oy < map[0].length) map[x+ox][y+oy] = true;
+            
             x+=incr_x;
             y+=incr_y;
         }
+    }
+    
+    public int[] getSpawn() { 
+        return spawn == null ? 
+            new int[]{0, 0} : 
+            new int[]{spawn[0]*Sector.sizePixels(), spawn[1]*Sector.sizePixels()}; 
     }
     
     /**
@@ -690,7 +719,8 @@ public class World {
                         s = createSector(sector_x+w, sector_y+h);
                         s.importBiomes(biome_map);
                         s.importRoads(road_map);
-                        if (s.isTownSector()) getTown(sector_x+w, sector_y+h).generate();
+                        Town t = getTown(sector_x+w, sector_y+h);
+                        if (t != null) t.generate();
                         s.importForest(forest_map);
                     }
                 }

@@ -105,12 +105,12 @@ public class Sector {
         return filled;
     }
     
-    public void importBiomes(int[][] map) {
+    public void importBiomes(short[][] map) {
         if (filled) return;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
         int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
-        for (int i = 0; i < sizeChunks(); i++) {
-            for (int j = 0; j < sizeChunks(); j++) {
+        for (short i = 0; i < sizeChunks(); i++) {
+            for (short j = 0; j < sizeChunks(); j++) {
                 int terrain = map[mc[0]+i][mc[1]+j];
                 chunks[i][j] = new Chunk(i, j, this);
                 chunks[i][j].setBiome(terrain);
@@ -151,10 +151,8 @@ public class Sector {
                             (i == Sector.sizeChunks()-1 && j == 0) ||
                             i == j || (i == 0 && j == Sector.sizeChunks()-1) ? Chunk.ROAD_INTERSECTION : Chunk.ROAD_STRAIGHT);
                     if (c.getTerrain() == Chunk.ROAD_STRAIGHT) {
-                        if (i == 0) c.setRotation(0);
-                        if (i == Sector.sizeChunks()-1) c.setRotation(2);
-                        if (j == 0) c.setRotation(1);
-                        if (j == Sector.sizeChunks()-1) c.setRotation(3);
+                        if (i == 0) c.setRotation(2); if (i == 1) c.setRotation(0);
+                        if (j == 0) c.setRotation(3); if (j == 1) c.setRotation(1);
                     }
                 }
             }
@@ -181,7 +179,7 @@ public class Sector {
                 if (line.equals("/s")) return true;
                 
                 if (line.equals("c")) {
-                    Chunk c = new Chunk(0, 0, this);
+                    Chunk c = new Chunk((short)0, (short)0, this);
                     if (c.load(br)) chunks[c.offsets()[0]][c.offsets()[1]] = c;
                 }
                 if (line.indexOf("x=") == 0) x = Integer.parseInt(line.replace("x=", ""));

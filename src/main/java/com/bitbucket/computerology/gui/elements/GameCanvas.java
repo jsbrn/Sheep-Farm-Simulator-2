@@ -65,7 +65,7 @@ public class GameCanvas extends GUIElement {
         
         if (!(c == 'x' && GameScreen.DEBUG_MODE)) return;
         int wc[] = World.getWorld().getWorldCoords((int)last_x, (int)last_y);
-        Entity e = Entity.create("Tree");
+        Entity e = Entity.create("Supermarket 1");
         e.setWorldX(wc[0]);
         e.setWorldY(wc[1]);
         World.getWorld().addEntity(e);

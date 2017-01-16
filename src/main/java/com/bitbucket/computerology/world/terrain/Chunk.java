@@ -18,17 +18,17 @@ import org.newdawn.slick.Image;
 
 public class Chunk {
     
-    public static int BIOME_COUNT = 6, 
+    public static short BIOME_COUNT = 6, 
             GRASS_FIELD = 0, SAND = 1, WATER = 2, SNOW = 3, ROAD_INTERSECTION = 4, ROAD_STRAIGHT = 5;
-    private int biome, terrain, x, y, rot;
+    private short biome, terrain, x, y, rot;
     private Sector parent;
     
     public static Color[] COLORS = {Color.green, Color.green.darker(), Color.yellow, Color.blue, Color.white};
     
     public ArrayList<Entity> entities;
     
-    public Chunk(int x, int y, Sector parent) {
-        this.rot = Math.abs(new Random().nextInt() % 4);
+    public Chunk(short x, short y, Sector parent) {
+        this.rot = (short)Math.abs(new Random().nextInt() % 4);
         this.biome = -1;
         this.terrain = -1;
         this.x = x;
@@ -42,7 +42,7 @@ public class Chunk {
      * @param r A number from 0-3. Sets the rotation index to the absolute value of r mod 4.
      */
     public void setRotation(int r) {
-        rot = Math.abs(r % 4);
+        rot = (short)Math.abs(r % 4);
     }
     
     public int getRotation() { return rot; }
@@ -94,7 +94,7 @@ public class Chunk {
     public Sector getSector() { return parent; }
     
     public void setTerrain(int terrain) {
-        this.terrain = (terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1;
+        this.terrain = (short)((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
     }
     
     public int getTerrain() {
@@ -106,7 +106,7 @@ public class Chunk {
     }
     
     public void setBiome(int biome) {
-        this.biome = (biome > -1 && biome < Chunk.BIOME_COUNT) ? biome : -1;
+        this.biome = (short)((biome > -1 && biome < Chunk.BIOME_COUNT) ? biome : -1);
     }
     
     public int[] offsets() {
@@ -133,10 +133,10 @@ public class Chunk {
                 if (line == null) break;
                 line = line.replace("", "").trim();
                 if (line.equals("/c")) return true;
-                if (line.indexOf("x=") == 0) x = Integer.parseInt(line.replace("x=", ""));
-                if (line.indexOf("y=") == 0) y = Integer.parseInt(line.replace("y=", ""));
-                if (line.indexOf("b=") == 0) biome = Integer.parseInt(line.replace("b=", ""));
-                if (line.indexOf("t=") == 0) terrain = Integer.parseInt(line.replace("t=", ""));
+                if (line.indexOf("x=") == 0) x = Short.parseShort(line.replace("x=", ""));
+                if (line.indexOf("y=") == 0) y = Short.parseShort(line.replace("y=", ""));
+                if (line.indexOf("b=") == 0) biome = Short.parseShort(line.replace("b=", ""));
+                if (line.indexOf("t=") == 0) terrain = Short.parseShort(line.replace("t=", ""));
             }
         } catch (IOException ex) {
             Logger.getLogger(Sector.class.getName()).log(Level.SEVERE, null, ex);
@@ -196,6 +196,11 @@ public class Chunk {
                     src_x, r, src_x+Chunk.onScreenSize(), r+Chunk.onScreenSize());
         }
         
+    }
+    
+    @Override
+    public String toString() {
+        return "chunk["+x+", "+y+"]";
     }
     
 }
