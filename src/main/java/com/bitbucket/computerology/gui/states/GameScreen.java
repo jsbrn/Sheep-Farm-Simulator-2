@@ -32,7 +32,7 @@ public class GameScreen extends BasicGameState {
     
     public static GUI GUI;
     public static MapCanvas MINI_MAP;
-    public static boolean DEBUG_MODE = false;
+    public static boolean DEBUG_MODE = false, DRAW_MAP = false;
     
     static StateBasedGame game;
     
@@ -133,11 +133,17 @@ public class GameScreen extends BasicGameState {
         
         initialized = true;
     }
+    
+    public void drawMap(Graphics g) {
+        if (World.getWorld().getMapTexture() != null)
+            g.drawImage(World.getWorld().getMapTexture(), 0, 0);
+    }
 
 
     @Override
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         if (!Assets.loaded()) return;
+        if (World.getWorld().getMapTexture() == null) World.getWorld().buildMapTexture();
         int x = Mouse.getX(), y = Display.getHeight() - Mouse.getY();
         GUI.draw(g);
         
@@ -198,6 +204,8 @@ public class GameScreen extends BasicGameState {
             
             
         }
+        
+        if (DRAW_MAP) drawMap(g);
         
     }
 

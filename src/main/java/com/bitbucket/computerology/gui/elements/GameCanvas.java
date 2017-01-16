@@ -60,6 +60,7 @@ public class GameCanvas extends GUIElement {
     @Override
     public void onKeyPress(char c) {
         
+        if (c == 'm') GameScreen.DRAW_MAP = !GameScreen.DRAW_MAP;
         if (c == '`') GameScreen.DEBUG_MODE = !GameScreen.DEBUG_MODE;
         if (c == 'z') Camera.zoom(1);
         

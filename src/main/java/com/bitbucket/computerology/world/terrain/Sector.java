@@ -127,7 +127,7 @@ public class Sector {
                 boolean spawn = map[mc[0]+i][mc[1]+j];
                 if (spawn) {
                     int terrain = getChunk(i, j).getTerrain();
-                    if (terrain != Chunk.GRASS_FIELD && terrain != Chunk.SNOW) continue;
+                    if (terrain != Chunk.GRASS && terrain != Chunk.SNOW) continue;
                     Entity tree = Entity.create("Tree");
                     int wc[] = world.getWorldCoordsFromMap(mc[0]+i, mc[1]+j);
                     tree.setWorldX(wc[0]+(Chunk.sizePixels()/2)+(world.rng().nextInt() % 8));
@@ -147,9 +147,7 @@ public class Sector {
                 boolean spawn = map[mc[0]+i][mc[1]+j];
                 if (spawn) {
                     Chunk c = getChunk(i, j);
-                    c.setTerrain(
-                            (i == Sector.sizeChunks()-1 && j == 0) ||
-                            i == j || (i == 0 && j == Sector.sizeChunks()-1) ? Chunk.ROAD_INTERSECTION : Chunk.ROAD_STRAIGHT);
+                    c.setTerrain(i < 2 && j < 2 ? Chunk.ROAD_INTERSECTION : Chunk.ROAD_STRAIGHT);
                     if (c.getTerrain() == Chunk.ROAD_STRAIGHT) {
                         if (i == 0) c.setRotation(2); if (i == 1) c.setRotation(0);
                         if (j == 0) c.setRotation(3); if (j == 1) c.setRotation(1);

@@ -19,11 +19,12 @@ import org.newdawn.slick.Image;
 public class Chunk {
     
     public static short BIOME_COUNT = 6, 
-            GRASS_FIELD = 0, SAND = 1, WATER = 2, SNOW = 3, ROAD_INTERSECTION = 4, ROAD_STRAIGHT = 5;
+            GRASS = 0, SAND = 1, WATER = 2, SNOW = 3, ROAD_INTERSECTION = 4, ROAD_STRAIGHT = 5;
     private short biome, terrain, x, y, rot;
     private Sector parent;
     
-    public static Color[] COLORS = {Color.green, Color.green.darker(), Color.yellow, Color.blue, Color.white};
+    public static Color[] COLORS = {Color.green, Color.yellow, Color.blue, Color.white, 
+        Color.gray.darker(), Color.gray.darker()};
     
     public ArrayList<Entity> entities;
     
@@ -94,7 +95,13 @@ public class Chunk {
     public Sector getSector() { return parent; }
     
     public void setTerrain(int terrain) {
+        int old = this.terrain;
         this.terrain = (short)((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
+        if (old != this.terrain) {
+            int mc[] = World.getWorld().getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1], 
+                    x, y);
+            World.getWorld().updateMapTexture(mc[0], mc[1], 1, 1);
+        }
     }
     
     public int getTerrain() {
@@ -106,7 +113,14 @@ public class Chunk {
     }
     
     public void setBiome(int biome) {
+        int old = this.biome;
         this.biome = (short)((biome > -1 && biome < Chunk.BIOME_COUNT) ? biome : -1);
+        this.terrain = (short)((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
+        if (old != this.biome) {
+            int mc[] = World.getWorld().getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1], 
+                    x, y);
+            World.getWorld().updateMapTexture(mc[0], mc[1], 1, 1);
+        }
     }
     
     public int[] offsets() {

@@ -49,10 +49,10 @@ public class Town {
         supermarket.setWorldY(getParent().getWorldCoords()[1] + 32);
         World.getWorld().addEntity(supermarket);
         
-        /*for (int i = 1; i <= 3; i++) {
-            this.placeRoadSegment(i*16, 0, Sector.sizeChunks(), 2);
-            this.placeRoadSegment(0, i*16, Sector.sizeChunks(), 1);
-        }*/
+        for (int i = 1; i <= 3; i++) {
+            this.placeRoadSegment(i*16, 2, Sector.sizeChunks()-2, 2);
+            this.placeRoadSegment(2, 1+(i*16), Sector.sizeChunks()-2, 1);
+        }
         
         //use them to generate initial stats
         
