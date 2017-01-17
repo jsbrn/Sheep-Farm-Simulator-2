@@ -13,16 +13,16 @@ import java.util.logging.Logger;
 
 public class EntityList {
     
-    static ArrayList<Entity> ENTITIES;
+    private static ArrayList<Entity> entities;
     
     public static Entity getEntity(String type) {
-        for (Entity e: ENTITIES) if (e.type.equals(type)) return e;
+        for (Entity e: entities) if (e.type.equals(type)) return e;
         return null;
     }
     
     public static void loadEntityList() {
         System.out.println("Loading entities...");
-        ENTITIES = new ArrayList<Entity>();
+        entities = new ArrayList<Entity>();
         try {
             InputStream in = EntityList.class.getResourceAsStream("/misc/entity_list.txt"); 
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -31,7 +31,7 @@ public class EntityList {
                 if (line == null) break;
                 if (line.equals("e")) {
                     Entity e = new Entity();
-                    if (loadEntity(e, br)) ENTITIES.add(e);
+                    if (loadEntity(e, br)) entities.add(e);
                 }
             }
         } catch (FileNotFoundException ex) {
@@ -39,7 +39,7 @@ public class EntityList {
         } catch (IOException ex) {
             Logger.getLogger(EntityList.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Successfully loaded "+ENTITIES.size()+" entities!");
+        System.out.println("Successfully loaded "+entities.size()+" entities!");
     }
     
     static boolean loadEntity(Entity e, BufferedReader br) {

@@ -7,6 +7,7 @@ import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.terrain.Sector;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Town {
     
@@ -24,11 +25,14 @@ public class Town {
     public void update() {}
     
     public void generate() {
+        
         System.out.println("Generating town at sector "+getParent().getSectorCoords()[0]+", "+getParent().getSectorCoords()[1]);
+        
         //generate the noise map describing the building distribution
         double residential[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
         double commercial[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
         double industrial[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
+        
         //blend the three district maps into one
         distribution = new int[Sector.sizeChunks()][Sector.sizeChunks()];
         for (int i = 0; i < distribution.length; i++) {
@@ -43,18 +47,38 @@ public class Town {
             }
         }
         
-        //place the buildings and towns
-        Entity supermarket = Entity.create("House 1");
-        supermarket.setWorldX(getParent().getWorldCoords()[0] + 32);
-        supermarket.setWorldY(getParent().getWorldCoords()[1] + 32);
-        World.getWorld().addEntity(supermarket);
-        
+        //divide the sector with roads, creating city blocks to place buildings in
         for (int i = 1; i <= 3; i++) {
             this.placeRoadSegment(i*16, 2, Sector.sizeChunks()-2, 2);
             this.placeRoadSegment(2, 1+(i*16), Sector.sizeChunks()-2, 1);
         }
         
-        //use them to generate initial stats
+        //place the buildings
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 3; i++) {
+                randomizeBlock(i, j);
+            }
+        }
+        
+    }
+    
+    /**
+     * Places buildings randomly within the city block. UNFINISHED
+     */
+    private void randomizeBlock(int bx, int by) {
+        int[] origin = {2 + (16*bx), 2 + (16*by)};
+        String[] res_names = {"House 1"}, ind_names = {"Factory 1"};
+        Sector p = getParent();
+        for (int i = 0; i < 16; i++) {
+            int[][] spawns = 
+                {{origin[0]+i, origin[1]}, {origin[0]+15, origin[1]+i}, {origin[0]+15, origin[1]+i}, {origin[0], origin[1]+i}};
+            for (int r = 0; r < 3; r++) {
+                String[] names = distribution[spawns[r][0]][spawns[r][1]] == Building.INDUSTRIAL ? ind_names : res_names;
+                String name = names[new Random().nextInt(names.length)];
+                Entity e = Entity.create(name);
+                e.setRotation(r*90);
+            }
+        }
         
     }
     
