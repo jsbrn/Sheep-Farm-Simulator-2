@@ -166,6 +166,12 @@ public class World {
         return null;
     }
     
+    public Entity getEntity(int x, int y, int w, int h) {
+        ArrayList<Entity> list = getEntities(x, y, w, h);
+        if (list.isEmpty()) return null;
+        return list.get(0);
+    }
+    
     public ArrayList<Entity> getEntities(int x, int y, int w, int h) {
         ArrayList<Entity> list = new ArrayList<Entity>();
         for (Chunk c: getChunks(x, y, w, h))

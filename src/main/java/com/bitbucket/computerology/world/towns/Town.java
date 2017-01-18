@@ -69,14 +69,34 @@ public class Town {
         int[] origin = {2 + (16*bx), 2 + (16*by)};
         String[] res_names = {"House 1"}, ind_names = {"Factory 1"};
         Sector p = getParent();
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 16; i+= 4) {
             int[][] spawns = 
-                {{origin[0]+i, origin[1]}, {origin[0]+15, origin[1]+i}, {origin[0]+15, origin[1]+i}, {origin[0], origin[1]+i}};
+                {{origin[0]+i, origin[1]}, {origin[0]+14, origin[1]+i}, {origin[0]+i, origin[1]+14}, {origin[0], origin[1]+i}};
             for (int r = 0; r < 3; r++) {
-                String[] names = distribution[spawns[r][0]][spawns[r][1]] == Building.INDUSTRIAL ? ind_names : res_names;
+                //determine the world coordinates
+                int wx = p.getWorldCoords()[0]+(spawns[r][0]*Chunk.sizePixels());
+                int wy = p.getWorldCoords()[1]+(spawns[r][1]*Chunk.sizePixels());
+                String[] names = res_names;
+                //String[] names = distribution[spawns[r][0]][spawns[r][1]] == Building.INDUSTRIAL ? ind_names : res_names;
                 String name = names[new Random().nextInt(names.length)];
                 Entity e = Entity.create(name);
                 e.setRotation(r*90);
+                
+                if (r == 0) { wx+=e.getWidth()/2; wy+=e.getHeight()/2; }
+                if (r == 1) { wx-=e.getWidth()/2; wy+=e.getHeight()/2; }
+                if (r == 2) { wx+=e.getWidth()/2; wy-=e.getHeight()/2; }
+                if (r == 3) { wx+=e.getWidth()/2; wy+=e.getHeight()/2; }
+                
+                e.setWorldX(wx);
+                e.setWorldY(wy);
+                
+                int[] params = {wx-(e.getWidth()/2), wy-(e.getHeight()/2), e.getWidth(), e.getHeight()};
+                Entity obstacle = World.getWorld().getEntity(params[0], params[1], params[2], params[3]);
+                System.out.println("First entity at: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]+": "+obstacle);
+                if (obstacle == null) {
+                    System.out.println("First entity at: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]+": "+obstacle);
+                    World.getWorld().addEntity(e);
+                }
             }
         }
         
