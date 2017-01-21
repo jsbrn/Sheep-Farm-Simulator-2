@@ -54,8 +54,8 @@ public class Town {
         }
         
         //place the buildings
-        for (int j = 0; j < 3; j++) {
-            for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            for (int i = 0; i < 4; i++) {
                 randomizeBlock(i, j);
             }
         }
@@ -63,16 +63,16 @@ public class Town {
     }
     
     /**
-     * Places buildings randomly within the city block. UNFINISHED
+     * Places buildings randomly within the city block. UNFINISHED.
      */
     private void randomizeBlock(int bx, int by) {
         int[] origin = {2 + (16*bx), 2 + (16*by)};
         String[] res_names = {"House 1"}, ind_names = {"Factory 1"};
         Sector p = getParent();
-        for (int i = 0; i < 16; i+= 4) {
+        for (int i = 0; i < 16; i++) {
             int[][] spawns = 
                 {{origin[0]+i, origin[1]}, {origin[0]+14, origin[1]+i}, {origin[0]+i, origin[1]+14}, {origin[0], origin[1]+i}};
-            for (int r = 0; r < 3; r++) {
+            for (int r = 0; r < 1; r++) {
                 //determine the world coordinates
                 int wx = p.getWorldCoords()[0]+(spawns[r][0]*Chunk.sizePixels());
                 int wy = p.getWorldCoords()[1]+(spawns[r][1]*Chunk.sizePixels());
@@ -94,7 +94,6 @@ public class Town {
                 Entity obstacle = World.getWorld().getEntity(params[0], params[1], params[2], params[3]);
                 System.out.println("First entity at: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]+": "+obstacle);
                 if (obstacle == null) {
-                    System.out.println("First entity at: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]+": "+obstacle);
                     World.getWorld().addEntity(e);
                 }
             }

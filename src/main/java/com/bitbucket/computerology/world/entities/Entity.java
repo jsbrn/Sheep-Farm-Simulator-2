@@ -72,6 +72,15 @@ public class Entity {
     
     public final void draw(Graphics g) { for (ComponentSystem s: systems) s.draw(g); }
     
+    public final void drawDebug(Graphics g) {
+        if (hitbox == null) return;
+        for (int i = 0; i < hitbox.lineCount(); i++) {
+            int[] l = hitbox.getLine(i);
+            
+            //unfinished
+        }
+    }
+    
     public final void move() {
         if (movement != null) movement.update();
     }
