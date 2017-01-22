@@ -14,6 +14,7 @@ import com.bitbucket.computerology.world.terrain.Sector;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.terrain.Chunk;
+import java.util.ArrayList;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
@@ -173,10 +174,11 @@ public class GameScreen extends BasicGameState {
             
             g.setColor(Color.blue);
             g.drawRect(x-200, y-200, 200, 200);
-            for (Entity e: World.getWorld().getEntities(wc[0]-200, wc[1]-200, 200, 200)) {
+            ArrayList<Entity> moused_entities = World.getWorld().getEntities(wc[0]-200, wc[1]-200, 200, 200);
+            for (Entity e: moused_entities) {
                 g.setColor(Color.green);
                 int[] osc = World.getWorld().getOnscreenCoords(e.getWorldX(), e.getWorldY());
-                //g.drawRect(osc[0]-e.getWidth()/2, osc[1]-e.getHeight()/2, e.getWidth(), e.getHeight());
+                g.drawRect(osc[0]-e.getWidth()/2, osc[1]-e.getHeight()/2, e.getWidth(), e.getHeight());
             }
             
             if (c != null) {

@@ -174,10 +174,15 @@ public class World {
     
     public ArrayList<Entity> getEntities(int x, int y, int w, int h) {
         ArrayList<Entity> list = new ArrayList<Entity>();
-        for (Chunk c: getChunks(x, y, w, h))
-            for (Entity e: c.getEntities())
-                if (!list.contains(e)
-                        && e.intersects(x, y, w, h)) list.add(e);
+        ArrayList<Chunk> chunks = getChunks(x, y, w, h);
+        System.out.println("Chunks at ["+w+", "+y+", "+w+", "+h+"]: "+chunks.size());
+        for (Chunk c: chunks) {
+            for (Entity e: c.getEntities()) {
+                System.out.println("Chunk "+c+" has "+c.getEntities().size()+" entities!");
+                System.out.println("Entity e")+
+                if (!list.contains(e) && e.intersects(x, y, w, h)) list.add(e);
+            }
+        }
         return list;
     }
     
