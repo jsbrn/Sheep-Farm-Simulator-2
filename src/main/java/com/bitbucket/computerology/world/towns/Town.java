@@ -90,24 +90,25 @@ public class Town {
         if (j == 0) rot = 0;
         if (j == cell_used.length-1) rot = 2;
         
-        System.out.println("Cell chosen: "+i+", "+j);
+        System.out.println(" Cell chosen: "+i+", "+j);
         
         //if the rotation is -1 then an invalid [i,j] was chosen
         if (rot == -1) return;
         
-        System.out.println("Rotation: "+rot);
+        System.out.println(" Rotation: "+rot);
         
         //create and rotate an entity, getting its dimensions as well
         Entity e = Entity.create(names[r.nextInt(names.length)]);
         e.setRotation(rot*90);
-        int ew = (int)((e.getWidth()/Chunk.sizePixels()))/4;
-        int eh = (e.getHeight()/Chunk.sizePixels())/4;
+        double cell_dim = 4*Chunk.sizePixels();
+        int ew = (int)MiscMath.round(e.getWidth(), cell_dim) / (int)cell_dim;
+        int eh = (int)MiscMath.round(e.getHeight(), cell_dim) / (int)cell_dim;
         //calculate how far the entity would go out of bounds if placed
         int w_diff = (i+ew)-cell_used.length, h_diff = (j+eh)-cell_used.length;
         
-        System.out.println(e);
-        System.out.println("Width: "+ew+", height: "+eh);
-        System.out.println("Overflow: "+w_diff+", "+h_diff);
+        System.out.println(" "+e);
+        System.out.println("  Width: "+e.getWidth()+" -> "+ew+", height: "+e.getHeight()+" -> "+eh);
+        System.out.println("  Overflow: "+w_diff+", "+h_diff);
         
         //if out of bounds, shift the cell over
         if (w_diff > 0) i -= w_diff;
@@ -135,7 +136,7 @@ public class Town {
             e.setWorldX(p.getWorldCoords()[0]+b_wc[0]+(i*4*Chunk.sizePixels())+(e.getWidth()/2)+(i*Chunk.sizePixels()));
             e.setWorldY(p.getWorldCoords()[1]+b_wc[1]+(j*4*Chunk.sizePixels())+(e.getHeight()/2)+(j*Chunk.sizePixels()));
             World.getWorld().addEntity(e);
-            System.out.println("Added entity to "+e.getWorldX()+", "+e.getWorldY());
+            System.out.println("Added entity to "+e.getWorldX()+", "+e.getWorldY()+"\n");
         }
         
     }

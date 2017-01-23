@@ -146,6 +146,14 @@ public class MiscMath {
     public static double min(double a, double b) { return a <= b ? a : b; }
     public static double max(double a, double b) { return a >= b ? a : b; }
     
+    /**
+     * Rounds a to the nearest b.
+     * @return The value of a after rounding.
+     */
+    public static double round(double a, double b) {
+        return (a/b) - Math.floor(a/b) >= .5 ? Math.ceil(a/b)*a : Math.floor(a/b)*a;
+    }
+    
     public static boolean linesIntersect(int[] l, int[] l2) {
         if (l == l2) return true;
         if (l.length != 4 || l2.length != 4) return false;
