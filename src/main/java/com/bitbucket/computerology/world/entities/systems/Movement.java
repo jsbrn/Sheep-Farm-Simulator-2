@@ -36,6 +36,10 @@ public class Movement extends ComponentSystem {
             Math.floor(Math.min(p.getWorldY()-(p.getHeight()/2), p.getWorldY()-(p.getHeight()/2)+dy))};
         double[] B = {Math.ceil(Math.max(p.getWorldX()+(p.getWidth()/2), p.getWorldX()+(p.getWidth()/2)+dx)), 
             Math.ceil(Math.max(p.getWorldY()+(p.getHeight()/2), p.getWorldY()+(p.getHeight()/2)+dy))};
+        //essentially just incrementing the hitbox by 4px each time until it reaches the destination
+        //and if it finds any collisions, revert to the last increment that had no collision
+        //it is very crude, but at least I have proper rotating hitboxes, so I can easily come back
+        //and implement a better solution when the rest of the game is done
         if (hitbox != null) {
             ArrayList<Entity> entities = 
                     World.getWorld().getEntities((int)A[0], (int)A[1], (int)(B[0]-A[0]), (int)(B[1]-A[1]));

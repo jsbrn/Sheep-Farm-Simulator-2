@@ -175,11 +175,8 @@ public class World {
     public ArrayList<Entity> getEntities(int x, int y, int w, int h) {
         ArrayList<Entity> list = new ArrayList<Entity>();
         ArrayList<Chunk> chunks = getChunks(x, y, w, h);
-        System.out.println("Chunks at ["+w+", "+y+", "+w+", "+h+"]: "+chunks.size());
         for (Chunk c: chunks) {
             for (Entity e: c.getEntities()) {
-                System.out.println("Chunk "+c+" has "+c.getEntities().size()+" entities!");
-                System.out.println("Entity e")+
                 if (!list.contains(e) && e.intersects(x, y, w, h)) list.add(e);
             }
         }
@@ -192,10 +189,8 @@ public class World {
         if (s != null) {if (add) s.addEntity(e); else s.removeEntity(e);}
         ArrayList<Chunk> chunks = getChunks(e.getWorldX()-e.getWidth()/2,
                 e.getWorldY()-e.getHeight()/2,e.getWidth(), e.getHeight());
-        //System.out.println(e+" dimensions: "+e.getWidth()+", "+e.getHeight());
         boolean success = true;
         for (Chunk c: chunks) {
-            //System.out.println(add ? "Adding "+e+" to "+c : "Removing "+e+" from "+c);
             if (add) { if (!c.addEntity(e)) success = false; }
             if (!add) c.removeEntity(e);
         }
@@ -626,11 +621,7 @@ public class World {
                 for (int b = 0; b < Chunk.BIOME_COUNT; b++) {
                     if (biome_distribution[i][j][b] == 0) continue;
                     if (biome_distribution[i][j][b] == Sector.sizeChunks()*Sector.sizeChunks()) { 
-                        int[] wcm = getWorldCoordsFromMap(i*Sector.sizeChunks(), j*Sector.sizeChunks());
-                        int sc[] = getSectorCoords(wcm[0], wcm[1]);
-                        System.out.println("Sector @ map["+i+", "+j+"] is empty!");
                         map[i][j] = true;
-                        //if (b != Chunk.WATER) available_town_sectors.add(new int[]{i, j}); 
                         break; 
                     }
                     if (biome_distribution[i][j][b] != Sector.sizeChunks()*Sector.sizeChunks()) break;
@@ -672,7 +663,6 @@ public class World {
                 //create a new town instance
                 Town t = new Town(sc[0], sc[1]);
                 towns.add(t);
-                System.out.println("Sector "+sc[0]+", "+sc[1]+"(mc "+chosen[0]+", "+chosen[1]+") is a town!");
                 valid_locations.remove(chosen);
                 if (!chosen_spawn && chosen[0] > 0) { //place the starting sector next to the first town
                     if (empty_sector_map[chosen[0]][chosen[1]]) {

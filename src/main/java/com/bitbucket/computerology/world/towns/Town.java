@@ -13,6 +13,7 @@ public class Town {
     
     int population, x, y;
     ArrayList<Building> buildings;
+    
     int[][] distribution;
     
     
@@ -21,6 +22,10 @@ public class Town {
         this.x = sector_x;
         this.y = sector_y;
     }
+    
+    public static int blockSizeChunks() { return 16; }
+    
+    public int[][] buildingDistribution() { return distribution; }
     
     public void update() {}
     
@@ -48,9 +53,9 @@ public class Town {
         }
         
         //divide the sector with roads, creating city blocks to place buildings in
-        for (int i = 1; i <= 3; i++) {
-            this.placeRoadSegment(i*16, 2, Sector.sizeChunks()-2, 2);
-            this.placeRoadSegment(2, 1+(i*16), Sector.sizeChunks()-2, 1);
+        for (int i = 1; i < (Sector.sizeChunks()/blockSizeChunks()); i++) {
+            this.placeRoadSegment(i*blockSizeChunks(), 2, Sector.sizeChunks()-2, 2);
+            this.placeRoadSegment(2, 1+(i*blockSizeChunks()), Sector.sizeChunks()-2, 1);
         }
         
         //place the buildings
@@ -66,37 +71,71 @@ public class Town {
      * Places buildings randomly within the city block. UNFINISHED.
      */
     private void randomizeBlock(int bx, int by) {
-        int[] origin = {2 + (16*bx), 2 + (16*by)};
+        System.out.println("Generating buildings for block "+bx+", "+by);
+        //world coords for the block (relative to the sector)
+        int[] b_wc = {Chunk.sizePixels()*((blockSizeChunks()*bx)+2), 
+            Chunk.sizePixels()*((blockSizeChunks()*by)+2)};
         String[] res_names = {"House 1"}, ind_names = {"Factory 1"};
+        String[] names = distribution[b_wc[0]/Chunk.sizePixels()][b_wc[1]/Chunk.sizePixels()] == Building.INDUSTRIAL ? ind_names : res_names; 
         Sector p = getParent();
-        for (int i = 0; i < 16; i++) {
-            int[][] spawns = 
-                {{origin[0]+i, origin[1]}, {origin[0]+14, origin[1]+i}, {origin[0]+i, origin[1]+14}, {origin[0], origin[1]+i}};
-            for (int r = 0; r < 1; r++) {
-                //determine the world coordinates
-                int wx = p.getWorldCoords()[0]+(spawns[r][0]*Chunk.sizePixels());
-                int wy = p.getWorldCoords()[1]+(spawns[r][1]*Chunk.sizePixels());
-                String[] names = res_names;
-                //String[] names = distribution[spawns[r][0]][spawns[r][1]] == Building.INDUSTRIAL ? ind_names : res_names;
-                String name = names[new Random().nextInt(names.length)];
-                Entity e = Entity.create(name);
-                e.setRotation(r*90);
-                
-                if (r == 0) { wx+=e.getWidth()/2; wy+=e.getHeight()/2; }
-                if (r == 1) { wx-=e.getWidth()/2; wy+=e.getHeight()/2; }
-                if (r == 2) { wx+=e.getWidth()/2; wy-=e.getHeight()/2; }
-                if (r == 3) { wx+=e.getWidth()/2; wy+=e.getHeight()/2; }
-                
-                e.setWorldX(wx);
-                e.setWorldY(wy);
-                
-                int[] params = {wx-(e.getWidth()/2), wy-(e.getHeight()/2), e.getWidth(), e.getHeight()};
-                Entity obstacle = World.getWorld().getEntity(params[0], params[1], params[2], params[3]);
-                System.out.println("First entity at: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]+": "+obstacle);
-                if (obstacle == null) {
-                    World.getWorld().addEntity(e);
-                }
+        Random r = World.getWorld().rng();
+        //initialized to false
+        boolean cell_used[][] = new boolean[(blockSizeChunks()-2)/4][(blockSizeChunks()-2)/4];
+        
+        //determine the rotation using [i, j]
+        int i = r.nextInt(cell_used.length), j = r.nextInt(cell_used.length);
+        int rot = -1;
+        if (i == 0) rot = 3;
+        if (i == cell_used.length-1) rot = 1;
+        if (j == 0) rot = 0;
+        if (j == cell_used.length-1) rot = 2;
+        
+        System.out.println("Cell chosen: "+i+", "+j);
+        
+        //if the rotation is -1 then an invalid [i,j] was chosen
+        if (rot == -1) return;
+        
+        System.out.println("Rotation: "+rot);
+        
+        //create and rotate an entity, getting its dimensions as well
+        Entity e = Entity.create(names[r.nextInt(names.length)]);
+        e.setRotation(rot*90);
+        int ew = (int)((e.getWidth()/Chunk.sizePixels()))/4;
+        int eh = (e.getHeight()/Chunk.sizePixels())/4;
+        //calculate how far the entity would go out of bounds if placed
+        int w_diff = (i+ew)-cell_used.length, h_diff = (j+eh)-cell_used.length;
+        
+        System.out.println(e);
+        System.out.println("Width: "+ew+", height: "+eh);
+        System.out.println("Overflow: "+w_diff+", "+h_diff);
+        
+        //if out of bounds, shift the cell over
+        if (w_diff > 0) i -= w_diff;
+        if (h_diff > 0) j -= h_diff;
+        
+        //if you shifted too far over, then invalid
+        if (i < 0 || j < 0) return;
+        
+        System.out.println("Cell after shifting: "+i+", "+j);
+        
+        //determine whether the entity will fit (if a cell is used, it will not)
+        boolean clear = true;
+        for (int a = i; a < ew; a++) {
+            for (int b = j; b < eh; b++) {
+                if (a < 0 || a >= cell_used.length
+                        || b < 0 || b >= cell_used.length) continue;
+                if (cell_used[a][b]) { clear = false; break; }
             }
+        }
+        //TODO: mark cells as used
+        
+        System.out.println("Region ["+i+", "+j+", "+ew+", "+eh+"] clear: "+clear);
+        
+        if (clear) {
+            e.setWorldX(p.getWorldCoords()[0]+b_wc[0]+(i*4*Chunk.sizePixels())+(e.getWidth()/2)+(i*Chunk.sizePixels()));
+            e.setWorldY(p.getWorldCoords()[1]+b_wc[1]+(j*4*Chunk.sizePixels())+(e.getHeight()/2)+(j*Chunk.sizePixels()));
+            World.getWorld().addEntity(e);
+            System.out.println("Added entity to "+e.getWorldX()+", "+e.getWorldY());
         }
         
     }

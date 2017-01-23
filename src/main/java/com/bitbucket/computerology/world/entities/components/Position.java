@@ -50,6 +50,11 @@ public class Position extends Component {
     public void addWorldY(double y) { 
         this.setWorldY(getWorldY()+y);
     }
+    
+    /**
+     * Sets the entity's rotation, in degrees.
+     * Refreshes the entity hitbox.
+     */
     public void setRotation(int r) { 
         if (r != rotation) World.getWorld().refreshEntity(getParent(), false);
         this.rotation = r % 360;

@@ -1,10 +1,12 @@
 package com.bitbucket.computerology.world.towns;
 
 import com.bitbucket.computerology.world.entities.Entity;
+import org.newdawn.slick.Color;
 
 public class Building {
     
     public static int RESIDENTIAL = 0, COMMERCIAL = 1, INDUSTRIAL = 2;
+    public static Color[] COLORS = {Color.green, Color.cyan, Color.lightGray};
     
     int[] demand_multipliers, amounts_recieved;
     Town parent_town; Entity parent;

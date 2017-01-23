@@ -14,6 +14,8 @@ import com.bitbucket.computerology.world.terrain.Sector;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.terrain.Chunk;
+import com.bitbucket.computerology.world.towns.Building;
+import com.bitbucket.computerology.world.towns.Town;
 import java.util.ArrayList;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -172,15 +174,6 @@ public class GameScreen extends BasicGameState {
             Entity en = World.getWorld().getEntity(wc[0], wc[1]);
             g.drawString("Entity at mouse: "+(en != null ? en.toString() : "null"), 5, 132);
             
-            g.setColor(Color.blue);
-            g.drawRect(x-200, y-200, 200, 200);
-            ArrayList<Entity> moused_entities = World.getWorld().getEntities(wc[0]-200, wc[1]-200, 200, 200);
-            for (Entity e: moused_entities) {
-                g.setColor(Color.green);
-                int[] osc = World.getWorld().getOnscreenCoords(e.getWorldX(), e.getWorldY());
-                g.drawRect(osc[0]-e.getWidth()/2, osc[1]-e.getHeight()/2, e.getWidth(), e.getHeight());
-            }
-            
             if (c != null) {
                 g.drawString("Entities in chunk: ", x+20, y);
                 int i = 0;
@@ -203,6 +196,29 @@ public class GameScreen extends BasicGameState {
                 g.drawRect(s.onScreenCoords()[0], s.onScreenCoords()[1], 
                         Sector.onScreenSize(), Sector.onScreenSize());
                 
+            }
+            
+            g.setColor(Color.blue);
+            g.drawRect(x-200, y-200, 200, 200);
+            ArrayList<Entity> moused_entities = World.getWorld().getEntities(wc[0]-200, wc[1]-200, 200, 200);
+            for (Entity e: moused_entities) {
+                g.setColor(Color.green);
+                int[] osc = World.getWorld().getOnscreenCoords(e.getWorldX(), e.getWorldY());
+                int[] dims = {osc[0]-e.getWidth()/2, osc[1]-e.getHeight()/2, e.getWidth(), e.getHeight()};
+                g.drawRect(dims[0], dims[1], dims[2], dims[3]);
+            }
+            
+            Town t = World.getWorld().getTown(sc[0], sc[1]);
+            if (t != null) {
+                int[][] dist = t.buildingDistribution();
+                for (int a = 0; a < dist.length; a++) {
+                    for (int b = 0; b < dist.length; b++) {
+                        g.setColor(Building.COLORS[dist[a][b]]);
+                        int twc[] = World.getWorld().getWorldCoords(t.getSectorCoordinates()[0], t.getSectorCoordinates()[1]);
+                        int tosc[] = World.getWorld().getOnscreenCoords(twc[0], twc[1]);
+                        g.fillRect(tosc[0], tosc[1], 1, 1);
+                    }
+                }
             }
             
             
