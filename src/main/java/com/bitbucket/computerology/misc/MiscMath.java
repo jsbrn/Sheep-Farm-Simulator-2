@@ -151,7 +151,8 @@ public class MiscMath {
      * @return The value of a after rounding.
      */
     public static double round(double a, double b) {
-        return (a/b) - Math.floor(a/b) >= .5 ? Math.ceil(a/b)*a : Math.floor(a/b)*a;
+        double q = a/b; 
+        return q - Math.floor(q) >= .5 ? Math.ceil(q)*a : Math.floor(q)*a;
     }
     
     public static boolean linesIntersect(int[] l, int[] l2) {

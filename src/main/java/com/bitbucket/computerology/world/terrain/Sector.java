@@ -132,7 +132,10 @@ public class Sector {
                     int wc[] = world.getWorldCoordsFromMap(mc[0]+i, mc[1]+j);
                     tree.setWorldX(wc[0]+(Chunk.sizePixels()/2)+(world.rng().nextInt() % 8));
                     tree.setWorldY(wc[1]+(Chunk.sizePixels()/2)+(+(world.rng().nextInt() % 8)));
-                    world.addEntity(tree);
+                    if (World.getWorld().getEntity(tree.getWorldX()-(tree.getWidth()/2), 
+                            tree.getWorldY()-(tree.getHeight()/2), tree.getWidth(), tree.getHeight()) == null) {
+                        world.addEntity(tree);
+                    }
                     
                 }
             }

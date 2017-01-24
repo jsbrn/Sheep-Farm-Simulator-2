@@ -69,21 +69,35 @@ public class Town {
     
     /**
      * Places buildings randomly within the city block. UNFINISHED.
+     * Building dimensions must be a multiple of Chunk.sizePixels().
      */
     private void randomizeBlock(int bx, int by) {
         System.out.println("Generating buildings for block "+bx+", "+by);
+        
+        //initialized to false
+        boolean cell_used[][] = new boolean[(blockSizeChunks()-2)][(blockSizeChunks()-2)];
+        
+        for (int i = 0; i < 32; i++) randomBuilding(bx, by, cell_used);
+        
+    }
+    
+    private void randomBuilding(int bx, int by, boolean[][] cell_used) {
         //world coords for the block (relative to the sector)
         int[] b_wc = {Chunk.sizePixels()*((blockSizeChunks()*bx)+2), 
             Chunk.sizePixels()*((blockSizeChunks()*by)+2)};
-        String[] res_names = {"House 1"}, ind_names = {"Factory 1"};
-        String[] names = distribution[b_wc[0]/Chunk.sizePixels()][b_wc[1]/Chunk.sizePixels()] == Building.INDUSTRIAL ? ind_names : res_names; 
+        
+        String[] res_names = {"House 1"}, ind_names = {"Factory 1"}, com_names = {"Supermarket 1"};
+        int building_type = distribution[b_wc[0]/Chunk.sizePixels()][b_wc[1]/Chunk.sizePixels()];
+        String[] names = building_type == Building.INDUSTRIAL ? 
+                ind_names : (building_type == Building.COMMERCIAL ? com_names : res_names); 
+        
         Sector p = getParent();
         Random r = World.getWorld().rng();
-        //initialized to false
-        boolean cell_used[][] = new boolean[(blockSizeChunks()-2)/4][(blockSizeChunks()-2)/4];
         
-        //determine the rotation using [i, j]
-        int i = r.nextInt(cell_used.length), j = r.nextInt(cell_used.length);
+        //determine [i,j] and the rotation
+        //round to the nearest <block size>, so basically be either 0 or 14.
+        int i = (int)MiscMath.round(r.nextInt(cell_used.length-2), (cell_used.length-2)/2); 
+        int j = (int)MiscMath.round(r.nextInt(cell_used.length), (cell_used.length-2)/2); 
         int rot = -1;
         if (i == 0) rot = 3;
         if (i == cell_used.length-1) rot = 1;
@@ -95,14 +109,14 @@ public class Town {
         //if the rotation is -1 then an invalid [i,j] was chosen
         if (rot == -1) return;
         
-        System.out.println(" Rotation: "+rot);
+        //System.out.println(" Rotation: "+rot);
         
         //create and rotate an entity, getting its dimensions as well
         Entity e = Entity.create(names[r.nextInt(names.length)]);
         e.setRotation(rot*90);
-        double cell_dim = 4*Chunk.sizePixels();
-        int ew = (int)MiscMath.round(e.getWidth(), cell_dim) / (int)cell_dim;
-        int eh = (int)MiscMath.round(e.getHeight(), cell_dim) / (int)cell_dim;
+        double cell_dim = Chunk.sizePixels();
+        int ew = (int)Math.round(e.getWidth()/cell_dim);
+        int eh = (int)Math.round(e.getHeight()/cell_dim);
         //calculate how far the entity would go out of bounds if placed
         int w_diff = (i+ew)-cell_used.length, h_diff = (j+eh)-cell_used.length;
         
@@ -118,27 +132,54 @@ public class Town {
         if (i < 0 || j < 0) return;
         
         System.out.println("Cell after shifting: "+i+", "+j);
+        //System.out.println("Rotation after shifting: "+rot);
+        
+        //adjust again to ensure that buildings line up with the road
+        //for a couple rotations that are a little off
+        int cw = ew, ch = eh;
+        int cx = i, cy = j;
+        int cx_diff = (blockSizeChunks()-2) - (cx+cw);
+        int cy_diff = (blockSizeChunks()-2) - (cy+ch);
+
+        if (rot == 1 && cx_diff > 0) i += cx_diff;
+        if (rot == 2 && cy_diff > 0) j += cy_diff;
         
         //determine whether the entity will fit (if a cell is used, it will not)
+        System.out.println("Checking region for obstructions...");
         boolean clear = true;
-        for (int a = i; a < ew; a++) {
-            for (int b = j; b < eh; b++) {
+        for (int a = i; a < i+ew; a++) {
+            for (int b = j; b < j+eh; b++) {
                 if (a < 0 || a >= cell_used.length
                         || b < 0 || b >= cell_used.length) continue;
+                System.out.println("  "+a+", "+b+" is "+(cell_used[a][b] ? "NOT clear." : "clear!"));
                 if (cell_used[a][b]) { clear = false; break; }
             }
+            if (!clear) break;
         }
-        //TODO: mark cells as used
         
         System.out.println("Region ["+i+", "+j+", "+ew+", "+eh+"] clear: "+clear);
         
         if (clear) {
-            e.setWorldX(p.getWorldCoords()[0]+b_wc[0]+(i*4*Chunk.sizePixels())+(e.getWidth()/2)+(i*Chunk.sizePixels()));
-            e.setWorldY(p.getWorldCoords()[1]+b_wc[1]+(j*4*Chunk.sizePixels())+(e.getHeight()/2)+(j*Chunk.sizePixels()));
+            
+            //determine the actual coordinates for the entity to use
+            int entity_x = p.getWorldCoords()[0]+b_wc[0]+(i*(int)cell_dim)+(e.getWidth()/2);//+(i*Chunk.sizePixels());
+            int entity_y = p.getWorldCoords()[1]+b_wc[1]+(j*(int)cell_dim)+(e.getHeight()/2);//+(j*Chunk.sizePixels());
+            
+            e.setWorldX(entity_x);
+            e.setWorldY(entity_y);
             World.getWorld().addEntity(e);
             System.out.println("Added entity to "+e.getWorldX()+", "+e.getWorldY()+"\n");
+            
+            //mark all the used cells as such, for future buildings
+            for (int a = i; a < i+ew; a++) {
+                for (int b = j; b < j+eh; b++) {
+                    if (a < 0 || a >= cell_used.length
+                            || b < 0 || b >= cell_used.length) continue;
+                    cell_used[a][b] = true;
+                }
+            }
+            
         }
-        
     }
     
     /**
