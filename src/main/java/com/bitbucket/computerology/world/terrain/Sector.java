@@ -119,6 +119,9 @@ public class Sector {
     }
     
     public void importForest(boolean[][] map) {
+        //don't import trees in towns
+        //they can handle their own tree gen
+        if (isTownSector()) return;
         if (filled) return;
         World world = World.getWorld();
         int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
@@ -132,11 +135,7 @@ public class Sector {
                     int wc[] = world.getWorldCoordsFromMap(mc[0]+i, mc[1]+j);
                     tree.setWorldX(wc[0]+(Chunk.sizePixels()/2)+(world.rng().nextInt() % 8));
                     tree.setWorldY(wc[1]+(Chunk.sizePixels()/2)+(+(world.rng().nextInt() % 8)));
-                    if (World.getWorld().getEntity(tree.getWorldX()-(tree.getWidth()/2), 
-                            tree.getWorldY()-(tree.getHeight()/2), tree.getWidth(), tree.getHeight()) == null) {
-                        world.addEntity(tree);
-                    }
-                    
+                    world.addEntity(tree);
                 }
             }
         }

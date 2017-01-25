@@ -75,7 +75,7 @@ public class Town {
         System.out.println("Generating buildings for block "+bx+", "+by);
         
         //initialized to false
-        boolean cell_used[][] = new boolean[(blockSizeChunks()-2)][(blockSizeChunks()-2)];
+        boolean cell_used[][] = new boolean[((blockSizeChunks()-2)*4)][((blockSizeChunks()-2))*4];
         
         for (int i = 0; i < 32; i++) randomBuilding(bx, by, cell_used);
         
@@ -114,7 +114,7 @@ public class Town {
         //create and rotate an entity, getting its dimensions as well
         Entity e = Entity.create(names[r.nextInt(names.length)]);
         e.setRotation(rot*90);
-        double cell_dim = Chunk.sizePixels();
+        double cell_dim = Chunk.sizePixels()/4;
         int ew = (int)Math.round(e.getWidth()/cell_dim);
         int eh = (int)Math.round(e.getHeight()/cell_dim);
         //calculate how far the entity would go out of bounds if placed
@@ -138,8 +138,8 @@ public class Town {
         //for a couple rotations that are a little off
         int cw = ew, ch = eh;
         int cx = i, cy = j;
-        int cx_diff = (blockSizeChunks()-2) - (cx+cw);
-        int cy_diff = (blockSizeChunks()-2) - (cy+ch);
+        int cx_diff = ((blockSizeChunks()-2)*4) - (cx+cw);
+        int cy_diff = ((blockSizeChunks()-2)*4) - (cy+ch);
 
         if (rot == 1 && cx_diff > 0) i += cx_diff;
         if (rot == 2 && cy_diff > 0) j += cy_diff;
@@ -147,7 +147,7 @@ public class Town {
         //determine whether the entity will fit (if a cell is used, it will not)
         System.out.println("Checking region for obstructions...");
         boolean clear = true;
-        for (int a = i; a < i+ew; a++) {
+        for (int a = i; a < i+ew; a++) { //have an 8px x 8px margin around the entity
             for (int b = j; b < j+eh; b++) {
                 if (a < 0 || a >= cell_used.length
                         || b < 0 || b >= cell_used.length) continue;
@@ -171,8 +171,8 @@ public class Town {
             System.out.println("Added entity to "+e.getWorldX()+", "+e.getWorldY()+"\n");
             
             //mark all the used cells as such, for future buildings
-            for (int a = i; a < i+ew; a++) {
-                for (int b = j; b < j+eh; b++) {
+            for (int a = i-2; a < i+ew+4; a++) {
+                for (int b = j-2; b < j+eh+4; b++) {
                     if (a < 0 || a >= cell_used.length
                             || b < 0 || b >= cell_used.length) continue;
                     cell_used[a][b] = true;
