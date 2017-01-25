@@ -44,7 +44,7 @@ public class Component {
     
     /**
      * Parses the values in the given string arrays, assigning each to
-     * an appropriate variable. Can be overridden to initialize other things.
+     * an appropriate variable. Classes that extend Component can override to add functionality.
      */
     public void initParams(ArrayList<String> p) {}
     
