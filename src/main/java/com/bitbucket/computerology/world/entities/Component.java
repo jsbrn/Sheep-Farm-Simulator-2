@@ -1,10 +1,7 @@
 package com.bitbucket.computerology.world.entities;
 
 import com.bitbucket.computerology.misc.MiscString;
-import com.bitbucket.computerology.world.entities.components.Forces;
-import com.bitbucket.computerology.world.entities.components.Hitbox;
-import com.bitbucket.computerology.world.entities.components.Position;
-import com.bitbucket.computerology.world.entities.components.Texture;
+import com.bitbucket.computerology.world.entities.components.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -30,6 +27,7 @@ public class Component {
         if ("Position".equals(s)) c = new Position();
         if ("Hitbox".equals(s)) c = new Hitbox();
         if ("Forces".equals(s)) c = new Forces();
+        if ("TownBuilding".equals(s)) c = new TownBuilding();
         if (c != null) { 
             c.setID(s); 
         } else { System.err.println("Failed to create component "+s+"!"); }

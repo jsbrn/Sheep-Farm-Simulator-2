@@ -17,8 +17,6 @@ public class Sector {
     private int x, y;
     private boolean filled = false;
     
-    private double[] biome_percentages;
-    
     ArrayList<Entity> entities;
     
     private Generator generator;
@@ -30,7 +28,6 @@ public class Sector {
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
         this.entities = new ArrayList<Entity>();
         this.entities.ensureCapacity(Sector.sizeChunks()*Sector.sizeChunks());
-        this.biome_percentages = new double[Chunk.BIOME_COUNT];
         this.generator = null;
     }
     

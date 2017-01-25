@@ -14,7 +14,6 @@ import com.bitbucket.computerology.world.terrain.Sector;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.terrain.Chunk;
-import com.bitbucket.computerology.world.towns.Building;
 import com.bitbucket.computerology.world.towns.Town;
 import java.util.ArrayList;
 import org.lwjgl.input.Mouse;
@@ -213,7 +212,7 @@ public class GameScreen extends BasicGameState {
                 int[][] dist = t.buildingDistribution();
                 for (int a = 0; a < dist.length; a++) {
                     for (int b = 0; b < dist.length; b++) {
-                        g.setColor(Building.COLORS[dist[a][b]]);
+                        g.setColor(Town.BUILDING_COLORS[dist[a][b]]);
                         int twc[] = World.getWorld().getWorldCoords(t.getSectorCoordinates()[0], t.getSectorCoordinates()[1]);
                         int tosc[] = World.getWorld().getOnscreenCoords(twc[0], twc[1]);
                         g.fillRect(tosc[0], tosc[1], 1, 1);

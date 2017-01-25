@@ -3,22 +3,28 @@ package com.bitbucket.computerology.world.towns;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.misc.SimplexNoise;
 import com.bitbucket.computerology.world.World;
+import com.bitbucket.computerology.world.entities.Component;
 import com.bitbucket.computerology.world.entities.Entity;
+import com.bitbucket.computerology.world.entities.components.TownBuilding;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.terrain.Sector;
 import java.util.ArrayList;
 import java.util.Random;
+import org.newdawn.slick.Color;
 
 public class Town {
     
+    public static int RESIDENTIAL_BUILDING = 0, COMMERCIAL_BUILDING = 1, INDUSTRIAL_BUILDING = 2;
+    public static Color[] BUILDING_COLORS = {Color.green, Color.cyan, Color.lightGray};
+    
     int population, x, y;
-    ArrayList<Building> buildings;
+    ArrayList<Entity> buildings;
     
     int[][] distribution;
     
     
     public Town(int sector_x, int sector_y) {
-        this.buildings = new ArrayList<Building>();
+        this.buildings = new ArrayList<Entity>();
         this.x = sector_x;
         this.y = sector_y;
     }
@@ -44,11 +50,11 @@ public class Town {
             for (int j = 0; j < distribution.length; j++) {
                 double max = MiscMath.max(commercial[i][j], MiscMath.max(industrial[i][j], residential[i][j]));
                 if (max == commercial[i][j])
-                    distribution[i][j] = Building.COMMERCIAL;
+                    distribution[i][j] = COMMERCIAL_BUILDING;
                 if (max == industrial[i][j])
-                    distribution[i][j] = Building.INDUSTRIAL;
+                    distribution[i][j] = INDUSTRIAL_BUILDING;
                 if (max == residential[i][j])
-                    distribution[i][j] = Building.RESIDENTIAL;
+                    distribution[i][j] = RESIDENTIAL_BUILDING;
             }
         }
         
@@ -81,6 +87,16 @@ public class Town {
         
     }
     
+    private void addBuilding(Entity e) {
+        Component b = e.getComponent("TownBuilding");
+        TownBuilding tb;
+        if (b == null) return; tb = ((TownBuilding)b);
+        if (!buildings.contains(e)) {
+            
+            buildings.add(e);
+        }
+    }
+    
     private void randomBuilding(int bx, int by, boolean[][] cell_used) {
         //world coords for the block (relative to the sector)
         int[] b_wc = {Chunk.sizePixels()*((blockSizeChunks()*bx)+2), 
@@ -88,8 +104,8 @@ public class Town {
         
         String[] res_names = {"House 1"}, ind_names = {"Factory 1"}, com_names = {"Supermarket 1"};
         int building_type = distribution[b_wc[0]/Chunk.sizePixels()][b_wc[1]/Chunk.sizePixels()];
-        String[] names = building_type == Building.INDUSTRIAL ? 
-                ind_names : (building_type == Building.COMMERCIAL ? com_names : res_names); 
+        String[] names = building_type == INDUSTRIAL_BUILDING ? 
+                ind_names : (building_type == COMMERCIAL_BUILDING ? com_names : res_names); 
         
         Sector p = getParent();
         Random r = World.getWorld().rng();
@@ -218,15 +234,5 @@ public class Town {
     public Sector getParent() { return World.getWorld().getSector(x, y); }
     
     public int getPopulation() { return population; }
-    
-    int getDemand(int resource) {
-        int sum = 0;
-        for (Building b: buildings) sum+=b.getDemand(resource);
-        return sum;
-    }
-    
-    int getPrice(int resource) {
-        return 1;
-    }
     
 }
