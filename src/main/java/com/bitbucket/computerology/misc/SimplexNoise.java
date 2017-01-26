@@ -3,11 +3,11 @@ package com.bitbucket.computerology.misc;
 import java.util.Random;
 
 /**
- * This is public domain source code by Stefan Gustavson. It generates simplex
- * noise. I modified it slightly to add seeding and to remove needless methods.
- * <br><a href = "http://webstaff.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf">Here</a> 
- * is a link to his paper on the subject, which also contains the original
+ * This is public domain source code by <i>Stefan Gustavson</i>. It generates simplex
+ * noise. I modified it slightly to add seeding and to remove methods I don't need.
+ * Here is a link to his paper on the subject, which also contains the original
  * source.
+ * @see http://webstaff.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
  */
 public class SimplexNoise {  // Simplex noise in 2D
     private static Grad grad3[] = {new Grad(1,1),new Grad(-1,1),new Grad(1,-1),new Grad(-1,-1),

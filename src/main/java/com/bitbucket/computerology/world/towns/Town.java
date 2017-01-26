@@ -18,7 +18,7 @@ public class Town {
     public static Color[] BUILDING_COLORS = {Color.green, Color.cyan, Color.lightGray};
     
     int population, x, y;
-    ArrayList<Entity> buildings, 
+    ArrayList<TownBuilding> buildings, 
             industrial_buildings, 
             residential_buildings, 
             commercial_buildings;
@@ -27,10 +27,10 @@ public class Town {
     
     
     public Town(int sector_x, int sector_y) {
-        this.buildings = new ArrayList<Entity>();
-        this.industrial_buildings = new ArrayList<Entity>();
-        this.residential_buildings = new ArrayList<Entity>();
-        this.commercial_buildings = new ArrayList<Entity>();
+        this.buildings = new ArrayList<TownBuilding>();
+        this.industrial_buildings = new ArrayList<TownBuilding>();
+        this.residential_buildings = new ArrayList<TownBuilding>();
+        this.commercial_buildings = new ArrayList<TownBuilding>();
         this.x = sector_x;
         this.y = sector_y;
     }
@@ -46,23 +46,21 @@ public class Town {
         System.out.println("Generating town at sector "+getParent().getSectorCoords()[0]+", "+getParent().getSectorCoords()[1]);
         
         //generate the noise map describing the building distribution
-        double residential[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
-        double commercial[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
-        double industrial[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.900, 1);
+        double residential[][] = SimplexNoise.generate(4, 4, 0.01, 0.975, 1);
+        double commercial[][] = SimplexNoise.generate(4, 4, 0.01, 0.975, 1);
         
         //blend the three district maps into one
-        distribution = new int[Sector.sizeChunks()][Sector.sizeChunks()];
+        distribution = new int[4][4];
         for (int i = 0; i < distribution.length; i++) {
             for (int j = 0; j < distribution.length; j++) {
-                double max = MiscMath.max(commercial[i][j], MiscMath.max(industrial[i][j], residential[i][j]));
+                double max = MiscMath.max(commercial[i][j], residential[i][j]);
                 if (max == commercial[i][j])
                     distribution[i][j] = COMMERCIAL_BUILDING;
-                if (max == industrial[i][j])
-                    distribution[i][j] = INDUSTRIAL_BUILDING;
                 if (max == residential[i][j])
                     distribution[i][j] = RESIDENTIAL_BUILDING;
             }
         }
+        
         
         //divide the sector with roads, creating city blocks to place buildings in
         for (int i = 1; i < (Sector.sizeChunks()/blockSizeChunks()); i++) {
@@ -84,17 +82,20 @@ public class Town {
     
     private void refreshPopulationScore() {
         population = 0;
-        Component c; TownBuilding b;
-        for (Entity e: buildings) {
-            c = e.getComponent("TownBuilding");
-            if (c == null) continue;
-            b = ((TownBuilding)c);
+        for (TownBuilding b: residential_buildings) {
             population+=b.getResidentCount();
         }
     }
     
     private void assignIndustrialBuildings() {
-        //for (Entity e: )
+        ArrayList<TownBuilding> temp_factories = new ArrayList<TownBuilding>(),
+                used_factories = new ArrayList<TownBuilding>();
+        temp_factories.addAll(industrial_buildings);
+        for (TownBuilding b: commercial_buildings) {
+            String[] goods = b.getGoods();
+            if (goods == null) continue;
+            TownBuilding random_factory = temp_factories.get(World.getWorld().rng().nextInt());
+        }
     }
     
     /**
@@ -113,10 +114,10 @@ public class Town {
         Component c = e.getComponent("TownBuilding");
         if (c == null) return;
         TownBuilding b = ((TownBuilding)c);
-        buildings.add(e);
+        buildings.add(b);
         //add to the appropriate list
         (b.getType() == INDUSTRIAL_BUILDING ? industrial_buildings : 
-                (b.getType() == RESIDENTIAL_BUILDING ? residential_buildings : commercial_buildings)).add(e);
+                (b.getType() == RESIDENTIAL_BUILDING ? residential_buildings : commercial_buildings)).add(b);
     }
     
     private void randomBuilding(int bx, int by, boolean[][] cell_used) {
@@ -125,7 +126,7 @@ public class Town {
             Chunk.sizePixels()*((blockSizeChunks()*by)+2)};
         
         String[] res_names = {"House 1"}, ind_names = {"Factory 1"}, com_names = {"Supermarket 1"};
-        int building_type = distribution[b_wc[0]/Chunk.sizePixels()][b_wc[1]/Chunk.sizePixels()];
+        int building_type = distribution[bx][by];
         String[] names = building_type == INDUSTRIAL_BUILDING ? 
                 ind_names : (building_type == COMMERCIAL_BUILDING ? com_names : res_names); 
         
@@ -144,8 +145,6 @@ public class Town {
         
         //if the rotation is -1 then an invalid [i,j] was chosen
         if (rot == -1) return;
-        
-        //System.out.println(" Rotation: "+rot);
         
         //create and rotate an entity, getting its dimensions as well
         Entity e = Entity.create(names[r.nextInt(names.length)]);
@@ -179,7 +178,6 @@ public class Town {
             for (int b = j; b < j+eh; b++) {
                 if (a < 0 || a >= cell_used.length
                         || b < 0 || b >= cell_used.length) continue;
-                System.out.println("  "+a+", "+b+" is "+(cell_used[a][b] ? "NOT clear." : "clear!"));
                 if (cell_used[a][b]) { clear = false; break; }
             }
             if (!clear) break;
