@@ -29,7 +29,7 @@ public class World {
     private static World world;
     
     Image map_texture;
-    private short[][] biome_map;
+    private byte[][] biome_map;
     private int[] spawn;
     private boolean[][] forest_map, road_map;
     
@@ -566,7 +566,7 @@ public class World {
             double forest_scale, double forest_height, int forest_passes,
             double town_ratio,
             boolean desert_near_tundra, boolean tundra_at_poles) {
-        this.biome_map = new short[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
+        this.biome_map = new byte[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
         this.forest_map = new boolean[size_sectors*Sector.sizeChunks()][size_sectors*Sector.sizeChunks()];
         this.size_sectors = size_sectors;
         double[][] grass = SimplexNoise.generate(size_sectors*Sector.sizeChunks(), 
@@ -727,7 +727,7 @@ public class World {
         return map;
     }
     
-    public short[][] getBiomeMap() {
+    public byte[][] getBiomeMap() {
         return biome_map;
     }
     

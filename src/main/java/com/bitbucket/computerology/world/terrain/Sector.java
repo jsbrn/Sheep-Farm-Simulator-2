@@ -102,13 +102,13 @@ public class Sector {
         return filled;
     }
     
-    public void importBiomes(short[][] map) {
+    public void importBiomes(byte[][] map) {
         if (filled) return;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
         int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
-        for (short i = 0; i < sizeChunks(); i++) {
-            for (short j = 0; j < sizeChunks(); j++) {
-                int terrain = map[mc[0]+i][mc[1]+j];
+        for (byte i = 0; i < sizeChunks(); i++) {
+            for (byte j = 0; j < sizeChunks(); j++) {
+                byte terrain = map[mc[0]+i][mc[1]+j];
                 chunks[i][j] = new Chunk(i, j, this);
                 chunks[i][j].setBiome(terrain);
             }
@@ -176,7 +176,7 @@ public class Sector {
                 if (line.equals("/s")) return true;
                 
                 if (line.equals("c")) {
-                    Chunk c = new Chunk((short)0, (short)0, this);
+                    Chunk c = new Chunk((byte)0, (byte)0, this);
                     if (c.load(br)) chunks[c.offsets()[0]][c.offsets()[1]] = c;
                 }
                 if (line.indexOf("x=") == 0) x = Integer.parseInt(line.replace("x=", ""));

@@ -18,9 +18,9 @@ import org.newdawn.slick.Image;
 
 public class Chunk {
     
-    public static short BIOME_COUNT = 6, 
+    public static byte BIOME_COUNT = 6, 
             GRASS = 0, SAND = 1, WATER = 2, SNOW = 3, ROAD_INTERSECTION = 4, ROAD_STRAIGHT = 5;
-    private short biome, terrain, x, y, rot;
+    private byte biome, terrain, x, y, rot;
     private Sector parent;
     
     public static Color[] COLORS = {Color.green, Color.yellow, Color.blue, Color.white, 
@@ -28,8 +28,8 @@ public class Chunk {
     
     public ArrayList<Entity> entities;
     
-    public Chunk(short x, short y, Sector parent) {
-        this.rot = (short)Math.abs(new Random().nextInt() % 4);
+    public Chunk(byte x, byte y, Sector parent) {
+        this.rot = (byte)Math.abs(new Random().nextInt() % 4);
         this.biome = -1;
         this.terrain = -1;
         this.x = x;
@@ -43,7 +43,7 @@ public class Chunk {
      * @param r A number from 0-3. Sets the rotation index to the absolute value of r mod 4.
      */
     public void setRotation(int r) {
-        rot = (short)Math.abs(r % 4);
+        rot = (byte)Math.abs(r % 4);
     }
     
     public int getRotation() { return rot; }
@@ -96,7 +96,7 @@ public class Chunk {
     
     public void setTerrain(int terrain) {
         int old = this.terrain;
-        this.terrain = (short)((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
+        this.terrain = (byte)((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
         if (old != this.terrain) {
             int mc[] = World.getWorld().getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1], 
                     x, y);
@@ -114,8 +114,8 @@ public class Chunk {
     
     public void setBiome(int biome) {
         int old = this.biome;
-        this.biome = (short)((biome > -1 && biome < Chunk.BIOME_COUNT) ? biome : -1);
-        this.terrain = (short)((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
+        this.biome = (byte)((biome > -1 && biome < Chunk.BIOME_COUNT) ? biome : -1);
+        this.terrain = (byte)((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
         if (old != this.biome) {
             int mc[] = World.getWorld().getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1], 
                     x, y);
@@ -147,10 +147,10 @@ public class Chunk {
                 if (line == null) break;
                 line = line.replace("", "").trim();
                 if (line.equals("/c")) return true;
-                if (line.indexOf("x=") == 0) x = Short.parseShort(line.replace("x=", ""));
-                if (line.indexOf("y=") == 0) y = Short.parseShort(line.replace("y=", ""));
-                if (line.indexOf("b=") == 0) biome = Short.parseShort(line.replace("b=", ""));
-                if (line.indexOf("t=") == 0) terrain = Short.parseShort(line.replace("t=", ""));
+                if (line.indexOf("x=") == 0) x = Byte.parseByte(line.replace("x=", ""));
+                if (line.indexOf("y=") == 0) y = Byte.parseByte(line.replace("y=", ""));
+                if (line.indexOf("b=") == 0) biome = Byte.parseByte(line.replace("b=", ""));
+                if (line.indexOf("t=") == 0) terrain = Byte.parseByte(line.replace("t=", ""));
             }
         } catch (IOException ex) {
             Logger.getLogger(Sector.class.getName()).log(Level.SEVERE, null, ex);

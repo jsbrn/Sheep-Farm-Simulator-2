@@ -18,13 +18,19 @@ public class Town {
     public static Color[] BUILDING_COLORS = {Color.green, Color.cyan, Color.lightGray};
     
     int population, x, y;
-    ArrayList<Entity> buildings;
+    ArrayList<Entity> buildings, 
+            industrial_buildings, 
+            residential_buildings, 
+            commercial_buildings;
     
     int[][] distribution;
     
     
     public Town(int sector_x, int sector_y) {
         this.buildings = new ArrayList<Entity>();
+        this.industrial_buildings = new ArrayList<Entity>();
+        this.residential_buildings = new ArrayList<Entity>();
+        this.commercial_buildings = new ArrayList<Entity>();
         this.x = sector_x;
         this.y = sector_y;
     }
@@ -42,7 +48,7 @@ public class Town {
         //generate the noise map describing the building distribution
         double residential[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
         double commercial[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
-        double industrial[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.975, 1);
+        double industrial[][] = SimplexNoise.generate(Sector.sizeChunks(), Sector.sizeChunks(), 0.01, 0.900, 1);
         
         //blend the three district maps into one
         distribution = new int[Sector.sizeChunks()][Sector.sizeChunks()];
@@ -71,6 +77,24 @@ public class Town {
             }
         }
         
+        refreshPopulationScore();
+        assignIndustrialBuildings();
+        
+    }
+    
+    private void refreshPopulationScore() {
+        population = 0;
+        Component c; TownBuilding b;
+        for (Entity e: buildings) {
+            c = e.getComponent("TownBuilding");
+            if (c == null) continue;
+            b = ((TownBuilding)c);
+            population+=b.getResidentCount();
+        }
+    }
+    
+    private void assignIndustrialBuildings() {
+        //for (Entity e: )
     }
     
     /**
@@ -79,22 +103,20 @@ public class Town {
      */
     private void randomizeBlock(int bx, int by) {
         System.out.println("Generating buildings for block "+bx+", "+by);
-        
-        //initialized to false
+        //create a grid that breaks the city block into 4x4 cells and use it to
+        //generate random buildings
         boolean cell_used[][] = new boolean[((blockSizeChunks()-2)*4)][((blockSizeChunks()-2))*4];
-        
         for (int i = 0; i < 32; i++) randomBuilding(bx, by, cell_used);
-        
     }
     
     private void addBuilding(Entity e) {
-        Component b = e.getComponent("TownBuilding");
-        TownBuilding tb;
-        if (b == null) return; tb = ((TownBuilding)b);
-        if (!buildings.contains(e)) {
-            
-            buildings.add(e);
-        }
+        Component c = e.getComponent("TownBuilding");
+        if (c == null) return;
+        TownBuilding b = ((TownBuilding)c);
+        buildings.add(e);
+        //add to the appropriate list
+        (b.getType() == INDUSTRIAL_BUILDING ? industrial_buildings : 
+                (b.getType() == RESIDENTIAL_BUILDING ? residential_buildings : commercial_buildings)).add(e);
     }
     
     private void randomBuilding(int bx, int by, boolean[][] cell_used) {
@@ -120,8 +142,6 @@ public class Town {
         if (j == 0) rot = 0;
         if (j == cell_used.length-1) rot = 2;
         
-        System.out.println(" Cell chosen: "+i+", "+j);
-        
         //if the rotation is -1 then an invalid [i,j] was chosen
         if (rot == -1) return;
         
@@ -135,20 +155,13 @@ public class Town {
         int eh = (int)Math.round(e.getHeight()/cell_dim);
         //calculate how far the entity would go out of bounds if placed
         int w_diff = (i+ew)-cell_used.length, h_diff = (j+eh)-cell_used.length;
-        
-        System.out.println(" "+e);
-        System.out.println("  Width: "+e.getWidth()+" -> "+ew+", height: "+e.getHeight()+" -> "+eh);
-        System.out.println("  Overflow: "+w_diff+", "+h_diff);
-        
+
         //if out of bounds, shift the cell over
         if (w_diff > 0) i -= w_diff;
         if (h_diff > 0) j -= h_diff;
         
         //if you shifted too far over, then invalid
         if (i < 0 || j < 0) return;
-        
-        System.out.println("Cell after shifting: "+i+", "+j);
-        //System.out.println("Rotation after shifting: "+rot);
         
         //adjust again to ensure that buildings line up with the road
         //for a couple rotations that are a little off
@@ -161,7 +174,6 @@ public class Town {
         if (rot == 2 && cy_diff > 0) j += cy_diff;
         
         //determine whether the entity will fit (if a cell is used, it will not)
-        System.out.println("Checking region for obstructions...");
         boolean clear = true;
         for (int a = i; a < i+ew; a++) { //have an 8px x 8px margin around the entity
             for (int b = j; b < j+eh; b++) {
@@ -173,8 +185,6 @@ public class Town {
             if (!clear) break;
         }
         
-        System.out.println("Region ["+i+", "+j+", "+ew+", "+eh+"] clear: "+clear);
-        
         if (clear) {
             
             //determine the actual coordinates for the entity to use
@@ -184,7 +194,7 @@ public class Town {
             e.setWorldX(entity_x);
             e.setWorldY(entity_y);
             World.getWorld().addEntity(e);
-            System.out.println("Added entity to "+e.getWorldX()+", "+e.getWorldY()+"\n");
+            addBuilding(e);
             
             //mark all the used cells as such, for future buildings
             for (int a = i-2; a < i+ew+4; a++) {
