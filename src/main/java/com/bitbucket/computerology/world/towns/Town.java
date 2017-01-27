@@ -49,7 +49,7 @@ public class Town {
         double residential[][] = SimplexNoise.generate(4, 4, 0.01, 0.975, 1);
         double commercial[][] = SimplexNoise.generate(4, 4, 0.01, 0.975, 1);
         
-        //blend the three district maps into one
+        //blend the two district maps into one
         distribution = new int[4][4];
         for (int i = 0; i < distribution.length; i++) {
             for (int j = 0; j < distribution.length; j++) {
@@ -60,6 +60,11 @@ public class Town {
                     distribution[i][j] = RESIDENTIAL_BUILDING;
             }
         }
+        //three random factories, one random commercial, and one random residential
+        for (int i = 0; i < 5; i++) distribution
+                [new Random().nextInt(distribution.length)]
+                [new Random().nextInt(distribution.length)] = (i < 3 ? INDUSTRIAL_BUILDING 
+                : (i == 3 ? RESIDENTIAL_BUILDING : COMMERCIAL_BUILDING));
         
         
         //divide the sector with roads, creating city blocks to place buildings in
@@ -80,6 +85,14 @@ public class Town {
         
     }
     
+    public void doCycle() {
+        for (TownBuilding b: industrial_buildings) {
+            for (TownBuilding c: b.getClients()) {
+                
+            }
+        }
+    }
+    
     private void refreshPopulationScore() {
         population = 0;
         for (TownBuilding b: residential_buildings) {
@@ -94,7 +107,10 @@ public class Town {
         for (TownBuilding b: commercial_buildings) {
             String[] goods = b.getGoods();
             if (goods == null) continue;
-            TownBuilding random_factory = temp_factories.get(World.getWorld().rng().nextInt());
+            TownBuilding random_factory = (temp_factories.isEmpty() ? used_factories : temp_factories).get(
+                    World.getWorld().rng().nextInt((temp_factories.isEmpty() ? used_factories : temp_factories).size()));
+            if (random_factory == null) continue;
+            random_factory.addClient(b);
         }
     }
     

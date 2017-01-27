@@ -12,10 +12,10 @@ public class TownBuilding extends Component {
     
     private int output_quantity; //INDUSTRIAL
     private double quality_score; //INDUSTRIAL
+    private ArrayList<TownBuilding> clients; //INDUSTRIAL
     
-    private String goods[]; //INDUSTRIAL, COMMERCIAL
-    private double base_quantities[]; //INDUSTRIAL, COMMERCIAL
-    
+    private String goods[]; //COMMERCIAL
+    private double base_quantities[]; //COMMERCIAL
     private double popularity_score; //COMMERCIAL
     
     private int capacity, residents; //RESIDENTIAL
@@ -24,6 +24,7 @@ public class TownBuilding extends Component {
     public TownBuilding() { this.type = -1; }
     
     public void init(int type) {
+        this.clients = new ArrayList<TownBuilding>();
         this.output_quantity = type == Town.INDUSTRIAL_BUILDING ? 
                 World.getWorld().rng().nextInt(200) + 100 : 0;
         this.quality_score = type == Town.INDUSTRIAL_BUILDING ? 
@@ -67,11 +68,16 @@ public class TownBuilding extends Component {
         System.err.println("Save function for TownBuilding not implemented.");
     }
     
+    //ALL
     public int getType() { return type; }
     
     //INDUSTRIAL
     public int getOutputQuantity() { return output_quantity; }
     public double getOutputQuality() { return quality_score; }
+    public void addClient(TownBuilding b) {
+        if (!clients.contains(b)) clients.add(b);
+    }
+    public ArrayList<TownBuilding> getClients() { return clients; }
     
     public double getPopularity() { return popularity_score; } //INDUSTRIAL
     public String[] getGoods() { return goods; } //INDUSTRIAL, COMMERCIAL
