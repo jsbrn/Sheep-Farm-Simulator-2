@@ -10,32 +10,37 @@ public class TownBuilding extends Component {
     
     private int type; //ALL
     
-    private int output_quantity; //INDUSTRIAL
-    private double quality_score; //INDUSTRIAL
+    private int quantity_mult; //INDUSTRIAL
+    private double quality_mult; //INDUSTRIAL
     private ArrayList<TownBuilding> clients; //INDUSTRIAL
     
-    private String goods[]; //COMMERCIAL
-    private double base_quantities[]; //COMMERCIAL
-    private double popularity_score; //COMMERCIAL
+    private ArrayList<TownBuilding> suppliers; //COMMERCIAL
+    private double popularity_multiplier; //COMMERCIAL
     
-    private int capacity, residents; //RESIDENTIAL
-    private double demand_multiplier; //RESIDENTIAL
+    private String goods[]; //COMMERCIAL, INDUSTRIAL
+    private double base_quantities[]; //COMMERCIAL, INDUSTRIAL
+    
+    private double resident_percentage; //RESIDENTIAL
     
     public TownBuilding() { this.type = -1; }
     
     public void init(int type) {
-        this.clients = new ArrayList<TownBuilding>();
-        this.output_quantity = type == Town.INDUSTRIAL_BUILDING ? 
-                World.getWorld().rng().nextInt(200) + 100 : 0;
-        this.quality_score = type == Town.INDUSTRIAL_BUILDING ? 
+        
+        this.clients = type == Town.INDUSTRIAL_BUILDING ? new ArrayList<TownBuilding>() : null;
+        this.suppliers = type == Town.COMMERCIAL_BUILDING ? new ArrayList<TownBuilding>() : null;
+        
+        this.quantity_mult = type == Town.INDUSTRIAL_BUILDING ? 
+                World.getWorld().rng().nextInt(200) + 100 : -1;
+        this.quality_mult = type == Town.INDUSTRIAL_BUILDING ? 
                 World.getWorld().rng().nextDouble() : -1;
         
-        this.capacity = type == Town.RESIDENTIAL_BUILDING ? 10 : -1;
-        this.residents = capacity;
-        this.demand_multiplier = type == Town.RESIDENTIAL_BUILDING ? 
-                World.getWorld().rng().nextDouble() + 0.5 : -1;
+        this.goods = type == Town.RESIDENTIAL_BUILDING ? null : new String[]{};
+        this.base_quantities = type == Town.RESIDENTIAL_BUILDING ? null : new double[]{};
         
-        this.popularity_score = type == Town.COMMERCIAL_BUILDING ? 1.0 : -1;
+        this.resident_percentage = type == Town.RESIDENTIAL_BUILDING ? 1 : -1; //100%
+        
+        this.popularity_multiplier = type == Town.COMMERCIAL_BUILDING ? 1.0 : -1;
+        
     }
     
     public void initParam(ArrayList<String> params) {
@@ -72,20 +77,18 @@ public class TownBuilding extends Component {
     public int getType() { return type; }
     
     //INDUSTRIAL
-    public int getOutputQuantity() { return output_quantity; }
-    public double getOutputQuality() { return quality_score; }
+    public int getOutputQuantity() { return quantity_mult; }
+    public double getOutputQuality() { return quality_mult; }
     public void addClient(TownBuilding b) {
         if (!clients.contains(b)) clients.add(b);
     }
     public ArrayList<TownBuilding> getClients() { return clients; }
     
-    public double getPopularity() { return popularity_score; } //INDUSTRIAL
+    public double getPopularity() { return popularity_multiplier; } //INDUSTRIAL
     public String[] getGoods() { return goods; } //INDUSTRIAL, COMMERCIAL
-    public double[] getGoodsQuantities() { return base_quantities; } //INDUSTRIAL, COMMERCIAL
+    public double[] getBaseQuantities() { return base_quantities; } //INDUSTRIAL, COMMERCIAL
     
     //RESIDENTIAL
-    public int getResidentCount() { return residents; }
-    public int getResidentCapacity() { return capacity; }
-    public double getResidentDemandMultiplier() { return demand_multiplier; }
+    public double getResidentPercentage() { return resident_percentage; }
 
 }

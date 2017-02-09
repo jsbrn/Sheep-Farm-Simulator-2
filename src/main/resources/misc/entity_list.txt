@@ -3,14 +3,20 @@ id=Tree
 c
 id=Position
 
+
+
 /c
 c
 id=Hitbox
+
+
 
 /c
 c
 id=Texture
 texture=tree.png
+
+
 /c
 s
 id=Render
@@ -27,14 +33,24 @@ id=House 1
 c
 id=Position
 
+
+
 /c
 c
 id=Hitbox
+
+
 
 /c
 c
 id=Texture
 texture=house1.png
+
+
+/c
+c
+id=TownBuilding
+type=Residential
 /c
 s
 id=Render
@@ -51,14 +67,24 @@ id=Factory 1
 c
 id=Position
 
+
+
 /c
 c
 id=Texture
 texture=factory1.png
+
+
 /c
 c
 id=Hitbox
 
+
+
+/c
+c
+id=TownBuilding
+type=Industrial
 /c
 s
 id=Render
@@ -75,14 +101,24 @@ id=Supermarket 1
 c
 id=Position
 
+
+
 /c
 c
 id=Texture
 texture=supermarket1.png
+
+
 /c
 c
 id=Hitbox
 
+
+
+/c
+c
+id=TownBuilding
+type=Commercial
 /c
 s
 id=Render

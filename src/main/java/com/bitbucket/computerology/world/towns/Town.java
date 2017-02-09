@@ -25,7 +25,6 @@ public class Town {
     
     int[][] distribution;
     
-    
     public Town(int sector_x, int sector_y) {
         this.buildings = new ArrayList<TownBuilding>();
         this.industrial_buildings = new ArrayList<TownBuilding>();
@@ -81,37 +80,18 @@ public class Town {
         }
         
         refreshPopulationScore();
-        assignIndustrialBuildings();
+        
+        System.out.println("Generated "+this+": population = "+population);
         
     }
     
-    public void doCycle() {
-        for (TownBuilding b: industrial_buildings) {
-            for (TownBuilding c: b.getClients()) {
-                
-            }
-        }
-    }
-    
     private void refreshPopulationScore() {
-        population = 0;
+        double sum = 0;
         for (TownBuilding b: residential_buildings) {
-            population+=b.getResidentCount();
+            sum+=b.getResidentPercentage();
         }
-    }
-    
-    private void assignIndustrialBuildings() {
-        ArrayList<TownBuilding> temp_factories = new ArrayList<TownBuilding>(),
-                used_factories = new ArrayList<TownBuilding>();
-        temp_factories.addAll(industrial_buildings);
-        for (TownBuilding b: commercial_buildings) {
-            String[] goods = b.getGoods();
-            if (goods == null) continue;
-            TownBuilding random_factory = (temp_factories.isEmpty() ? used_factories : temp_factories).get(
-                    World.getWorld().rng().nextInt((temp_factories.isEmpty() ? used_factories : temp_factories).size()));
-            if (random_factory == null) continue;
-            random_factory.addClient(b);
-        }
+        sum /= residential_buildings.size();
+        population = (int)(10*sum);
     }
     
     /**
@@ -134,14 +114,25 @@ public class Town {
         //add to the appropriate list
         (b.getType() == INDUSTRIAL_BUILDING ? industrial_buildings : 
                 (b.getType() == RESIDENTIAL_BUILDING ? residential_buildings : commercial_buildings)).add(b);
+        System.out.println("Added building to lists.");
     }
     
+    /**
+     * Picks a random building from the list of options, and places it.
+     * This implementation is long and cumbersome but it works in a single function call.
+     * @param bx The block coordinates, that is, the top-left section of the sector is (0, 0).
+     * The one next to it is (1, 0).
+     * @param by The block coordinates.
+     * @param cell_used The boolean array that keeps track of available space in the block.
+     */
     private void randomBuilding(int bx, int by, boolean[][] cell_used) {
         //world coords for the block (relative to the sector)
         int[] b_wc = {Chunk.sizePixels()*((blockSizeChunks()*bx)+2), 
             Chunk.sizePixels()*((blockSizeChunks()*by)+2)};
         
-        String[] res_names = {"House 1"}, ind_names = {"Factory 1"}, com_names = {"Supermarket 1"};
+        String[] res_names = {"House 1"}, 
+                ind_names = {"Factory 1"}, 
+                com_names = {"Supermarket 1"};
         int building_type = distribution[bx][by];
         String[] names = building_type == INDUSTRIAL_BUILDING ? 
                 ind_names : (building_type == COMMERCIAL_BUILDING ? com_names : res_names); 
@@ -150,7 +141,7 @@ public class Town {
         Random r = World.getWorld().rng();
         
         //determine [i,j] and the rotation
-        //round to the nearest <block size>, so basically be either 0 or 14.
+        //round to the nearest multiple of the block size, meaning stay on the edges
         int i = (int)MiscMath.round(r.nextInt(cell_used.length-2), (cell_used.length-2)/2); 
         int j = (int)MiscMath.round(r.nextInt(cell_used.length), (cell_used.length-2)/2); 
         int rot = -1;
@@ -200,7 +191,6 @@ public class Town {
         }
         
         if (clear) {
-            
             //determine the actual coordinates for the entity to use
             int entity_x = p.getWorldCoords()[0]+b_wc[0]+(i*(int)cell_dim)+(e.getWidth()/2);//+(i*Chunk.sizePixels());
             int entity_y = p.getWorldCoords()[1]+b_wc[1]+(j*(int)cell_dim)+(e.getHeight()/2);//+(j*Chunk.sizePixels());
@@ -259,4 +249,9 @@ public class Town {
     
     public int getPopulation() { return population; }
     
+    @Override
+    public String toString() {
+        return "Town["+x+", "+y+"]";
+    }
+
 }
