@@ -1,34 +1,33 @@
 package com.bitbucket.computerology.misc;
 
-import java.io.File;
-import java.util.Calendar;
 import org.lwjgl.opengl.Display;
+import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.imageout.ImageOut;
 
-import org.newdawn.slick.AppGameContainer;
+import java.io.File;
+import java.util.Calendar;
 
 public class Window {
-    
-    public static int MIN_WIDTH = 720, MIN_HEIGHT = 515;
+
     //the name of the window
     public static final String WINDOW_TITLE = "Top Secret Project";
+    public static int MIN_WIDTH = 720, MIN_HEIGHT = 515;
     //create a window object
     public static AppGameContainer WINDOW_INSTANCE;
 
     public static void toggleFullScreen() throws SlickException {
         if (WINDOW_INSTANCE.isFullscreen() == false) {
             WINDOW_INSTANCE
-                .setDisplayMode(Display.getDesktopDisplayMode().getWidth(),
-                Display.getDesktopDisplayMode().getHeight(), true);
+                    .setDisplayMode(Display.getDesktopDisplayMode().getWidth(),
+                            Display.getDesktopDisplayMode().getHeight(), true);
         } else {
             WINDOW_INSTANCE.setDisplayMode(Window.MIN_WIDTH, Window.MIN_HEIGHT, false);
         }
     }
-    
+
     public static boolean isFullScreen() {
         return WINDOW_INSTANCE.isFullscreen();
     }
@@ -39,26 +38,26 @@ public class Window {
             int year = Calendar.getInstance().get(Calendar.YEAR);
             int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
             Image scrn = new Image(Window.getWidth(), Window.getHeight());
-            String file_url = System.getProperty("user.home")+"/sheepfarmsimulator//screenshots/"
-                    +year+""+month+""+day;
+            String file_url = System.getProperty("user.home") + "/sheepfarmsimulator//screenshots/"
+                    + year + "" + month + "" + day;
             g.copyArea(scrn, 0, 0);
             //make screenshots folder
-            if (new File(System.getProperty("user.home")+"/sheepfarmsimulator/screenshots/").exists() == false) {
-                new File(System.getProperty("user.home")+"/sheepfarmsimulator/screenshots/").mkdir();
+            if (new File(System.getProperty("user.home") + "/sheepfarmsimulator/screenshots/").exists() == false) {
+                new File(System.getProperty("user.home") + "/sheepfarmsimulator/screenshots/").mkdir();
             }
             //check if image_exists already
-            if (new File(file_url+".png").exists()) {
+            if (new File(file_url + ".png").exists()) {
                 int count = 2;
                 while (true) {
-                    if (new File(file_url+"_"+count+".png").exists() == false) {
-                        file_url+="_"+count;
+                    if (new File(file_url + "_" + count + ".png").exists() == false) {
+                        file_url += "_" + count;
                         break;
                     }
                     count++;
                 }
             }
-            ImageOut.write(scrn, file_url+".png");
-            System.out.println("Saved screenshot to "+file_url+".png");
+            ImageOut.write(scrn, file_url + ".png");
+            System.out.println("Saved screenshot to " + file_url + ".png");
         } catch (SlickException ex) {
 
         }
@@ -66,8 +65,9 @@ public class Window {
 
     /**
      * Prevent the window from being smaller than an arbitrary dimension.
+     *
      * @return true if the window had to be resized, false otherwise
-     * @throws SlickException 
+     * @throws SlickException
      */
     public static boolean enforceMinimumDimensions() throws SlickException {
         if (Display.wasResized()) {
@@ -98,11 +98,11 @@ public class Window {
     }
 
     public static float getY() {
-        return (float)Display.getY();
+        return (float) Display.getY();
     }
 
     public static float getX() {
-        return (float)Display.getX();
+        return (float) Display.getX();
     }
 
     public static int getWidth() {

@@ -1,21 +1,21 @@
 package com.bitbucket.computerology.gui.elements;
 
 import com.bitbucket.computerology.gui.GUIElement;
-import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.World;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class StatusBar extends GUIElement {
-    
+
     Image overhang, bar, sundial, frame;
-    
+
     Label money, sheep;
-    
+
     public StatusBar() {
         try {
             overhang = new Image("images/gui/overhang.png", false, Image.FILTER_LINEAR);
@@ -28,7 +28,7 @@ public class StatusBar extends GUIElement {
         money = new Label() {
             public void update() {
                 super.update();
-                setText("$"+World.getWorld().getPlayer().getMoney());
+                setText("$" + World.getWorld().getPlayer().getMoney());
             }
         };
         money.setX(5);
@@ -43,30 +43,30 @@ public class StatusBar extends GUIElement {
         this.addComponent(money);
         this.addComponent(sheep);
     }
-    
+
     @Override
     public void update() {
         super.update();
     }
-    
+
     @Override
     public int getWidth() {
         return Display.getWidth();
     }
-    
+
     @Override
     public int getHeight() {
         return (bar != null) ? bar.getHeight() : 0;
     }
-    
+
     @Override
     public void draw(Graphics g) {
-        g.drawImage(overhang, Display.getWidth()/2 - overhang.getWidth()/2, 0);
-        sundial.setRotation(360F * (float)(((double)World.getWorld().getTime() % 1400D)/1400D));
-        g.drawImage(sundial, Display.getWidth()/2 - sundial.getWidth()/2, 10 + frame.getHeight()/2 - sundial.getHeight()/2);
-        g.drawImage(frame, Display.getWidth()/2 - frame.getWidth()/2, 10);
-        g.drawImage(bar.getScaledCopy(Display.getWidth()/2 - overhang.getWidth()/2, bar.getHeight()), 0, 0);
-        g.drawImage(bar.getScaledCopy(Display.getWidth()/2, bar.getHeight()), Display.getWidth()/2 + overhang.getWidth()/2, 0);
+        g.drawImage(overhang, Display.getWidth() / 2 - overhang.getWidth() / 2, 0);
+        sundial.setRotation(360F * (float) (((double) World.getWorld().getTime() % 1400D) / 1400D));
+        g.drawImage(sundial, Display.getWidth() / 2 - sundial.getWidth() / 2, 10 + frame.getHeight() / 2 - sundial.getHeight() / 2);
+        g.drawImage(frame, Display.getWidth() / 2 - frame.getWidth() / 2, 10);
+        g.drawImage(bar.getScaledCopy(Display.getWidth() / 2 - overhang.getWidth() / 2, bar.getHeight()), 0, 0);
+        g.drawImage(bar.getScaledCopy(Display.getWidth() / 2, bar.getHeight()), Display.getWidth() / 2 + overhang.getWidth() / 2, 0);
         super.draw(g);
     }
 

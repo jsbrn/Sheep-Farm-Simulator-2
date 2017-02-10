@@ -2,29 +2,26 @@ package com.bitbucket.computerology.world.entities;
 
 import com.bitbucket.computerology.misc.MiscString;
 import com.bitbucket.computerology.world.entities.components.Hitbox;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EntityList {
-    
+
     private static ArrayList<Entity> entities;
-    
+
     public static Entity getEntity(String type) {
-        for (Entity e: entities) if (e.type.equals(type)) return e;
+        for (Entity e : entities) if (e.type.equals(type)) return e;
         return null;
     }
-    
+
     public static void loadEntityList() {
         System.out.println("Loading entities...");
         entities = new ArrayList<Entity>();
         try {
-            InputStream in = EntityList.class.getResourceAsStream("/misc/entity_list.txt"); 
+            InputStream in = EntityList.class.getResourceAsStream("/misc/entity_list.txt");
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             while (true) {
                 String line = br.readLine();
@@ -39,9 +36,9 @@ public class EntityList {
         } catch (IOException ex) {
             Logger.getLogger(EntityList.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Successfully loaded "+entities.size()+" entities!");
+        System.out.println("Successfully loaded " + entities.size() + " entities!");
     }
-    
+
     static boolean loadEntity(Entity e, BufferedReader br) {
         try {
             while (true) {
@@ -58,8 +55,8 @@ public class EntityList {
                 }
                 if (line.equals("s")) {
                     ComponentSystem c = loadSystem(br);
-                    if (c != null) { 
-                        e.addSystem(c); 
+                    if (c != null) {
+                        e.addSystem(c);
                     }
                 }
                 /*if (line.equals("a")) {
@@ -73,16 +70,16 @@ public class EntityList {
                 //load the hitbox stuff (as designed in the editor)
                 if (line.equals("h")) {
                     Component c = e.getComponent("Hitbox");
-                    Hitbox h = c != null ? ((Hitbox)c) : null;
+                    Hitbox h = c != null ? ((Hitbox) c) : null;
                     while (h != null) {
                         line = br.readLine();
                         if (line == null) break;
                         if (line.equals("/h")) break;
                         ArrayList<String> l = MiscString.parseString(line.replace(" ", "\n"));
                         h.addLine(Integer.parseInt(l.get(0))
-                        ,Integer.parseInt(l.get(1))
-                        ,Integer.parseInt(l.get(2))
-                        ,Integer.parseInt(l.get(3)));
+                                , Integer.parseInt(l.get(1))
+                                , Integer.parseInt(l.get(2))
+                                , Integer.parseInt(l.get(3)));
                     }
                 }
             }
@@ -93,7 +90,7 @@ public class EntityList {
         }
         return false;
     }
-    
+
     static Component loadComponent(BufferedReader br) {
         Component c = null;
         try {
@@ -103,9 +100,8 @@ public class EntityList {
                 if (line.equals("/c")) return c;
                 if (line.indexOf("id=") == 0) {
                     c = Component.create(line.trim().replace("id=", ""));
-                }
-                else {
-                    if (c != null) c.params+=line+"\n";
+                } else {
+                    if (c != null) c.params += line + "\n";
                 }
             }
         } catch (FileNotFoundException ex) {
@@ -115,7 +111,7 @@ public class EntityList {
         }
         return null;
     }
-    
+
     static ComponentSystem loadSystem(BufferedReader br) {
         ComponentSystem c = null;
         try {
@@ -134,7 +130,7 @@ public class EntityList {
         }
         return null;
     }
-    
+
     static boolean loadFlow(Flow f, BufferedReader br) {
         try {
             while (true) {
@@ -155,7 +151,7 @@ public class EntityList {
         }
         return false;
     }
-    
+
     static boolean loadBlock(Block b, BufferedReader br) {
         try {
             while (true) {
@@ -163,13 +159,13 @@ public class EntityList {
                 if (line == null) break;
                 if (line.equals("/b")) return true;
                 if (line.indexOf("id=") == 0) b.id = Integer.parseInt(line.trim().replace("id=", ""));
-                if (line.indexOf("t=") == 0) { 
+                if (line.indexOf("t=") == 0) {
                     b.type = line.trim().replace("t=", "");
                     Block copy = BlockList.getBlock(b.type);
                     if (copy != null) {
-                        copy.copyTo(b); 
-                    } else { 
-                        System.err.println("Block "+b.type+" does not exist in BLOCK_LIST!");
+                        copy.copyTo(b);
+                    } else {
+                        System.err.println("Block " + b.type + " does not exist in BLOCK_LIST!");
                         return false;
                     }
                 }
@@ -195,5 +191,5 @@ public class EntityList {
         }
         return false;
     }
-    
+
 }

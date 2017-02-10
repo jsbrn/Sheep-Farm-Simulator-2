@@ -1,4 +1,5 @@
 package com.bitbucket.computerology.main;
+
 import com.jdotsoft.JarClassLoader;
 
 public class Launcher {

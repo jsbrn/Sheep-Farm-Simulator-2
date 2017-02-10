@@ -23,21 +23,10 @@
  */
 package com.jdotsoft;
 
+import javax.swing.*;
 import java.applet.AppletContext;
 import java.applet.AppletStub;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -48,21 +37,12 @@ import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import javax.swing.JApplet;
 
 /**
  * This class loader loads classes, native libraries and resources from
@@ -86,20 +66,20 @@ import javax.swing.JApplet;
  * Create a launcher class to start your class
  * <code>com.mycompany.MyApp main()</code> method to start your application
  * <code>
-<pre>
-public class MyAppLauncher {
-
-    public static void main(String[] args) {
-        JarClassLoader jcl = new JarClassLoader();
-        try {
-            jcl.invokeMain("com.mycompany.MyApp", args);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    } // main()
-
-} // class MyAppLauncher
-</pre>
+ * <pre>
+ * public class MyAppLauncher {
+ *
+ * public static void main(String[] args) {
+ * JarClassLoader jcl = new JarClassLoader();
+ * try {
+ * jcl.invokeMain("com.mycompany.MyApp", args);
+ * } catch (Throwable e) {
+ * e.printStackTrace();
+ * }
+ * } // main()
+ *
+ * } // class MyAppLauncher
+ * </pre>
  * </code>
  * <p>
  * An application could be started in two different environments:
@@ -114,55 +94,55 @@ public class MyAppLauncher {
  * Application started with <code>MyAppLauncher.main()</code>
  * uses <code>JarClassLoader</code> which transparently passes class
  * loading to the system class loader.
- *
+ * <p>
  * <br/>
  * 2. Application is started from a JAR with dependent JARs and other
  * resources inside the main JAR.
  * Application must be started with <code>MyAppLauncher.main()</code> and
  * <code>JarClassLoader</code> will load <code>MyApp.main()</code>
  * and required resources from the main JAR.
- *
+ * <p>
  * <p>The launcher class for the Java applet is very similar to application
  * launcher.
  * <code>
-<pre>
-public class MyAppletLauncher extends JApplet {
-
-    private JarClassLoader jcl;
-    
-    @Override
-    public void init() {
-        jcl = new JarClassLoader();
-        try {
-            jcl.initApplet("com.mycompany.MyApplet", this);
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-    
-    @Override
-    public void start() {
-        jcl.startApplet();
-    }
-    
-    @Override
-    public void stop() {
-        jcl.stopApplet();
-    }
-    
-    @Override
-    public void destroy() {
-        jcl.destroyApplet();
-    }
-    
-} // class MyAppletLauncher
-</pre>
- * </code>
- * The applet launcher class could have both <code>main()</code> and applet 
- * related methods for UI class which could be started as an application or
- * an applet. This technique is very convenient to develop an applet and test 
- * it as an application. 
+ * <pre>
+ * public class MyAppletLauncher extends JApplet {
  *
+ * private JarClassLoader jcl;
+ *
+ * @Override
+ * public void init() {
+ * jcl = new JarClassLoader();
+ * try {
+ * jcl.initApplet("com.mycompany.MyApplet", this);
+ * } catch (Throwable e) {
+ * e.printStackTrace();
+ * }
+ * }
+ *
+ * @Override
+ * public void start() {
+ * jcl.startApplet();
+ * }
+ *
+ * @Override
+ * public void stop() {
+ * jcl.stopApplet();
+ * }
+ *
+ * @Override
+ * public void destroy() {
+ * jcl.destroyApplet();
+ * }
+ *
+ * } // class MyAppletLauncher
+ * </pre>
+ * </code>
+ * The applet launcher class could have both <code>main()</code> and applet
+ * related methods for UI class which could be started as an application or
+ * an applet. This technique is very convenient to develop an applet and test
+ * it as an application.
+ * <p>
  * <p>
  * Use VM parameters in the command line for logging settings (examples):
  * <ul>
@@ -174,7 +154,7 @@ public class MyAppletLauncher extends JApplet {
  * The default area is ALL. See also {@link LogArea}. Multiple logging areas
  * could be specified with ',' delimiter.</li>
  * </ul>
- *
+ * <p>
  * <p>
  * Known issues: some temporary files created by class loader are not deleted
  * on application exit because JVM does not close handles to them.
@@ -193,7 +173,9 @@ public class MyAppletLauncher extends JApplet {
  */
 public class JarClassLoader extends ClassLoader {
 
-    /** VM parameter key to turn on logging to file or console. */
+    /**
+     * VM parameter key to turn on logging to file or console.
+     */
     public static final String KEY_LOGGER = "JarClassLoader.logger";
 
     /**
@@ -210,23 +192,6 @@ public class JarClassLoader extends ClassLoader {
      * with ',' delimiter (no spaces!).
      */
     public static final String KEY_LOGGER_AREA = "JarClassLoader.logger.area";
-
-    public enum LogLevel { ERROR, WARN, INFO, DEBUG }
-    public enum LogArea {
-        /** Enable all logging areas. */
-        ALL,
-        /** Configuration related logging. Enabled always. */
-        CONFIG,
-        /** Enable JAR related logging. */
-        JAR,
-        /** Enable class loading related logging. */
-        CLASS,
-        /** Enable resource loading related logging. */
-        RESOURCE,
-        /** Enable native libraries loading related logging. */
-        NATIVE
-    }
-
     /**
      * Sub directory name for temporary files.
      * <p>
@@ -239,7 +204,16 @@ public class JarClassLoader extends ClassLoader {
      * there if application was killed.
      */
     public static final String TMP_SUB_DIRECTORY = "JarClassLoader";
-
+    //--------------------------------separator--------------------------------
+    static int ______INIT;
+    //--------------------------------separator--------------------------------
+    static int ______SHUTDOWN;
+    //--------------------------------separator--------------------------------
+    static int ______ACCESS;
+    //--------------------------------separator--------------------------------
+    static int ______OVERRIDE;
+    //--------------------------------separator--------------------------------
+    static int ______HELPERS;
     private File dirTemp;
     private PrintStream logger;
     private ArrayList<JarFileInfo> lstJarFile;
@@ -249,7 +223,7 @@ public class JarClassLoader extends ClassLoader {
     private Set<LogArea> hsLogArea;
     private boolean bLogConsole;
     private JApplet applet;
-    
+
     /**
      * Default constructor.
      * Defines system class loader as a parent class loader.
@@ -271,13 +245,13 @@ public class JarClassLoader extends ClassLoader {
         lstJarFile = new ArrayList<JarFileInfo>();
         hsDeleteOnExit = new HashSet<File>();
 
-        // Prepare common for all protocols 
+        // Prepare common for all protocols
         String sUrlTopJar = null;
         ProtectionDomain pdTop = getClass().getProtectionDomain();
         CodeSource cs = pdTop.getCodeSource();
         URL urlTopJar = cs.getLocation();
         String protocol = urlTopJar.getProtocol();
-        
+
         // Work with different cases:
         JarFileInfo jarFileInfo = null;
         if ("http".equals(protocol) || "https".equals(protocol)) {
@@ -288,21 +262,21 @@ public class JarClassLoader extends ClassLoader {
                 // to
                 //   urlTopJar = "jar:http://.../MyApp.jar!/" --> connection java.net.JarURLConnection
                 urlTopJar = new URL("jar:" + urlTopJar + "!/");
-                JarURLConnection jarCon = (JarURLConnection)urlTopJar.openConnection();
+                JarURLConnection jarCon = (JarURLConnection) urlTopJar.openConnection();
                 JarFile jarFile = jarCon.getJarFile();
                 jarFileInfo = new JarFileInfo(jarFile, jarFile.getName(), null, pdTop, null);
-                logInfo(LogArea.JAR, "Loading from top JAR: '%s' PROTOCOL: '%s'", 
+                logInfo(LogArea.JAR, "Loading from top JAR: '%s' PROTOCOL: '%s'",
                         urlTopJar, protocol);
             } catch (Exception e) {
                 // ClassCastException, IOException
                 logError(LogArea.JAR, "Failure to load HTTP JAR: %s %s", urlTopJar, e.toString());
                 return;
             }
-        }        
+        }
         if ("file".equals(protocol)) {
-            // Protocol 'file' - application launched from exploded dir or JAR 
-            // Decoding required for 'space char' in URL: 
-            //    URL.getFile() returns "/C:/my%20dir/MyApp.jar" for "/C:/my dir/MyApp.jar" 
+            // Protocol 'file' - application launched from exploded dir or JAR
+            // Decoding required for 'space char' in URL:
+            //    URL.getFile() returns "/C:/my%20dir/MyApp.jar" for "/C:/my dir/MyApp.jar"
             try {
                 sUrlTopJar = URLDecoder.decode(urlTopJar.getFile(), "UTF-8");
             } catch (UnsupportedEncodingException e) {
@@ -310,35 +284,35 @@ public class JarClassLoader extends ClassLoader {
                 return;
             }
             File fileJar = new File(sUrlTopJar);
-            
-            // Application is loaded from directory: 
+
+            // Application is loaded from directory:
             if (fileJar.isDirectory()) {
                 logInfo(LogArea.JAR, "Loading from exploded directory: %s", sUrlTopJar);
                 return; // JarClassLoader completed its job
             }
-            
+
             // Application is loaded from a JAR:
             try {
                 jarFileInfo = new JarFileInfo(new JarFile(fileJar), fileJar.getName(), null, pdTop, null);
                 logInfo(LogArea.JAR, "Loading from top JAR: '%s' PROTOCOL: '%s'", sUrlTopJar, protocol);
-            } catch (IOException e) { 
+            } catch (IOException e) {
                 logError(LogArea.JAR, "Not a JAR: %s %s", sUrlTopJar, e.toString());
                 return;
             }
         }
-        
+
         // FINALLY LOAD TOP JAR:
         try {
             if (jarFileInfo == null) {
                 throw new IOException(String.format(
-                    "Unknown protocol %s", protocol));
+                        "Unknown protocol %s", protocol));
             }
             loadJar(jarFileInfo); // start recursive JAR loading
         } catch (IOException e) {
             logError(LogArea.JAR, "Not valid URL: %s %s", urlTopJar, e.toString());
             return;
         }
-        
+
         checkShading();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
@@ -346,9 +320,6 @@ public class JarClassLoader extends ClassLoader {
             }
         });
     } // JarClassLoader()
-
-    //--------------------------------separator--------------------------------
-    static int ______INIT;
 
     private void initLogger() {
         // Logger defaults:
@@ -401,15 +372,15 @@ public class JarClassLoader extends ClassLoader {
     /**
      * Using temp files (one per inner JAR/DLL) solves many issues:
      * 1. There are no ways to load JAR defined in a JarEntry directly
-     *    into the JarFile object (see also #6 below).
+     * into the JarFile object (see also #6 below).
      * 2. Cannot use memory-mapped files because they are using
-     *    nio channels, which are not supported by JarFile ctor.
+     * nio channels, which are not supported by JarFile ctor.
      * 3. JarFile object keeps opened JAR files handlers for fast access.
      * 4. Deep resource in a jar-in-jar does not have well defined URL.
-     *    Making temp file with JAR solves this problem.
+     * Making temp file with JAR solves this problem.
      * 5. Similar issues with native libraries:
-     *    <code>ClassLoader.findLibrary()</code> accepts ONLY string with
-     *    absolute path to the file with native library.
+     * <code>ClassLoader.findLibrary()</code> accepts ONLY string with
+     * absolute path to the file with native library.
      * 6. Option "java.protocol.handler.pkgs" does not allow access to nested JARs(?).
      *
      * @param inf JAR entry information.
@@ -417,7 +388,7 @@ public class JarClassLoader extends ClassLoader {
      * @throws JarClassLoaderException
      */
     private File createTempFile(JarEntryInfo inf)
-    throws JarClassLoaderException {
+            throws JarClassLoaderException {
         // Temp files directory:
         //   WinXP: C:/Documents and Settings/username/Local Settings/Temp/JarClassLoader
         //    Unix: /var/tmp/JarClassLoader
@@ -440,7 +411,7 @@ public class JarClassLoader extends ClassLoader {
             chmod777(fileTmp); // Unix - allow temp file deletion by any user
             byte[] a_by = inf.getJarBytes();
             BufferedOutputStream os = new BufferedOutputStream(
-                                      new FileOutputStream(fileTmp));
+                    new FileOutputStream(fileTmp));
             os.write(a_by);
             os.close();
             return fileTmp;
@@ -476,11 +447,11 @@ public class JarClassLoader extends ClassLoader {
                     URL url = fileTemp.toURI().toURL();
                     ProtectionDomain pdParent = jarFileInfo.pd;
                     // 'csParent' is never null: top JAR has it, JCL creates it for child JAR:
-                    CodeSource csParent = pdParent.getCodeSource();  
+                    CodeSource csParent = pdParent.getCodeSource();
                     Certificate[] certParent = csParent.getCertificates();
                     CodeSource csChild = (certParent == null ? new CodeSource(url, csParent.getCodeSigners())
-                                                             : new CodeSource(url, certParent));
-                    ProtectionDomain pdChild = new ProtectionDomain(csChild, 
+                            : new CodeSource(url, certParent));
+                    ProtectionDomain pdChild = new ProtectionDomain(csChild,
                             pdParent.getPermissions(), pdParent.getClassLoader(), pdParent.getPrincipals());
                     loadJar(new JarFileInfo(
                             new JarFile(fileTemp), inf.getName(), jarFileInfo, pdChild, fileTemp));
@@ -491,7 +462,7 @@ public class JarClassLoader extends ClassLoader {
                     "ERROR on loading inner JAR: " + e.getMessageAll());
         }
     } // loadJar()
-    
+
     private JarEntryInfo findJarEntry(String sName) {
         for (JarFileInfo jarFileInfo : lstJarFile) {
             JarFile jarFile = jarFileInfo.jarFile;
@@ -519,10 +490,9 @@ public class JarClassLoader extends ClassLoader {
      * Finds native library entry.
      *
      * @param sLib Library name. For example for the library name "Native"
-     * the Windows returns entry "Native.dll",
-     * the Linux returns entry "libNative.so",
-     * the Mac returns entry "libNative.jnilib".
-     *
+     *             the Windows returns entry "Native.dll",
+     *             the Linux returns entry "libNative.so",
+     *             the Mac returns entry "libNative.jnilib".
      * @return Native library entry.
      */
     private JarEntryInfo findJarNativeEntry(String sLib) {
@@ -615,9 +585,6 @@ public class JarClassLoader extends ClassLoader {
         }
     } // checkShading()
 
-    //--------------------------------separator--------------------------------
-    static int ______SHUTDOWN;
-
     /**
      * Called on shutdown to cleanup temporary files.
      * <p>
@@ -639,7 +606,7 @@ public class JarClassLoader extends ClassLoader {
                 // Ignore. In the worst case temp files will accumulate.
             }
             File file = jarFileInfo.fileDeleteOnExit;
-            if (file != null  &&  !file.delete()) {
+            if (file != null && !file.delete()) {
                 hsDeleteOnExit.add(file);
             }
         }
@@ -648,7 +615,7 @@ public class JarClassLoader extends ClassLoader {
         //    Unix: /export/home/username/.JarClassLoader
         //           -or-  /home/username/.JarClassLoader
         File fileCfg = new File(System.getProperty("user.home")
-                               + File.separator + ".JarClassLoader");
+                + File.separator + ".JarClassLoader");
         deleteOldTemp(fileCfg);
         persistNewTemp(fileCfg);
     } // shutdown()
@@ -683,7 +650,10 @@ public class JarClassLoader extends ClassLoader {
             // Ignore. This file may not exist.
         } finally {
             if (reader != null) {
-                try { reader.close(); } catch (IOException e) { }
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                }
             }
         }
     } // deleteOldTemp()
@@ -718,13 +688,13 @@ public class JarClassLoader extends ClassLoader {
             // Ignore. In the worst case temp files will accumulate.
         } finally {
             if (writer != null) {
-                try { writer.close(); } catch (IOException e) { }
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                }
             }
         }
     } // persistNewTemp()
-
-    //--------------------------------separator--------------------------------
-    static int ______ACCESS;
 
     /**
      * Checks how the application was loaded: from JAR or file system.
@@ -758,26 +728,24 @@ public class JarClassLoader extends ClassLoader {
      * Invokes main() method on class with provided parameters.
      *
      * @param sClass class name in form "MyClass" for default package
-     * or "com.abc.MyClass" for class in some package
-     *
-     * @param args arguments for the main() method or null.
-     *
+     *               or "com.abc.MyClass" for class in some package
+     * @param args   arguments for the main() method or null.
      * @throws Throwable wrapper for many exceptions thrown while
-     * <p>(1) main() method lookup:
-     *        ClassNotFoundException, SecurityException, NoSuchMethodException
-     * <p>(2) main() method launch:
-     *        IllegalArgumentException, IllegalAccessException (disabled)
-     * <p>(3) Actual cause of InvocationTargetException
-     *
-     * See
-     * {@link http://java.sun.com/developer/Books/javaprogramming/JAR/api/jarclassloader.html}
-     * and
-     * {@link http://java.sun.com/developer/Books/javaprogramming/JAR/api/example-1dot2/JarClassLoader.java}
+     *                   <p>(1) main() method lookup:
+     *                   ClassNotFoundException, SecurityException, NoSuchMethodException
+     *                   <p>(2) main() method launch:
+     *                   IllegalArgumentException, IllegalAccessException (disabled)
+     *                   <p>(3) Actual cause of InvocationTargetException
+     *                   <p>
+     *                   See
+     *                   {@link http://java.sun.com/developer/Books/javaprogramming/JAR/api/jarclassloader.html}
+     *                   and
+     *                   {@link http://java.sun.com/developer/Books/javaprogramming/JAR/api/example-1dot2/JarClassLoader.java}
      */
     public void invokeMain(String sClass, String[] args) throws Throwable {
         Class<?> clazz = loadClass(sClass);
         logInfo(LogArea.CONFIG, "Launch: %s.main(); Loader: %s", sClass, clazz.getClassLoader());
-        Method method = clazz.getMethod("main", new Class<?>[] { String[].class });
+        Method method = clazz.getMethod("main", new Class<?>[]{String[].class});
 
         boolean bValidModifiers = false;
         boolean bValidVoid = false;
@@ -786,11 +754,11 @@ public class JarClassLoader extends ClassLoader {
             method.setAccessible(true); // Disable IllegalAccessException
             int nModifiers = method.getModifiers(); // main() must be "public static"
             bValidModifiers = Modifier.isPublic(nModifiers) &&
-                              Modifier.isStatic(nModifiers);
+                    Modifier.isStatic(nModifiers);
             Class<?> clazzRet = method.getReturnType(); // main() must be "void"
             bValidVoid = (clazzRet == void.class);
         }
-        if (method == null  ||  !bValidModifiers  ||  !bValidVoid) {
+        if (method == null || !bValidModifiers || !bValidVoid) {
             throw new NoSuchMethodException(
                     "The main() method in class \"" + sClass + "\" not found.");
         }
@@ -798,49 +766,52 @@ public class JarClassLoader extends ClassLoader {
         // Invoke method.
         // Crazy cast "(Object)args" because param is: "Object... args"
         try {
-            method.invoke(null, (Object)args);
+            method.invoke(null, (Object) args);
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         }
     } // invokeMain()
 
     /**
-     * Call this method to initialize an applet from your launcher class 
+     * Call this method to initialize an applet from your launcher class
      * <code>MyAppletLauncher.init()</code> method.
-     * 
-     * @param sClass class name in form "MyClass" for default package
-     * or "com.abc.MyClass" for class in some package
      *
+     * @param sClass       class name in form "MyClass" for default package
+     *                     or "com.abc.MyClass" for class in some package
      * @param appletParent parent applet from a launcher.
-     *
-     * @throws Throwable wrapper for many exceptions thrown while applet 
-     * instantiation and calling init() method.
+     * @throws Throwable wrapper for many exceptions thrown while applet
+     *                   instantiation and calling init() method.
      */
     public void initApplet(String sClass, final JApplet appletParent) throws Throwable {
         Class<?> clazz = loadClass(sClass);
         logInfo(LogArea.CONFIG, "initApplet() --> %s.init(); Loader: %s", sClass, clazz.getClassLoader());
-        applet = (JApplet)clazz.newInstance();
+        applet = (JApplet) clazz.newInstance();
         applet.setStub(new AppletStub() {
             @Override
             public boolean isActive() {
                 return appletParent.isActive();
             }
+
             @Override
             public URL getDocumentBase() {
                 return appletParent.getDocumentBase();
             }
+
             @Override
             public URL getCodeBase() {
                 return appletParent.getCodeBase();
             }
+
             @Override
             public String getParameter(String name) {
                 return appletParent.getParameter(name);
             }
+
             @Override
             public AppletContext getAppletContext() {
                 return appletParent.getAppletContext();
             }
+
             @Override
             public void appletResize(int width, int height) {
                 appletParent.resize(width, height);
@@ -849,9 +820,9 @@ public class JarClassLoader extends ClassLoader {
         applet.init();
         appletParent.setContentPane(applet.getContentPane());
     } // initApplet()
-    
+
     /**
-     * Call this method to start the applet from your launcher class 
+     * Call this method to start the applet from your launcher class
      * <code>MyAppletLauncher.start()</code> method.
      */
     public void startApplet() {
@@ -859,9 +830,9 @@ public class JarClassLoader extends ClassLoader {
         logInfo(LogArea.CONFIG, "startApplet() --> %s.start()", applet.getClass().getName());
         applet.start();
     }
-    
+
     /**
-     * Call this method to stop the applet from your launcher class 
+     * Call this method to stop the applet from your launcher class
      * <code>MyAppletLauncher.stop()</code> method.
      */
     public void stopApplet() {
@@ -869,9 +840,9 @@ public class JarClassLoader extends ClassLoader {
         logInfo(LogArea.CONFIG, "stopApplet() --> %s.stop()", applet.getClass().getName());
         applet.stop();
     }
-    
+
     /**
-     * Call this method to destroy the applet from your launcher class 
+     * Call this method to destroy the applet from your launcher class
      * <code>MyAppletLauncher.destroy()</code> method.
      */
     public void destroyApplet() {
@@ -879,9 +850,6 @@ public class JarClassLoader extends ClassLoader {
         logInfo(LogArea.CONFIG, "destroyApplet() --> %s.destroy()", applet.getClass().getName());
         applet.destroy();
     }
-    
-    //--------------------------------separator--------------------------------
-    static int ______OVERRIDE;
 
     /**
      * Class loader JavaDoc encourages overriding findClass(String) in derived
@@ -891,43 +859,42 @@ public class JarClassLoader extends ClassLoader {
      */
     @Override
     protected synchronized Class<?> loadClass(String sClassName, boolean bResolve)
-    throws ClassNotFoundException
-    {
+            throws ClassNotFoundException {
         logDebug(LogArea.CLASS, "LOADING %s (resolve=%b)", sClassName, bResolve);
-        // Each thread must have THIS class loader set as a context class loader. 
-        // This is required to prevent failure finding a class or resource from  
-        // external JAR requested by a common class loaded from rt.jar.  
+        // Each thread must have THIS class loader set as a context class loader.
+        // This is required to prevent failure finding a class or resource from
+        // external JAR requested by a common class loaded from rt.jar.
         // The best example is external LnF, explained in steps:
         // 1. Application requests 'javax.swing.JOptionPane'.
-        // 2. THIS class loader passes request to system default class loader 
+        // 2. THIS class loader passes request to system default class loader
         // to load the class from rt.jar.
         // 3. The class 'javax.swing.JOptionPane' is loaded by system default class
         // loader.
         // 4. The class 'javax.swing.JOptionPane' is requesting 'UIDefaults.getUI()'
         // for component, which resides in external LnF JAR.
-        // 5. The class loader which is used to load the requested component is 
-        // current thread context class loader if it is set, otherwise the parent  
+        // 5. The class loader which is used to load the requested component is
+        // current thread context class loader if it is set, otherwise the parent
         // thread context class loader, or the default system class loader
-        // for the top level thread. 
+        // for the top level thread.
         // 6. The system class loader is used to load requested component if
-        // thread context class loader is not set. The default system class loader is 
+        // thread context class loader is not set. The default system class loader is
         //   - sun.misc.Launcher$AppClassLoader - run from file system or JAR
         //   - com.sun.jnlp.JNLPClassLoader     - run from JNLP
-        // System class loaders cannot find requested component in external 
+        // System class loaders cannot find requested component in external
         // JAR and throw exception.
-        // 
+        //
         // Setting thread context class loader for the top thread in invokeMain()
         // method is sufficient for most cases. It fails for new threads created
         // not from the main thread.
         //
-        // Setting thread context class loader below must be reconsidered 
+        // Setting thread context class loader below must be reconsidered
         // for specific conditions.
         //
         // Essential reading:
         //   - Thread.getContextClassLoader() JavaDoc.
         //   - http://www.javaworld.com/javaworld/javaqa/2003-06/01-qa-0606-load.html
         Thread.currentThread().setContextClassLoader(this);
-        
+
         Class<?> c = null;
         try {
             // Step 0. This class is already loaded by system classloader.
@@ -961,7 +928,7 @@ public class JarClassLoader extends ClassLoader {
                 // No need to call findLoadedClass(sClassName) because it's called inside:
                 ClassLoader cl = getParent();
                 c = cl.loadClass(sClassName);
-                // System classloader does not define ProtectionDomain->CodeSource - null 
+                // System classloader does not define ProtectionDomain->CodeSource - null
                 logInfo(LogArea.CLASS, "Loaded %s by %s", sClassName, cl.getClass().getName());
                 return c;
             } catch (ClassNotFoundException e) {
@@ -969,17 +936,16 @@ public class JarClassLoader extends ClassLoader {
             // What else?
             throw new ClassNotFoundException("Failure to load: " + sClassName);
         } finally {
-            if (c != null  &&  bResolve) {
+            if (c != null && bResolve) {
                 resolveClass(c);
             }
         }
     } // loadClass()
 
     /**
-     * @see java.lang.ClassLoader#findResource(java.lang.String)
-     *
      * @return A URL object for reading the resource, or null if the resource could not be found.
      * Example URL: jar:file:C:\...\some.jar!/InnerText.txt
+     * @see java.lang.ClassLoader#findResource(java.lang.String)
      */
     @Override
     protected URL findResource(String sName) {
@@ -998,10 +964,9 @@ public class JarClassLoader extends ClassLoader {
     } // findResource()
 
     /**
+     * @return An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
+     * the resources
      * @see java.lang.ClassLoader#findResources(java.lang.String)
-     *
-     * @return  An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
-     *          the resources
      */
     @Override
     public Enumeration<URL> findResources(String sName) throws IOException {
@@ -1021,9 +986,8 @@ public class JarClassLoader extends ClassLoader {
     } // findResources()
 
     /**
-     * @see java.lang.ClassLoader#findLibrary(java.lang.String)
-     *
      * @return The absolute path of the native library.
+     * @see java.lang.ClassLoader#findLibrary(java.lang.String)
      */
     @Override
     protected String findLibrary(String sLib) {
@@ -1046,9 +1010,6 @@ public class JarClassLoader extends ClassLoader {
         return super.findLibrary(sLib);
     } // findLibrary()
 
-    //--------------------------------separator--------------------------------
-    static int ______HELPERS;
-
     /**
      * The default <code>ClassLoader.defineClass()</code> does not create package
      * for the loaded class and leaves it null. Each package referenced by this
@@ -1058,21 +1019,20 @@ public class JarClassLoader extends ClassLoader {
      * for reuse.
      *
      * @param sClassName class to load.
-     * @throws  IllegalArgumentException
-     *          If package name duplicates an existing package either in this
-     *          class loader or one of its ancestors.
+     * @throws IllegalArgumentException If package name duplicates an existing package either in this
+     *                                  class loader or one of its ancestors.
      */
     private void definePackage(String sClassName, JarEntryInfo inf)
-    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         int pos = sClassName.lastIndexOf('.');
         String sPackageName = pos > 0 ? sClassName.substring(0, pos) : "";
         if (getPackage(sPackageName) == null) {
             JarFileInfo jfi = inf.jarFileInfo;
             definePackage(sPackageName,
-                jfi.getSpecificationTitle(), jfi.getSpecificationVersion(),
-                jfi.getSpecificationVendor(), jfi.getImplementationTitle(),
-                jfi.getImplementationVersion(), jfi.getImplementationVendor(),
-                jfi.getSealURL());
+                    jfi.getSpecificationTitle(), jfi.getSpecificationVersion(),
+                    jfi.getSpecificationVendor(), jfi.getImplementationTitle(),
+                    jfi.getImplementationVersion(), jfi.getImplementationVendor(),
+                    jfi.getSealURL());
         }
     }
 
@@ -1110,26 +1070,27 @@ public class JarClassLoader extends ClassLoader {
     private void checkApplet() {
         if (applet == null) {
             throw new IllegalStateException("Applet is not inited. " +
-            		"Please call JarClassLoader.initApplet() first.");
+                    "Please call JarClassLoader.initApplet() first.");
         }
     }
-    private void logDebug(LogArea area, String sMsg, Object ... obj) {
+
+    private void logDebug(LogArea area, String sMsg, Object... obj) {
         log(LogLevel.DEBUG, area, sMsg, obj);
     }
 
-    private void logInfo(LogArea area, String sMsg, Object ... obj) {
+    private void logInfo(LogArea area, String sMsg, Object... obj) {
         log(LogLevel.INFO, area, sMsg, obj);
     }
 
-    private void logWarn(LogArea area, String sMsg, Object ... obj) {
+    private void logWarn(LogArea area, String sMsg, Object... obj) {
         log(LogLevel.WARN, area, sMsg, obj);
     }
 
-    private void logError(LogArea area, String sMsg, Object ... obj) {
+    private void logError(LogArea area, String sMsg, Object... obj) {
         log(LogLevel.ERROR, area, sMsg, obj);
     }
 
-    private void log(LogLevel level, LogArea area, String sMsg, Object ... obj) {
+    private void log(LogLevel level, LogArea area, String sMsg, Object... obj) {
         if (level.ordinal() <= logLevel.ordinal()) {
             if (hsLogArea.contains(LogArea.ALL) || hsLogArea.contains(area)) {
                 logger.printf("JarClassLoader-" + level + ": " + sMsg + "\n", obj);
@@ -1138,6 +1099,35 @@ public class JarClassLoader extends ClassLoader {
         if (!bLogConsole && level == LogLevel.ERROR) { // repeat to console
             System.out.printf("JarClassLoader-" + level + ": " + sMsg + "\n", obj);
         }
+    }
+
+    public enum LogLevel {ERROR, WARN, INFO, DEBUG}
+
+    public enum LogArea {
+        /**
+         * Enable all logging areas.
+         */
+        ALL,
+        /**
+         * Configuration related logging. Enabled always.
+         */
+        CONFIG,
+        /**
+         * Enable JAR related logging.
+         */
+        JAR,
+        /**
+         * Enable class loading related logging.
+         */
+        CLASS,
+        /**
+         * Enable resource loading related logging.
+         */
+        RESOURCE,
+        /**
+         * Enable native libraries loading related logging.
+         */
+        NATIVE
     }
 
     /**
@@ -1149,25 +1139,20 @@ public class JarClassLoader extends ClassLoader {
         File fileDeleteOnExit;
         Manifest mf; // required for package creation
         ProtectionDomain pd;
-        
+
         /**
-         * @param jarFile
-         *            Never null.
-         * @param simpleName
-         *            Used for logging. Never null.
-         * @param jarFileParent
-         *            Used to make simpleName for logging. Null for top level JAR.
-         * @param fileDeleteOnExit
-         *            Used only to delete temporary file on exit. 
-         *            Could be null if not required to delete on exit (top level JAR)
-         * @throws JarClassLoaderException 
+         * @param jarFile          Never null.
+         * @param simpleName       Used for logging. Never null.
+         * @param jarFileParent    Used to make simpleName for logging. Null for top level JAR.
+         * @param fileDeleteOnExit Used only to delete temporary file on exit.
+         *                         Could be null if not required to delete on exit (top level JAR)
+         * @throws JarClassLoaderException
          */
-        JarFileInfo(JarFile jarFile, String simpleName, JarFileInfo jarFileParent, 
-                    ProtectionDomain pd, File fileDeleteOnExit) 
-        {
+        JarFileInfo(JarFile jarFile, String simpleName, JarFileInfo jarFileParent,
+                    ProtectionDomain pd, File fileDeleteOnExit) {
             this.simpleName = (jarFileParent == null ? "" : jarFileParent.simpleName + "!") + simpleName;
             this.jarFile = jarFile;
-            this.pd = pd; 
+            this.pd = pd;
             this.fileDeleteOnExit = fileDeleteOnExit;
             try {
                 this.mf = jarFile.getManifest(); // 'null' if META-INF directory is missing
@@ -1178,24 +1163,31 @@ public class JarClassLoader extends ClassLoader {
                 this.mf = new Manifest();
             }
         }
+
         String getSpecificationTitle() {
             return mf.getMainAttributes().getValue(Name.SPECIFICATION_TITLE);
         }
+
         String getSpecificationVersion() {
             return mf.getMainAttributes().getValue(Name.SPECIFICATION_VERSION);
         }
+
         String getSpecificationVendor() {
             return mf.getMainAttributes().getValue(Name.SPECIFICATION_VENDOR);
         }
+
         String getImplementationTitle() {
             return mf.getMainAttributes().getValue(Name.IMPLEMENTATION_TITLE);
         }
+
         String getImplementationVersion() {
             return mf.getMainAttributes().getValue(Name.IMPLEMENTATION_VERSION);
         }
+
         String getImplementationVendor() {
             return mf.getMainAttributes().getValue(Name.IMPLEMENTATION_VENDOR);
         }
+
         URL getSealURL() {
             String seal = mf.getMainAttributes().getValue(Name.SEALED);
             if (seal != null) {
@@ -1215,10 +1207,12 @@ public class JarClassLoader extends ClassLoader {
     private static class JarEntryInfo {
         JarFileInfo jarFileInfo;
         JarEntry jarEntry;
+
         JarEntryInfo(JarFileInfo jarFileInfo, JarEntry jarEntry) {
             this.jarFileInfo = jarFileInfo;
             this.jarEntry = jarEntry;
         }
+
         URL getURL() { // used in findResource() and findResources()
             try {
                 return new URL("jar:file:" + jarFileInfo.jarFile.getName() + "!/" + jarEntry);
@@ -1226,13 +1220,16 @@ public class JarClassLoader extends ClassLoader {
                 return null;
             }
         }
+
         String getName() { // used in createTempFile() and loadJar()
             return jarEntry.getName().replace('/', '_');
         }
+
         @Override
         public String toString() {
             return "JAR: " + jarFileInfo.jarFile.getName() + " ENTRY: " + jarEntry;
         }
+
         /**
          * Read JAR entry and returns byte array of this JAR entry. This is
          * a helper method to load JAR entry into temporary file.
@@ -1246,11 +1243,11 @@ public class JarClassLoader extends ClassLoader {
             byte[] a_by = null;
             try {
                 long lSize = jarEntry.getSize();
-                if (lSize <= 0  ||  lSize >= Integer.MAX_VALUE) {
+                if (lSize <= 0 || lSize >= Integer.MAX_VALUE) {
                     throw new JarClassLoaderException(
                             "Invalid size " + lSize + " for entry " + jarEntry);
                 }
-                a_by = new byte[(int)lSize];
+                a_by = new byte[(int) lSize];
                 InputStream is = jarFileInfo.jarFile.getInputStream(jarEntry);
                 dis = new DataInputStream(is);
                 dis.readFully(a_by);
@@ -1276,17 +1273,19 @@ public class JarClassLoader extends ClassLoader {
         JarClassLoaderException(String sMsg) {
             super(sMsg);
         }
+
         JarClassLoaderException(String sMsg, Throwable eCause) {
             super(sMsg, eCause);
         }
+
         String getMessageAll() {
             StringBuilder sb = new StringBuilder();
-            for (Throwable e = this;  e != null;  e = e.getCause()) {
+            for (Throwable e = this; e != null; e = e.getCause()) {
                 if (sb.length() > 0) {
                     sb.append(" / ");
                 }
                 String sMsg = e.getMessage();
-                if (sMsg == null  ||  sMsg.length() == 0) {
+                if (sMsg == null || sMsg.length() == 0) {
                     sMsg = e.getClass().getSimpleName();
                 }
                 sb.append(sMsg);
