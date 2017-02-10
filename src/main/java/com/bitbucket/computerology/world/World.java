@@ -577,7 +577,9 @@ public class World {
     }
 
     public void generate() {
-        generate(16, 1, 0.095, 0.905, 0.1, 0.39);
+        generateTerrain(16, 1, 0.095, 0.905, 0.1, 0.39);
+        generateTradeRoutes();
+        generateAround(getSpawn()[0], getSpawn()[1]);
     }
 
     /**
@@ -590,21 +592,20 @@ public class World {
      * @param d_height
      * @param t_height
      */
-    public void generate(int size_sectors, double scale, double sea_level,
-                         double g_height, double d_height, double t_height) {
-        generate(size_sectors, scale, sea_level,
+    public void generateTerrain(int size_sectors, double scale, double sea_level,
+                                double g_height, double d_height, double t_height) {
+        generateTerrain(size_sectors, scale, sea_level,
                 g_height, d_height, t_height,
                 0.058, 0.083, 8,
                 0.05,
                 false, true);
-
     }
 
-    private void generate(int size_sectors, double scale, double sea_level,
-                          double g_height, double d_height, double t_height,
-                          double forest_scale, double forest_height, int forest_passes,
-                          double town_ratio,
-                          boolean desert_near_tundra, boolean tundra_at_poles) {
+    private void generateTerrain(int size_sectors, double scale, double sea_level,
+                                 double g_height, double d_height, double t_height,
+                                 double forest_scale, double forest_height, int forest_passes,
+                                 double town_ratio,
+                                 boolean desert_near_tundra, boolean tundra_at_poles) {
         this.biome_map = new byte[size_sectors * Sector.sizeChunks()][size_sectors * Sector.sizeChunks()];
         this.forest_map = new boolean[size_sectors * Sector.sizeChunks()][size_sectors * Sector.sizeChunks()];
         this.size_sectors = size_sectors;
@@ -822,13 +823,20 @@ public class World {
             commercials.addAll(t.commercialBuildings());
         }
         for (TownBuilding c: commercials) {
-
             for (TownBuilding i: industrials) {
-
+                for (int p = 0; p < c.getProducts().length; p++) {
+                    if (i.hasProduct(c.getProducts()[p])) {
+                        if (i.addClient(c)) c.setSupplier(i, p);
+                    }
+                }
             }
         }
     }
 
+    /**
+     * Get the world spawn.
+     * @return An int[] array {x, y} describing the spawn point, in world coordinates.
+     */
     public int[] getSpawn() {
         return spawn == null ?
                 new int[]{0, 0} :

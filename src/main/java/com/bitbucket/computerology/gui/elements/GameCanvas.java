@@ -56,6 +56,12 @@ public class GameCanvas extends GUIElement {
         last_x = x;
         last_y = y;
         grabFocus();
+        if (button == 2) {
+            if (Camera.getTarget() != null) Camera.setTarget(null);
+            int[] wc = World.getWorld().getWorldCoords(x, y);
+            Entity e = World.getWorld().getEntity(wc[0], wc[1]);
+            if (e != null) Camera.setTarget(e);
+        }
     }
 
     @Override

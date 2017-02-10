@@ -15,7 +15,7 @@ public class TownBuilding extends Component {
     private double quality_mult; //INDUSTRIAL
     private ArrayList<TownBuilding> clients; //INDUSTRIAL
 
-    private ArrayList<TownBuilding> suppliers; //COMMERCIAL
+    private TownBuilding suppliers[]; //COMMERCIAL
     private double popularity_multiplier; //COMMERCIAL
 
     private String products[]; //COMMERCIAL, INDUSTRIAL
@@ -29,9 +29,6 @@ public class TownBuilding extends Component {
 
     public void init(int type) {
 
-        this.clients = type == Town.INDUSTRIAL_BUILDING ? new ArrayList<TownBuilding>() : null;
-        this.suppliers = type == Town.COMMERCIAL_BUILDING ? new ArrayList<TownBuilding>() : null;
-
         this.quantity_mult = type == Town.INDUSTRIAL_BUILDING ?
                 World.getWorld().rng().nextInt(200) + 100 : -1;
         this.quality_mult = type == Town.INDUSTRIAL_BUILDING ?
@@ -39,6 +36,9 @@ public class TownBuilding extends Component {
 
         this.products = type == Town.RESIDENTIAL_BUILDING ? null : new String[]{};
         this.base_quantities = type == Town.RESIDENTIAL_BUILDING ? null : new double[]{};
+
+        this.clients = type == Town.INDUSTRIAL_BUILDING ? new ArrayList<TownBuilding>() : null;
+        this.suppliers = type == Town.COMMERCIAL_BUILDING ? new TownBuilding[]{} : null;
 
         this.resident_percentage = type == Town.RESIDENTIAL_BUILDING ? 1 : -1; //100%
 
@@ -58,6 +58,7 @@ public class TownBuilding extends Component {
             }
             if (p.indexOf("products=") == 0) {
                 products = p.trim().split("\\s");
+                suppliers = new TownBuilding[products.length];
             }
             if (p.indexOf("base_quantities=") == 0) {
                 String[] qs = p.trim().split("\\s");
@@ -91,8 +92,12 @@ public class TownBuilding extends Component {
         return quality_mult;
     }
 
-    public void addClient(TownBuilding b) {
-        if (!clients.contains(b)) clients.add(b);
+    public boolean addClient(TownBuilding b) {
+        if (!clients.contains(b) && clients.size() < products.length*2) {
+            clients.add(b);
+            return true;
+        }
+        return false;
     }
 
     public ArrayList<TownBuilding> getClients() {
@@ -104,15 +109,12 @@ public class TownBuilding extends Component {
         return false;
     }
 
-    public boolean addSupplier(TownBuilding b) {
-        if (!suppliers.contains(b) && suppliers.size() < 3) {
-            suppliers.add(b);
-            return true;
-        }
-        return false;
+    public boolean setSupplier(TownBuilding b, int index) {
+        if (index > suppliers.length || index < 0) return false;
+        suppliers[index] = b; return true;
     }
 
-    public ArrayList<TownBuilding> getSuppliers() {
+    public TownBuilding[] getSuppliers() {
         return suppliers;
     }
 

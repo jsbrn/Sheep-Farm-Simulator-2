@@ -10,8 +10,6 @@ public class MiscMath {
      *
      * @param amount_to_add         The amount to add in the time specified.
      * @param per_x_seconds         The time specified.
-     * @param frame_skip_multiplier Whether the output is multiplied by the frame skip multiplier
-     *                              (a value that is determined by the number of frames skipped before updating an entity again).
      * @return The amount to add per frame.
      */
     public static double getConstant(double amount_to_add, double per_x_seconds) {
@@ -31,8 +29,6 @@ public class MiscMath {
      *
      * @param amount_to_add         The amount to add.
      * @param per_ingame_minutes    The number of in-game minutes it should take to add.
-     * @param frame_skip_multiplier Whether the output is multiplied by the frame skip multiplier
-     *                              (a value that is determined by the number of frames skipped before updating an entity again).
      * @return The amount to add per frame.
      */
     public static double get24HourConstant(double amount_to_add, double per_ingame_minutes) {
@@ -249,6 +245,11 @@ public class MiscMath {
         rotation = Math.toRadians(rotation);
         return new int[]{(int) (offset_x * Math.cos(rotation) - offset_y * Math.sin(rotation)),
                 (int) (offset_x * Math.sin(rotation) + offset_y * Math.cos(rotation))};
+    }
+
+    public static double[] calculateVelocity(int x, int y, double speed) {
+        double dt = distance(0, 0, x, y);
+        return new double[]{x * (speed/dt), y * (speed/dt)};
     }
 
 }

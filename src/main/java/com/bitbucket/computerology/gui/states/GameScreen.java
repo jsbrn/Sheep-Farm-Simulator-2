@@ -211,6 +211,7 @@ public class GameScreen extends BasicGameState {
         input = gc.getInput();
         World.getWorld().update();
         GUI.update();
+        Camera.update();
     }
 
     @Override
