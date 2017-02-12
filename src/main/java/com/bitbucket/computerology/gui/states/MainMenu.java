@@ -2,25 +2,15 @@ package com.bitbucket.computerology.gui.states;
 
 import com.bitbucket.computerology.gui.GUI;
 import com.bitbucket.computerology.gui.GUIElement;
-import com.bitbucket.computerology.gui.elements.Button;
-import com.bitbucket.computerology.gui.elements.Label;
 import com.bitbucket.computerology.gui.elements.Panel;
-import com.bitbucket.computerology.gui.elements.TextField;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
-import com.bitbucket.computerology.misc.Window;
-import com.bitbucket.computerology.world.Camera;
-import com.bitbucket.computerology.world.World;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-
-import java.io.File;
 
 public class MainMenu extends BasicGameState {
 
@@ -45,7 +35,8 @@ public class MainMenu extends BasicGameState {
 
         Panel main_menu = new Panel();
 
-        main_menu.anchor(GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10, 0);
+        main_menu.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+        main_menu.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
         GUI.addComponent(main_menu);
 
         initialized = true;

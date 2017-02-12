@@ -9,51 +9,30 @@ import java.util.ArrayList;
 
 public class GUIElement {
 
-    public static final int ANCHOR_TOPLEFT = 0, ANCHOR_TOP = 1, ANCHOR_TOPRIGHT = 2,
-        ANCHOR_LEFT = 3, ANCHOR_MIDDLE = 4, ANCHOR_RIGHT = 5, ANCHOR_BOTTOMLEFT = 6,
-        ANCHOR_BOTTOM = 7, ANCHOR_BOTTOMRIGHT = 8;
-    private static final double[][][] anchor_values = {
-        {{0, 0}, {0.5, 0}, {1, 0}},
-        {{0, 0.5}, {0.5, 0.5}, {1, 0.5}},
-        {{0, 1}, {0.5, 1}, {1, 1}}
-    };
-
+    public static final int ANCHOR_LEFT = 0, ANCHOR_TOP = 1, ANCHOR_RIGHT = 2, ANCHOR_BOTTOM = 3;
 
     private ArrayList<GUIElement> components;
     private GUIElement parent;
     private boolean visible = true, enabled = true;
     private GUI gui; //the GUI that owns this element
 
-    private int dims[];
-
-    private ArrayList<int[]> anchors;
+    private int dims[]; //the values used when no anchors are found
+    private Object[][] anchors;
 
     public GUIElement() {
         this.components = new ArrayList<GUIElement>();
         this.parent = null;
-        this.anchors = new ArrayList<int[]>();
+        this.anchors = new Object[4][4];
         this.dims = new int[]{0, 0, 100, 100};
     }
 
-    public void anchor(int this_point, int parent_point, int offset_x, int offset_y) {
-        anchors.add(new int[]{this_point, parent_point, offset_x, offset_y});
-    }
-
-    public void clearAnchors() { anchors.clear(); }
-
-    /**
-     * Returns the multiplier found in anchor_values, above.
-     * @param i The index of the anchor point:<br><br>
-     *              0 1 2<br>
-     *              3 4 5<br>
-     *              6 7 8<br>
-     * @return A double[] containing the width/height multipliers for each
-     * axis.
-     */
-    private double[] anchorMultiplier(int i) {
-        int x = (i % 3);
-        int y = (i / 3);
-        return anchor_values[y][x];
+    public void anchor(GUIElement parent, int mode, int parent_mode, int offset) {
+        if (mode < -1 || mode >= anchors.length) return;
+        if (parent_mode < -1 || parent_mode >= anchors.length) return;
+        anchors[mode][0] = parent;
+        anchors[mode][1] = mode;
+        anchors[mode][2] = parent_mode;
+        anchors[mode][3] = offset;
     }
 
     public boolean enabled() {
@@ -140,7 +119,6 @@ public class GUIElement {
                 dims[0], dims[1], dims[2], dims[3]);
     }
 
-
     /**
      * @param x The x coordinate relative to the on-screen x of its parent.
      * @param y The y coordinate relative to the on-screen y of its parent.
@@ -196,35 +174,35 @@ public class GUIElement {
      */
     public int[] getOnscreenDimensions() {
 
-        if (anchors.isEmpty()) return dims;
+        int[] osc_dims = new int[]{dims[0], dims[1], dims[2], dims[3]};
 
-        int[] osc_dims = {Integer.MAX_VALUE, Integer.MAX_VALUE,
-                Integer.MIN_VALUE, Integer.MIN_VALUE};
-        int[] parent_dims =
-                parent == null ? new int[]{0, 0, Display.getWidth(), Display.getHeight()}
-                    : parent.getOnscreenDimensions();
+        for (Object[] anchor: anchors) {
+            if (anchor[1] == null) continue;
+            GUIElement e = anchor[0] == null ? parent : (GUIElement)anchor[0];
+            int[] e_dims = e != null ? e.getOnscreenDimensions()
+                    : new int[]{0, 0, Display.getWidth(), Display.getHeight()};
+            int mode = (Integer)anchor[1];
+            int parent_mode = (Integer)anchor[2];
+            int offset = (Integer)anchor[3];
 
-        for (int[] anchor: anchors) {
-            int i = (int)((parent_dims[2] * anchorMultiplier(anchor[1])[0]) //parent anchor point
-                    + anchor[2]); //offset x
-            int j = (int)((parent_dims[3] * anchorMultiplier(anchor[1])[1]) //parent anchor point
-                    + anchor[3]); //offset y
-            if (j > osc_dims[3] && i > osc_dims[2]) {
-                osc_dims[2] = i;
-                osc_dims[3] = j;
+            if (mode == ANCHOR_LEFT) {
+                osc_dims[0] = offset + (parent_mode == ANCHOR_RIGHT ? e_dims[2] : 0) + e_dims[0];
             }
-
-            if (j > osc_dims[1] && i > osc_dims[0]) {
-                osc_dims[0] = i;
-                osc_dims[1] = j;
+            if (mode == ANCHOR_TOP) {
+                osc_dims[1] = offset + (parent_mode == ANCHOR_BOTTOM ? e_dims[3] : 0) + e_dims[1];
+            }
+            if (mode == ANCHOR_RIGHT) {
+                osc_dims[2] = (offset + (parent_mode == ANCHOR_LEFT ? e_dims[0] : e_dims[0]+e_dims[2]))
+                        - osc_dims[0];
+            }
+            if (mode == ANCHOR_BOTTOM) {
+                osc_dims[3] = (offset + (parent_mode == ANCHOR_TOP ? e_dims[1] : e_dims[1]+e_dims[3]))
+                        - osc_dims[1];
             }
         }
-        return new int[]{
-                (osc_dims[0] == Integer.MAX_VALUE ? dims[0] : osc_dims[0]) + parent_dims[0],
-                (osc_dims[1] == Integer.MAX_VALUE ? dims[1] : osc_dims[1]) + parent_dims[1],
-                (osc_dims[2] == Integer.MIN_VALUE ? dims[2] : osc_dims[2]),
-                (osc_dims[3] == Integer.MIN_VALUE ? dims[3] : osc_dims[3]),
-        };
+
+        return osc_dims;
+
     }
 
     public void setX(int x) { dims[0] = x; }

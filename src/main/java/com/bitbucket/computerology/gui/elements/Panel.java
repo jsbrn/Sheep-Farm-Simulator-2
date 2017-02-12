@@ -120,7 +120,7 @@ public class Panel extends GUIElement {
             }
             Color base = new Color(45, 50, 60);
             for (int r = 0; r != dims[3]; r++) {
-                int diff = Math.abs((dims[3] / 2) - r) / (dims[3] / 64);
+                int diff = dims[3] / 64 != 0 ? (Math.abs((dims[3] / 2) - r) / (dims[3] / 64)) : 1;
                 g.setColor(new Color(45 - diff, 50 - diff, 60 - diff, 225));
                 g.fillRect(dims[0], dims[1] + r, dims[2], 1);
             }
