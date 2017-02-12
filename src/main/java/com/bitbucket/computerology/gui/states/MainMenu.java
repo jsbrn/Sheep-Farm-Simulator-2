@@ -35,8 +35,11 @@ public class MainMenu extends BasicGameState {
 
         Panel main_menu = new Panel();
 
-        main_menu.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        main_menu.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
+        //main_menu.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+        //main_menu.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
+        //main_menu.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+        //main_menu.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
+        main_menu.anchorMiddle(null, 200, 200);
         GUI.addComponent(main_menu);
 
         initialized = true;

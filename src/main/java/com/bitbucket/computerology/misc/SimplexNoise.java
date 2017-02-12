@@ -8,7 +8,7 @@ import java.util.Random;
  * Here is a link to his paper on the subject, which also contains the original
  * source.
  *
- * @see http://webstaff.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
+ * @see <a href = >http://webstaff.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf</a>
  */
 public class SimplexNoise {  // Simplex noise in 2D
     private static final double F2 = 0.5 * (Math.sqrt(3.0) - 1.0);

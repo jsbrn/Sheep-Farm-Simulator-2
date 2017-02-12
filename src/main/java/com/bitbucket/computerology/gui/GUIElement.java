@@ -9,7 +9,8 @@ import java.util.ArrayList;
 
 public class GUIElement {
 
-    public static final int ANCHOR_LEFT = 0, ANCHOR_TOP = 1, ANCHOR_RIGHT = 2, ANCHOR_BOTTOM = 3;
+    public static final int ANCHOR_LEFT = 0, ANCHOR_TOP = 1, ANCHOR_RIGHT = 2, ANCHOR_BOTTOM = 3
+            , ANCHOR_MIDDLE = 4;
 
     private ArrayList<GUIElement> components;
     private GUIElement parent;
@@ -18,6 +19,7 @@ public class GUIElement {
 
     private int dims[]; //the values used when no anchors are found
     private Object[][] anchors;
+    private Object[] anchor_middle;
 
     public GUIElement() {
         this.components = new ArrayList<GUIElement>();
@@ -33,6 +35,24 @@ public class GUIElement {
         anchors[mode][1] = mode;
         anchors[mode][2] = parent_mode;
         anchors[mode][3] = offset;
+    }
+
+    public void anchorMiddle(GUIElement parent, int offset_x, int offset_y) {
+        anchor_middle = new Object[3];
+        anchor_middle[0] = parent;
+        anchor_middle[1] = offset_x;
+        anchor_middle[2] = offset_y;
+    }
+
+    public void clearAnchors() {
+        anchor_middle = null;
+        anchors = new Object[4][4];
+    }
+
+    public boolean anchored(int mode) {
+        if (mode < -1 || mode >= anchors.length) return false;
+        if (mode == ANCHOR_MIDDLE) return anchor_middle != null;
+        return anchors[mode][1] != null;
     }
 
     public boolean enabled() {
@@ -139,7 +159,7 @@ public class GUIElement {
 
     /**
      * Is the element or one of its parents marked as a dialog in the GUI?
-     * (Anything that is not will not accept input)
+     * (While there is a dialog being shown, other elements will not accept key input)
      *
      * @return True if yes, false if no.
      */
@@ -174,6 +194,15 @@ public class GUIElement {
      */
     public int[] getOnscreenDimensions() {
 
+        if (anchor_middle != null) {
+            GUIElement e = anchor_middle[0] == null ? parent : (GUIElement)anchor_middle[0];
+            int[] e_dims = e == null ? new int[]{0, 0, Display.getWidth(), Display.getHeight()}
+                    : e.getOnscreenDimensions();
+            int[] mid = {e_dims[2]/2, e_dims[3]/2};
+            return new int[]{mid[0]-(dims[2]/2)+(Integer)anchor_middle[1],
+                    mid[1]-(dims[3]/2)+(Integer)anchor_middle[2], dims[2], dims[3]};
+        }
+
         int[] osc_dims = new int[]{dims[0], dims[1], dims[2], dims[3]};
 
         for (Object[] anchor: anchors) {
@@ -205,15 +234,15 @@ public class GUIElement {
 
     }
 
-    public void setX(int x) { dims[0] = x; }
-    public void setY(int y) { dims[1] = y; }
-    public void addX(int x) { dims[0] += x; }
-    public void addY(int y) { dims[1] += y; }
+    public void setX(int x) { if (!anchored(ANCHOR_LEFT)) dims[0] = x; }
+    public void setY(int y) { if (!anchored(ANCHOR_TOP)) dims[1] = y; }
+    public void addX(int x) { setX(dims[0]+x); }
+    public void addY(int y) { setY(dims[1]+y); }
 
-    public void setWidth(int width) { dims[0] = width; }
-    public void setHeight(int height) { dims[1] = height; }
-    public void addWidth(int width) { dims[0] += width; }
-    public void addHeight(int height) { dims[1] += height; }
+    public void setWidth(int width) { if (anchors[2][1] == null) dims[2] = width; }
+    public void setHeight(int height) { if (anchors[3][1] == null) dims[3] = height; }
+    public void addWidth(int width) { setWidth(dims[2]+width); }
+    public void addHeight(int height) { setHeight(dims[3]+height); }
 
     /**
      * Take the clicked mouse button (check if clicked first before calling),
