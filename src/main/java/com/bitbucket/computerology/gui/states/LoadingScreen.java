@@ -37,19 +37,13 @@ public class LoadingScreen extends BasicGameState {
         bar = new ProgressBar();
         bar.setWidth(300);
         bar.setHeight(16);
-        bar.setX(-bar.getWidth() / 2);
-        bar.setY(-bar.getHeight() / 2);
         bar.setMax(Assets.ASSET_COUNT);
         bar.setProgress(0);
-        bar.setXOffsetMode(GUIElement.ORIGIN_MIDDLE);
-        bar.setYOffsetMode(GUIElement.ORIGIN_MIDDLE);
 
         label = new Label();
         label.setText("");
         label.setY(-40);
         label.setFontSize(16);
-        label.setYOffsetMode(GUIElement.ORIGIN_MIDDLE);
-        label.setXOffsetMode(GUIElement.ORIGIN_MIDDLE);
         GUI.addComponent(label);
         GUI.addComponent(bar);
 
@@ -68,7 +62,7 @@ public class LoadingScreen extends BasicGameState {
             sbg.enterState(Assets.MAIN_MENU);
         } else {
             label.setText("Loading " + Assets.STATUS + "...");
-            label.setX(-label.getWidth() / 2);
+            label.setX(-label.getOnscreenDimensions()[2] / 2);
             bar.addProgress(1);
         }
 

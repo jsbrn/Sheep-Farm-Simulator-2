@@ -86,8 +86,8 @@ public class Assets {
 
     public static Image getTerrainSprite(boolean corners) {
         return corners ?
-                Assets.TERRAIN_CORNERS[Camera.getZoom() - 1]
-                : Assets.TERRAIN[Camera.getZoom() - 1];
+                Assets.TERRAIN_CORNERS[(int)Camera.getZoom() - 1]
+                : Assets.TERRAIN[(int)Camera.getZoom() - 1];
     }
 
     private static void loadTerrainSprite() {

@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.terrain;
 
+import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
@@ -39,7 +40,7 @@ public class Sector {
     }
 
     public static int onScreenSize() {
-        return sizePixels() * Camera.getZoom();
+        return sizePixels() * (int)Camera.getZoom();
     }
 
     public void addEntity(Entity e) {
@@ -84,7 +85,7 @@ public class Sector {
     }
 
     public int[] onScreenCoords() {
-        return World.getWorld().getOnscreenCoords(getWorldCoords()[0], getWorldCoords()[1]);
+        return MiscMath.getOnscreenCoords(getWorldCoords()[0], getWorldCoords()[1]);
     }
 
     /**
@@ -123,7 +124,7 @@ public class Sector {
     public void importBiomes(byte[][] map) {
         if (filled) return;
         this.chunks = new Chunk[sizeChunks()][sizeChunks()];
-        int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
+        int[] mc = MiscMath.getMapCoords(x, y, 0, 0);
         for (byte i = 0; i < sizeChunks(); i++) {
             for (byte j = 0; j < sizeChunks(); j++) {
                 byte terrain = map[mc[0] + i][mc[1] + j];
@@ -139,7 +140,7 @@ public class Sector {
         if (isTownSector()) return;
         if (filled) return;
         World world = World.getWorld();
-        int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
+        int[] mc = MiscMath.getMapCoords(x, y, 0, 0);
         for (int i = 0; i < sizeChunks(); i++) {
             for (int j = 0; j < sizeChunks(); j++) {
                 boolean spawn = map[mc[0] + i][mc[1] + j];
@@ -147,7 +148,7 @@ public class Sector {
                     int terrain = getChunk(i, j).getTerrain();
                     if (terrain != Chunk.GRASS && terrain != Chunk.SNOW) continue;
                     Entity tree = Entity.create("Tree");
-                    int wc[] = world.getWorldCoordsFromMap(mc[0] + i, mc[1] + j);
+                    int wc[] = MiscMath.getWorldCoordsFromMap(mc[0] + i, mc[1] + j);
                     tree.setWorldX(wc[0] + (Chunk.sizePixels() / 2) + (world.rng().nextInt() % 8));
                     tree.setWorldY(wc[1] + (Chunk.sizePixels() / 2) + (+(world.rng().nextInt() % 8)));
                     world.addEntity(tree);
@@ -158,7 +159,7 @@ public class Sector {
 
     public void importRoads(boolean[][] map) {
         if (filled) return;
-        int[] mc = World.getWorld().getMapCoords(x, y, 0, 0);
+        int[] mc = MiscMath.getMapCoords(x, y, 0, 0);
         for (int i = 0; i < sizeChunks(); i++) {
             for (int j = 0; j < sizeChunks(); j++) {
                 boolean spawn = map[mc[0] + i][mc[1] + j];

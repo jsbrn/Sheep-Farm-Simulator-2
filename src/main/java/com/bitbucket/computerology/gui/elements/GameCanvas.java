@@ -2,6 +2,7 @@ package com.bitbucket.computerology.gui.elements;
 
 import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.states.GameScreen;
+import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
@@ -22,7 +23,7 @@ public class GameCanvas extends GUIElement {
     @Override
     public void update() {
         if (dragging) {
-            Camera.move((last_x - Mouse.getX()) / Camera.getZoom(),
+            Camera.drag((last_x - Mouse.getX()) / Camera.getZoom(),
                     (last_y - (Display.getHeight() - Mouse.getY())) / Camera.getZoom());
             last_x = Mouse.getX();
             last_y = Display.getHeight() - Mouse.getY();
@@ -31,23 +32,8 @@ public class GameCanvas extends GUIElement {
     }
 
     @Override
-    public int getWidth() {
-        return Display.getWidth();
-    }
-
-    @Override
-    public int getHeight() {
-        return Display.getHeight();
-    }
-
-    @Override
-    public int getOnscreenX() {
-        return 0;
-    }
-
-    @Override
-    public int getOnscreenY() {
-        return 0;
+    public int[] getOnscreenDimensions() {
+        return new int[]{0, 0, Display.getWidth(), Display.getHeight()};
     }
 
     @Override
@@ -58,7 +44,7 @@ public class GameCanvas extends GUIElement {
         grabFocus();
         if (button == 2) {
             if (Camera.getTarget() != null) Camera.setTarget(null);
-            int[] wc = World.getWorld().getWorldCoords(x, y);
+            double[] wc = MiscMath.getWorldCoords(x, y);
             Entity e = World.getWorld().getEntity(wc[0], wc[1]);
             if (e != null) Camera.setTarget(e);
         }
@@ -69,14 +55,12 @@ public class GameCanvas extends GUIElement {
 
         if (c == 'm') GameScreen.DRAW_MAP = !GameScreen.DRAW_MAP;
         if (c == '`') GameScreen.DEBUG_MODE = !GameScreen.DEBUG_MODE;
-        if (c == 'z') Camera.zoom(1);
 
-        if (!(c == 'x' && GameScreen.DEBUG_MODE)) return;
-        int wc[] = World.getWorld().getWorldCoords((int) last_x, (int) last_y);
-        Entity e = Entity.create("Supermarket 1");
-        e.setWorldX(wc[0]);
-        e.setWorldY(wc[1]);
-        World.getWorld().addEntity(e);
+    }
+
+    @Override
+    public void onMouseScroll(int x, int y, int dir) {
+        Camera.zoomAt(x, y, dir);
     }
 
     @Override
@@ -89,7 +73,7 @@ public class GameCanvas extends GUIElement {
         if (World.getWorld() != null) World.getWorld().draw(g);
         if (GameScreen.DEBUG_MODE) {
             g.setColor(Color.red);
-            int sc[] = World.getWorld().getOnscreenCoords(Camera.getX(), Camera.getY());
+            int sc[] = MiscMath.getOnscreenCoords(Camera.getX(), Camera.getY());
             g.fillRect(sc[0] - 2, sc[1] - 2, 4, 4);
         }
     }

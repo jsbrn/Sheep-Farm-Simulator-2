@@ -46,85 +46,6 @@ public class GameScreen extends BasicGameState {
         GUI.addComponent(new GameCanvas());
         GUI.addComponent(status);
 
-        final Panel menu = new Panel();
-        menu.setWidth(150);
-        menu.setX(-150);
-        menu.setY(24);
-        menu.setVisible(false);
-        menu.setXOffsetMode(GUIElement.ORIGIN_RIGHT);
-        menu.setHeight(200);
-
-        Button quit = new Button() {
-            public void onMouseClick(int button, int x, int y, int click_count) {
-                World.save();
-                World.destroy();
-                game.enterState(Assets.MAIN_MENU);
-            }
-        };
-        quit.setText("Save and quit");
-        quit.setWidth(150);
-        quit.setHeight(16);
-        quit.setBackgroundColor(Color.red);
-        quit.setTextColor(Color.white);
-        quit.setX(0);
-        quit.setY(-quit.getHeight());
-        quit.setYOffsetMode(GUIElement.ORIGIN_BOTTOM);
-        menu.addComponent(quit);
-
-
-        Button menu_button = new Button() {
-            @Override
-            public void onMouseClick(int button, int x, int y, int click_count) {
-                menu.setVisible(!menu.isVisible());
-            }
-        };
-        menu_button.setHeight(24);
-        menu_button.autoWidth(true);
-        menu_button.setIcon("images/gui/menu.png");
-        menu_button.setXOffsetMode(GUIElement.ORIGIN_RIGHT);
-        menu_button.setX(-menu_button.getWidth());
-        menu_button.showBackground(false);
-
-        final Panel navigator_menu = new Panel();
-        navigator_menu.setTitle("Menus");
-        navigator_menu.setBackground("images/gui/menu_panel.png");
-        navigator_menu.setX(0);
-        navigator_menu.setY(-navigator_menu.getHeight());
-        navigator_menu.setYOffsetMode(GUIElement.ORIGIN_BOTTOM);
-
-        Button finances = new Button();
-        finances.setIcon("images/gui/money_32.png");
-        finances.autoWidth(true);
-        finances.setHeight(finances.getWidth());
-        finances.setBackgroundColor(Color.green.darker());
-        finances.setX(10);
-        finances.setY(20);
-        navigator_menu.addComponent(finances);
-
-        final Panel map_menu = new Panel();
-        map_menu.setWidth(200);
-        map_menu.setHeight(200);
-        map_menu.showBackground(true);
-        map_menu.setTitle("Map (draggable)");
-        map_menu.setDraggable(true);
-        map_menu.setX(-map_menu.getWidth());
-        map_menu.setY(-map_menu.getHeight());
-        map_menu.setYOffsetMode(GUIElement.ORIGIN_BOTTOM);
-        map_menu.setXOffsetMode(GUIElement.ORIGIN_RIGHT);
-
-        MINI_MAP = new MapCanvas();
-        MINI_MAP.setWidth(180);
-        MINI_MAP.setHeight(140);
-        MINI_MAP.setX(-MINI_MAP.getWidth() / 2);
-        MINI_MAP.setY(10);
-        MINI_MAP.setXOffsetMode(GUIElement.ORIGIN_MIDDLE);
-        map_menu.addComponent(MINI_MAP);
-
-        status.addComponent(menu_button);
-        GUI.addComponent(menu);
-        GUI.addComponent(navigator_menu);
-        GUI.addComponent(map_menu);
-
         initialized = true;
     }
 
@@ -149,9 +70,9 @@ public class GameScreen extends BasicGameState {
             g.drawString("Sectors: " + World.getWorld().sectorCount(), 5, 42);
             g.drawString("Camera: " + Camera.getX() + ", " + Camera.getY(), 5, 52);
 
-            int wc[] = World.getWorld().getWorldCoords(x, y);
-            int sc[] = World.getWorld().getSectorCoords(wc[0], wc[1]);
-            int cc[] = World.getWorld().getChunkCoords(wc[0], wc[1]);
+            double wc[] = MiscMath.getWorldCoords(x, y);
+            int sc[] = MiscMath.getSectorCoords(wc[0], wc[1]);
+            int cc[] = MiscMath.getChunkCoords(wc[0], wc[1]);
 
             Sector s = World.getWorld().getSector(sc[0], sc[1]);
             if (s == null) return;
@@ -194,7 +115,7 @@ public class GameScreen extends BasicGameState {
             ArrayList<Entity> moused_entities = World.getWorld().getEntities(wc[0] - 200, wc[1] - 200, 200, 200);
             for (Entity e : moused_entities) {
                 g.setColor(Color.green);
-                int[] osc = World.getWorld().getOnscreenCoords(e.getWorldX(), e.getWorldY());
+                int[] osc = MiscMath.getOnscreenCoords(e.getWorldX(), e.getWorldY());
                 int[] dims = {osc[0] - e.getWidth() / 2, osc[1] - e.getHeight() / 2, e.getWidth(), e.getHeight()};
                 g.drawRect(dims[0], dims[1], dims[2], dims[3]);
             }
@@ -207,11 +128,22 @@ public class GameScreen extends BasicGameState {
 
     @Override
     public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
+
         MiscMath.DELTA_TIME = delta;
         input = gc.getInput();
         World.getWorld().update();
         GUI.update();
         Camera.update();
+
+        pollMouseScroll();
+
+    }
+
+    public void pollMouseScroll() {
+        int dir = Mouse.getDWheel();
+        dir = dir > 0 ? 1 : (dir < 0 ? -1 : 0); //clamp
+        System.out.println(dir);
+        GUI.applyMouseScroll(input.getMouseX(), input.getMouseY(), dir);
     }
 
     @Override

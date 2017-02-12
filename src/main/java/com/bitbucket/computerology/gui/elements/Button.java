@@ -12,11 +12,11 @@ import java.util.logging.Logger;
 
 public class Button extends GUIElement {
 
-    static int GRAD = 35; //gradient magnitude
-    boolean background = true, auto_width = false, pressed = false;
-    Image icon;
-    String text;
-    Color bg_color, text_color;
+    private static int GRAD = 35; //gradient magnitude
+    private boolean background = true, auto_width = false, pressed = false;
+    private Image icon;
+    private String text;
+    private Color bg_color, text_color;
 
     public Button() {
         this.text = "";
@@ -40,10 +40,6 @@ public class Button extends GUIElement {
         } catch (SlickException ex) {
             Logger.getLogger(Button.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public void autoWidth(boolean b) {
-        auto_width = b;
     }
 
     public String getText() {
@@ -70,15 +66,10 @@ public class Button extends GUIElement {
     }
 
     @Override
-    public int getWidth() {
-        int a_width = (text.length() > 0 ? Assets.getFont(12).getWidth(text) : 0) + (icon != null ? icon.getWidth() : 0);
-        if (text.length() > 0 && icon != null) a_width += 3;
-        if (text.length() > 0 || icon != null) a_width += 4;
-        return (auto_width ? a_width : super.getWidth());
-    }
-
-    @Override
     public void draw(Graphics g) {
+        
+        int[] dims = getOnscreenDimensions();
+        
         //if set to draw a background
         if (background) {
             //create the top color
@@ -91,49 +82,49 @@ public class Button extends GUIElement {
             }
             //for each pixel row of the button, transition to a color symmetrically brighter to the top color
             //that is, the specified background color is the middle row of the background
-            int transition = (GRAD * 2) / (getHeight() > 0 ? getHeight() : 1);
-            for (int r = 0; r != getHeight(); r++) {
+            int transition = (GRAD * 2) / (dims[3] > 0 ? dims[3] : 1);
+            for (int r = 0; r != dims[3]; r++) {
                 rgb[0] += transition;
                 rgb[1] += transition;
                 rgb[2] += transition;
                 g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-                g.fillRect(getOnscreenX(), getOnscreenY() + r, getWidth(), 1);
+                g.fillRect(dims[0], dims[1] + r, dims[2], 1);
             }
             //if enabled, draw a bevelled border
             if (enabled()) {
                 g.setColor(bg_color);
-                g.fillRect(getOnscreenX(), getOnscreenY(), getWidth(), 1);
-                g.fillRect(getOnscreenX(), getOnscreenY(), 1, getHeight());
+                g.fillRect(dims[0], dims[1], dims[2], 1);
+                g.fillRect(dims[0], dims[1], 1, dims[3]);
                 g.setColor(new Color(bg_color.getRed() - (GRAD * 2), bg_color.getGreen() - (GRAD * 2), bg_color.getBlue() - (GRAD * 2)));
-                g.fillRect(getOnscreenX(), getOnscreenY() + getHeight() - 1, getWidth(), 1);
-                g.fillRect(getOnscreenX() + getWidth() - 1, getOnscreenY(), 1, getHeight());
+                g.fillRect(dims[0], dims[1] + dims[3] - 1, dims[2], 1);
+                g.fillRect(dims[0] + dims[2] - 1, dims[1], 1, dims[3]);
             } else { //if not enabled, draw a box with greyer variant of the original background color
                 g.setColor(new Color(50 + bg_color.getRed() / 4, 50 + bg_color.getGreen() / 4, 50 + bg_color.getBlue() / 4));
-                g.drawRect(getOnscreenX(), getOnscreenY(), getWidth() - 1, getHeight() - 1);
+                g.drawRect(dims[0], dims[1], dims[2] - 1, dims[3] - 1);
             }
         }
         //if the button is not being pressed, the mouse is touching it, and it is enabled, lighten the background
         if (!pressed && mouseHovering() && enabled()) {
             g.setColor(new Color(255, 255, 255, 100));
-            g.fillRect(getOnscreenX(), getOnscreenY(), getWidth(), getHeight());
+            g.fillRect(dims[0], dims[1], dims[2], dims[3]);
         }
         //if the icon is not null, draw it in the appropriate location (depends on whether there is text)
         if (icon != null) {
             if (text.length() > 0) {
-                g.drawImage(icon, getOnscreenX() + 2, getOnscreenY() + getHeight() / 2 - icon.getHeight() / 2);
+                g.drawImage(icon, dims[0] + 2, dims[1] + dims[3] / 2 - icon.getHeight() / 2);
             } else {
-                g.drawImage(icon, getOnscreenX() + getWidth() / 2 - icon.getWidth() / 2,
-                        getOnscreenY() + getHeight() / 2 - icon.getHeight() / 2);
+                g.drawImage(icon, dims[0] + dims[2] / 2 - icon.getWidth() / 2,
+                        dims[1] + dims[3] / 2 - icon.getHeight() / 2);
             }
         }
         //draw text if any
         if (text.length() > 0) {
             g.setFont(Assets.getFont(12));
-            int str_x = getOnscreenX() + getWidth() / 2 - Assets.getFont(12).getWidth(text) / 2;
-            int str_y = getOnscreenY() + getHeight() / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+            int str_x = dims[0] + dims[2] / 2 - Assets.getFont(12).getWidth(text) / 2;
+            int str_y = dims[1] + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
             if (icon != null) {
-                str_x = getOnscreenX() + 6 + icon.getWidth();
-                str_y = getOnscreenY() + getHeight() / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+                str_x = dims[0] + 6 + icon.getHeight();
+                str_y = dims[1] + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
             }
             g.setColor(Color.gray.darker());
             g.drawString(text, str_x + 1, str_y + 1);

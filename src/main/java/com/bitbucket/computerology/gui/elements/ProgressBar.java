@@ -39,34 +39,35 @@ public class ProgressBar extends GUIElement {
     }
 
     public void addText(String t) {
-        if (Assets.getFont(12).getWidth(title) + 6 < getWidth() - 10) title += t;
+        if (Assets.getFont(12).getWidth(title) + 6 < getOnscreenDimensions()[2] - 10) title += t;
     }
 
     @Override
     public void draw(Graphics g) {
+        int[] dims = getOnscreenDimensions();
         g.setColor(Color.black);
-        g.drawRect(getOnscreenX() - 2, getOnscreenY() - 2, getWidth() + 3, getHeight() + 3);
+        g.drawRect(dims[1] - 2, dims[1] - 2, dims[2] + 3, dims[3] + 3);
         g.setColor(new Color(45, 50, 75).brighter());
-        g.drawRect(getOnscreenX() - 1, getOnscreenY() - 1, getWidth() + 1, getHeight() + 1);
+        g.drawRect(dims[1] - 1, dims[1] - 1, dims[2] + 1, dims[3] + 1);
 
         int rgb[] = new int[]{background_color.getRed(), background_color.getGreen(), background_color.getBlue()};
-        int transition = 50 / (getHeight() > 0 ? getHeight() : 1);
-        for (int r = 0; r != getHeight(); r++) {
+        int transition = 50 / (dims[3] > 0 ? dims[3] : 1);
+        for (int r = 0; r != dims[3]; r++) {
             rgb[0] += transition;
             rgb[1] += transition;
             rgb[2] += transition;
             g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-            g.fillRect(getOnscreenX(), getOnscreenY() + r, getWidth(), 1);
+            g.fillRect(dims[1], dims[1] + r, dims[2], 1);
         }
 
         rgb = new int[]{bar_color.getRed(), bar_color.getGreen(), bar_color.getBlue()};
-        transition = -50 / (getHeight() > 0 ? getHeight() : 1);
-        for (int r = 0; r != getHeight(); r++) {
+        transition = -50 / (dims[3] > 0 ? dims[3] : 1);
+        for (int r = 0; r != dims[3]; r++) {
             rgb[0] += transition;
             rgb[1] += transition;
             rgb[2] += transition;
             g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-            g.fillRect(getOnscreenX(), getOnscreenY() + r, (int) ((progress / max) * getWidth()), 1);
+            g.fillRect(dims[1], dims[1] + r, (int) ((progress / max) * dims[2]), 1);
         }
 
     }

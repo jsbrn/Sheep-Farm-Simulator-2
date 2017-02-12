@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.entities.systems;
 
+import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.ComponentSystem;
@@ -18,8 +19,8 @@ public class Render extends ComponentSystem {
         Texture t = getParent().getTexture();
         Position p = getParent().getPosition();
         if (t.getTexture() == null) return;
-        int[] c = World.getWorld().getOnscreenCoords(p.getWorldX(), p.getWorldY());
-        Image img = t.getTexture().getScaledCopy(Camera.getZoom());
+        int[] c = MiscMath.getOnscreenCoords(p.getWorldX(), p.getWorldY());
+        Image img = t.getTexture().getScaledCopy((int)Camera.getZoom());
         img.setRotation(p.getRotation());
         g.drawImage(img, c[0] - img.getWidth() / 2, c[1] - img.getHeight() / 2);
     }

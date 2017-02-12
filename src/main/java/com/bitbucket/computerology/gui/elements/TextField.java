@@ -34,7 +34,7 @@ public class TextField extends GUIElement {
 
     public void addText(String t) {
         if (t == null) t = "";
-        if (Assets.getFont(12).getWidth(text) + 6 < getWidth() - 10) text += t;
+        if (Assets.getFont(12).getWidth(text) + 6 < getOnscreenDimensions()[2] - 10) text += t;
     }
 
     @Override
@@ -69,7 +69,8 @@ public class TextField extends GUIElement {
 
     @Override
     public void onMouseRelease(int button, int x, int y) {
-        if (!MiscMath.pointIntersectsRect(x, y, getOnscreenX(), getOnscreenY(), getWidth(), getHeight()))
+        int[] dims = getOnscreenDimensions();
+        if (!MiscMath.pointIntersectsRect(x, y, dims[0], dims[1], dims[2], dims[3]))
             releaseFocus();
     }
 
@@ -85,22 +86,23 @@ public class TextField extends GUIElement {
 
     @Override
     public void draw(Graphics g) {
+        int[] dims = getOnscreenDimensions();
         g.setColor(Color.black);
-        g.drawRect(getOnscreenX() - 2, getOnscreenY() - 2, getWidth() + 3, getHeight() + 3);
+        g.drawRect(dims[0] - 2, dims[1] - 2, dims[2] + 3, dims[3] + 3);
         g.setColor(new Color(45, 50, 75).brighter());
-        g.drawRect(getOnscreenX() - 1, getOnscreenY() - 1, getWidth() + 1, getHeight() + 1);
+        g.drawRect(dims[0] - 1, dims[1] - 1, dims[2] + 1, dims[3] + 1);
         g.setColor(Color.white);
-        g.fillRect(getOnscreenX(), getOnscreenY(), getWidth(), getHeight());
+        g.fillRect(dims[0], dims[1], dims[2], dims[3]);
         g.setColor(Color.black);
         if (blink > blink_speed && hasFocus())
-            g.fillRect(getOnscreenX() + 5 + Assets.getFont(12).getWidth(text), getOnscreenY() + 3, 2, getHeight() - 6);
+            g.fillRect(dims[0] + 5 + Assets.getFont(12).getWidth(text), dims[1] + 3, 2, dims[3] - 6);
         g.setFont(Assets.getFont(12));
         if (text.length() > 0) {
             g.setColor(text_color);
-            g.drawString(text, getOnscreenX() + 5, getOnscreenY() + getHeight() / 2 - Assets.getFont(12).getHeight(text) / 2);
+            g.drawString(text, dims[0] + 5, dims[1] + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2);
         } else if (!hasFocus()) {
             g.setColor(alt_text_color);
-            g.drawString(alt_text, getOnscreenX() + 5, getOnscreenY() + getHeight() / 2 - Assets.getFont(12).getHeight(alt_text) / 2);
+            g.drawString(alt_text, dims[0] + 5, dims[1] + dims[3] / 2 - Assets.getFont(12).getHeight(alt_text) / 2);
         }
     }
 

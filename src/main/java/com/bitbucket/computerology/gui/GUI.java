@@ -15,17 +15,11 @@ import java.util.logging.Logger;
 
 public class GUI {
 
-    ArrayList<GUIElement> components;
-    Image dialog_shadow;
+    private ArrayList<GUIElement> components;
     private GUIElement focus, dialog;
 
     public GUI() {
         this.components = new ArrayList<GUIElement>();
-        try {
-            this.dialog_shadow = new Image("images/gui/dialog_shadow.png", false, Image.FILTER_LINEAR);
-        } catch (SlickException ex) {
-            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     /**
@@ -62,7 +56,7 @@ public class GUI {
         focus = null;
     }
 
-    public final void undialog() {
+    public final void clearDialog() {
         dialog = null;
     }
 
@@ -97,9 +91,10 @@ public class GUI {
     public final GUIElement getGUIElement(int onscreen_x, int onscreen_y) {
         for (int i = components.size() - 1; i > -1; i--) {
             GUIElement g = components.get(i);
+            int[] g_dims = g.getOnscreenDimensions();
             if (g.isVisible() && MiscMath.pointIntersectsRect(onscreen_x, onscreen_y,
-                    g.getOnscreenX(), g.getOnscreenY(), g.getWidth(), g.getHeight())) {
-                return g.getGUIElement(onscreen_x - g.getOnscreenX(), onscreen_y - g.getOnscreenY());
+                    g_dims[0], g_dims[1], g_dims[2], g_dims[3])) {
+                return g.getGUIElement(onscreen_x - g_dims[0], onscreen_y - g_dims[1]);
             }
         }
         return null;
@@ -168,6 +163,14 @@ public class GUI {
     public final boolean applyKeyPress(char c) {
         if (focus == null) return false;
         focus.onKeyPress(c);
+        return true;
+    }
+
+    public final boolean applyMouseScroll(int x, int y, int dir) {
+        for (int i = components.size() - 1; i >= 0; i--) {
+            if (dialog != null && !components.get(i).equals(dialog)) continue;
+            components.get(i).applyMouseScroll(x, y, dir);
+        }
         return true;
     }
 

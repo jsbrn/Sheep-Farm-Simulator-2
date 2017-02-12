@@ -5,7 +5,6 @@
   <artifactId>sheep-farm-simulator-2.0</artifactId>
   <name>sheep-farm-simulator-2.0</name>
   <version>0.0.1-alpha</version>
-  <url>http://bit.ly/SheepFarmSimulator</url>
   <build>
     <plugins>
       <plugin>
@@ -109,11 +108,11 @@
             <option>-dontoptimize</option>
             <option>-keep class * implements java.sql.Driver</option>
             <option>-keep public class com.bitbucket.computerology.main.SlickInitializer {
-                                *;
-                            }</option>
+                *;
+                }</option>
             <option>-keep public class com.bitbucket.computerology.main.Launcher {
-                                public static void main(java.lang.String[]);
-                            }</option>
+                public static void main(java.lang.String[]);
+                }</option>
           </options>
           <injar>original-${project.build.finalName}.jar</injar>
           <outjar>${project.build.finalName}-obfuscated.jar</outjar>

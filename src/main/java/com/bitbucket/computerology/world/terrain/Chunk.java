@@ -42,7 +42,7 @@ public class Chunk {
     }
 
     public static int onScreenSize() {
-        return sizePixels() * Camera.getZoom();
+        return sizePixels() * (int)Camera.getZoom();
     }
 
     public int getRotation() {
@@ -117,7 +117,7 @@ public class Chunk {
         int old = this.terrain;
         this.terrain = (byte) ((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
         if (old != this.terrain) {
-            int mc[] = World.getWorld().getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1],
+            int mc[] = MiscMath.getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1],
                     x, y);
             World.getWorld().updateMapTexture(mc[0], mc[1], 1, 1);
         }
@@ -132,7 +132,7 @@ public class Chunk {
         this.biome = (byte) ((biome > -1 && biome < Chunk.BIOME_COUNT) ? biome : -1);
         this.terrain = (byte) ((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
         if (old != this.biome) {
-            int mc[] = World.getWorld().getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1],
+            int mc[] = MiscMath.getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1],
                     x, y);
             World.getWorld().updateMapTexture(mc[0], mc[1], 1, 1);
         }
@@ -147,10 +147,10 @@ public class Chunk {
     }
 
     public int[] onScreenCoords() {
-        return World.getWorld().getOnscreenCoords(worldCoords()[0], worldCoords()[1]);
+        return MiscMath.getOnscreenCoords(worldCoords()[0], worldCoords()[1]);
     }
 
-    public boolean intersects(int x, int y, int w, int h) {
+    public boolean intersects(double x, double y, int w, int h) {
         return MiscMath.rectanglesIntersect(worldCoords()[0],
                 worldCoords()[1], Chunk.sizePixels(), Chunk.sizePixels(), x, y, w, h);
     }

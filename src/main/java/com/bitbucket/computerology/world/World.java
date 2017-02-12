@@ -26,7 +26,7 @@ public class World {
 
     private static World world;
 
-    Image map_texture;
+    private Image map_texture;
     private byte[][] biome_map;
     private int[] spawn;
     private boolean[][] forest_map, road_map;
@@ -167,9 +167,11 @@ public class World {
         return active_entities.size();
     }
 
+    public int size() { return size_sectors; }
+
     public void setTerrain(int wx, int wy, int terrain, int rot) {
-        int[] sc = getSectorCoords(wx, wy);
-        int[] cc = getChunkCoords(wx, wy);
+        int[] sc = MiscMath.getSectorCoords(wx, wy);
+        int[] cc = MiscMath.getChunkCoords(wx, wy);
         Sector s = getSector(sc[0], sc[1]);
         Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
         if (c != null) {
@@ -179,8 +181,8 @@ public class World {
     }
 
     public int getTerrain(int wx, int wy) {
-        int[] sc = getSectorCoords(wx, wy);
-        int[] cc = getChunkCoords(wx, wy);
+        int[] sc = MiscMath.getSectorCoords(wx, wy);
+        int[] cc = MiscMath.getChunkCoords(wx, wy);
         Sector s = getSector(sc[0], sc[1]);
         Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
         if (c != null) {
@@ -198,7 +200,7 @@ public class World {
      * @param h Height.
      * @return An ArrayList<Chunk>.
      */
-    public ArrayList<Chunk> getChunks(int x, int y, int w, int h) {
+    public ArrayList<Chunk> getChunks(double x, double y, int w, int h) {
         ArrayList<Chunk> list = new ArrayList<Chunk>();
         if (w <= 0 || h <= 0) return list;
         int max_w = w < Chunk.sizePixels() ? w : w + Chunk.sizePixels();
@@ -207,8 +209,8 @@ public class World {
         int j_inc = h < Chunk.sizePixels() ? h : Chunk.sizePixels();
         for (int i = 0; i <= max_w; i += i_inc) {
             for (int j = 0; j <= max_h; j += j_inc) {
-                int sc[] = getSectorCoords(x + i, y + j);
-                int cc[] = getChunkCoords(x + i, y + j);
+                int sc[] = MiscMath.getSectorCoords(x + i, y + j);
+                int cc[] = MiscMath.getChunkCoords(x + i, y + j);
                 Sector s = getSector(sc[0], sc[1]);
                 Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
                 if (c != null && !list.contains(c)
@@ -219,15 +221,15 @@ public class World {
     }
 
     public Chunk getChunk(int wx, int wy) {
-        int[] sc = getSectorCoords(wx, wy);
-        int[] cc = getChunkCoords(wx, wy);
+        int[] sc = MiscMath.getSectorCoords(wx, wy);
+        int[] cc = MiscMath.getChunkCoords(wx, wy);
         Sector s = getSector(sc[0], sc[1]);
         return s == null ? null : s.getChunk(cc[0], cc[1]);
     }
 
-    public Entity getEntity(int x, int y) {
-        int sc[] = getSectorCoords(x, y);
-        int cc[] = getChunkCoords(x, y);
+    public Entity getEntity(double x, double y) {
+        int sc[] = MiscMath.getSectorCoords(x, y);
+        int cc[] = MiscMath.getChunkCoords(x, y);
         Sector s = getSector(sc[0], sc[1]);
         Chunk c = s != null ? s.getChunk(cc[0], cc[1]) : null;
         if (c != null) {
@@ -245,7 +247,7 @@ public class World {
         return list.get(list.size() - 1);
     }
 
-    public ArrayList<Entity> getEntities(int x, int y, int w, int h) {
+    public ArrayList<Entity> getEntities(double x, double y, int w, int h) {
         ArrayList<Entity> list = new ArrayList<Entity>();
         ArrayList<Chunk> chunks = getChunks(x, y, w, h);
         for (Chunk c : chunks) {
@@ -257,7 +259,7 @@ public class World {
     }
 
     public boolean refreshEntity(Entity e, boolean add) {
-        int sc[] = getSectorCoords(e.getWorldX(), e.getWorldY());
+        int sc[] = MiscMath.getSectorCoords(e.getWorldX(), e.getWorldY());
         Sector s = getSector(sc[0], sc[1]);
         if (s != null) {
             if (add) s.addEntity(e);
@@ -281,7 +283,7 @@ public class World {
             if (e.moves()) moving_entities.add(e);
             if (e.updates()) active_entities.add(e);
             if (e.renders()) render_entities.add(e);
-            int[] mc = getMapCoords(e.getWorldX() - (e.getWidth() / 2), e.getWorldY() - (e.getHeight() / 2));
+            int[] mc = MiscMath.getMapCoords(e.getWorldX() - (e.getWidth() / 2), e.getWorldY() - (e.getHeight() / 2));
             updateMapTexture(mc[0], mc[1],
                     1 + (e.getWidth() / Chunk.sizePixels()), 1 + (e.getHeight() / Chunk.sizePixels()));
             System.out.println("Added entity  " + e + "! (" + e.getWorldX() + ", " + e.getWorldY());
@@ -296,7 +298,7 @@ public class World {
             if (e.moves()) moving_entities.remove(e);
             if (e.updates()) active_entities.remove(e);
             if (e.renders()) render_entities.remove(e);
-            int[] mc = getMapCoords(e.getWorldX() - (e.getWidth() / 2), e.getWorldY() - (e.getHeight() / 2));
+            int[] mc = MiscMath.getMapCoords(e.getWorldX() - (e.getWidth() / 2), e.getWorldY() - (e.getHeight() / 2));
             updateMapTexture(mc[0], mc[1],
                     1 + (e.getWidth() / Chunk.sizePixels()), 1 + (e.getHeight() / Chunk.sizePixels()));
             return true;
@@ -473,9 +475,9 @@ public class World {
         Assets.getTerrainSprite(corners).startUse();
         for (x = 0; x < w; x += Chunk.onScreenSize()) {
             for (y = 0; y < h; y += Chunk.onScreenSize()) {
-                int wc[] = getWorldCoords(x, y);
-                int sc[] = getSectorCoords(wc[0], wc[1]);
-                int cc[] = getChunkCoords(wc[0], wc[1]);
+                double wc[] = MiscMath.getWorldCoords(x, y);
+                int sc[] = MiscMath.getSectorCoords(wc[0], wc[1]);
+                int cc[] = MiscMath.getChunkCoords(wc[0], wc[1]);
                 Sector s = getSector(sc[0], sc[1]);
                 Chunk c = (s != null) ? s.getChunk(cc[0], cc[1]) : null;
                 if (c != null) {
@@ -491,9 +493,9 @@ public class World {
      * In the future it will not loop through ALL entities.
      */
     private void drawEntities(Graphics g) {
-        int wc[] = getWorldCoords(0, 0);
-        int wc2[] = getWorldCoords(Display.getWidth(), Display.getHeight());
-        ArrayList<Chunk> chunks = getChunks(wc[0], wc[1], wc2[0] - wc[0], wc2[1] - wc[1]);
+        double wc[] = MiscMath.getWorldCoords(0, 0);
+        double wc2[] = MiscMath.getWorldCoords(Display.getWidth(), Display.getHeight());
+        ArrayList<Chunk> chunks = getChunks((int)wc[0], (int)wc[1], (int)(wc2[0] - wc[0]), (int)(wc2[1] - wc[1]));
         for (Chunk c : chunks) {
             for (int i = 0; i < c.entities.size(); i++) {
                 if (i < 0 || i >= c.entities.size()) break;
@@ -511,7 +513,7 @@ public class World {
             if (map_texture == null) return;
             Graphics g = map_texture.getGraphics();
             for (int[] mc : queued_map_updates) {
-                int wc[] = getWorldCoordsFromMap(mc[0], mc[1]);
+                int wc[] = MiscMath.getWorldCoordsFromMap(mc[0], mc[1]);
                 int t = getTerrain(wc[0] + (Chunk.sizePixels() / 2), wc[1] + Chunk.sizePixels() / 2);
                 if (t > -1 && t < Chunk.BIOME_COUNT) g.setColor(Chunk.COLORS[t]);
                 ArrayList<Entity> es = World.getWorld().getEntities(wc[0], wc[1], Chunk.sizePixels(), Chunk.sizePixels());
@@ -703,8 +705,8 @@ public class World {
             if (!map[chosen[0]][chosen[1]]) {
                 //mark the town map
                 map[chosen[0]][chosen[1]] = true;
-                int[] wcm = getWorldCoordsFromMap(chosen[0] * Sector.sizeChunks(), chosen[1] * Sector.sizeChunks());
-                int sc[] = getSectorCoords(wcm[0], wcm[1]);
+                int[] wcm = MiscMath.getWorldCoordsFromMap(chosen[0] * Sector.sizeChunks(), chosen[1] * Sector.sizeChunks());
+                int sc[] = MiscMath.getSectorCoords(wcm[0], wcm[1]);
                 //create a new town instance
                 Town t = new Town(sc[0], sc[1]);
                 towns.add(t);
@@ -850,7 +852,7 @@ public class World {
      * @param world_y World y.
      */
     public void generateAround(int world_x, int world_y) {
-        int sc[] = getSectorCoords(world_x, world_y);
+        int sc[] = MiscMath.getSectorCoords(world_x, world_y);
         initializeSectors(sc[0], sc[1], 2);
     }
 
@@ -901,46 +903,4 @@ public class World {
         return rng;
     }
 
-    public int[] getWorldCoords(int onscreen_x, int onscreen_y) {
-        return new int[]{((onscreen_x - (Display.getWidth() / 2)) / Camera.getZoom()) + Camera.getX(),
-                ((onscreen_y - (Display.getHeight() / 2)) / Camera.getZoom()) + Camera.getY()};
-    }
-
-    public int[] getOnscreenCoords(double world_x, double world_y) {
-        return new int[]{(int) ((world_x - Camera.getX()) * Camera.getZoom()) + (Display.getWidth() / 2),
-                (int) ((world_y - Camera.getY()) * Camera.getZoom()) + (Display.getHeight() / 2)};
-    }
-
-    public int[] getSectorCoords(double world_x, double world_y) {
-        return new int[]{(int) Math.floor(world_x / Sector.sizePixels()),
-                (int) Math.floor(world_y / Sector.sizePixels())};
-    }
-
-    public int[] getChunkCoords(double world_x, double world_y) {
-        int[] cc = new int[]{(int) Math.floor(world_x / Chunk.sizePixels()),
-                (int) Math.floor(world_y / Chunk.sizePixels())};
-        cc[0] %= Sector.sizeChunks();
-        cc[1] %= Sector.sizeChunks();
-        cc[0] = cc[0] >= 0 ? cc[0] : Sector.sizeChunks() + cc[0];
-        cc[1] = cc[1] >= 0 ? cc[1] : Sector.sizeChunks() + cc[1];
-        return cc;
-    }
-
-    public int[] getMapCoords(int sector_x, int sector_y, int chunk_x, int chunk_y) {
-        int[] origin = {Sector.sizeChunks() * size_sectors / 2, Sector.sizeChunks() * size_sectors / 2};
-        return new int[]{origin[0] + (Sector.sizeChunks() * sector_x) + chunk_x,
-                origin[1] + (Sector.sizeChunks() * sector_y) + chunk_y};
-    }
-
-    public int[] getMapCoords(double world_x, double world_y) {
-        int[] sc = getSectorCoords(world_x, world_y);
-        int[] cc = getChunkCoords(world_x, world_y);
-        return getMapCoords(sc[0], sc[1], cc[0], cc[1]);
-    }
-
-    public int[] getWorldCoordsFromMap(int x, int y) {
-        int[] c = new int[]{(x - (Sector.sizeChunks() * size_sectors / 2)) * Chunk.sizePixels(),
-                (y - (Sector.sizeChunks() * size_sectors / 2)) * Chunk.sizePixels()};
-        return c;
-    }
 }

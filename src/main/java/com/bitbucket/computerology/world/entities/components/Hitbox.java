@@ -122,7 +122,7 @@ public class Hitbox extends Component {
         return false;
     }
 
-    public boolean intersects(int x, int y, int w, int h) {
+    public boolean intersects(double x, double y, int w, int h) {
         if (!MiscMath.rectanglesIntersect(
                 x, y, w, h,
                 getParent().getWorldX() - (width / 2), getParent().getWorldY() - (height / 2), width, height))

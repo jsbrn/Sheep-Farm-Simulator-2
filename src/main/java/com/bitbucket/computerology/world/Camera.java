@@ -12,38 +12,47 @@ public class Camera {
     private static double x = 0, y = 0;
     private static double zoom = 1, speed = 5;
 
-    public static int getX() {
-        return (int) x;
+    /**
+     * Sets camera focus speed.
+     */
+    public static void setSpeed(int s) { speed = s >= 0 ? s : 0; }
+
+    public static double getX() {
+        return x;
     }
 
     public static void setX(int x) {
         Camera.x = x;
     }
 
-    public static int getY() {
-        return (int) y;
+    public static double getY() {
+        return y;
     }
 
     public static void setY(int y) {
         Camera.y = y;
     }
 
-    public static int getZoom() {
-        return (int)zoom;
+    public static double getZoom() {
+        return zoom;
     }
 
     public static void setZoom(int z) {
-        zoom = z < 1 || z > 3 ? 1 : z;
+        zoom = z;
+        if (zoom > 3) zoom = 3;
+        if (zoom < 1) zoom = 1;
     }
 
-    /**
-     * Sets the speed in pixels per second.
-     * @param s
-     */
-    public static void setSpeed(int s) { speed = s >= 0 ? s : 0; }
+    public static void addZoom(int z) {
+        setZoom((int)getZoom()+z);
+    }
 
-    public static void zoom(int delta) {
-        setZoom((int)(zoom + delta));
+    public static void zoomAt(int osx, int osy, int amount) {
+        double[] wc_old = MiscMath.getWorldCoords(osx, osy);
+        addZoom(amount);
+        double[] wc_new = MiscMath.getWorldCoords(osx, osy);
+        x += wc_old[0] - wc_new[0];
+        y += wc_old[1] - wc_new[1];
     }
 
     public static void reset() {
@@ -69,17 +78,14 @@ public class Camera {
         if (target != null) {
             double dist = MiscMath.distance(x, y, target[0], target[1]);
             if (dist > 5) {
-                double vel[] = MiscMath.calculateVelocity(target[0] - (int) x, target[1] - (int) y,
-                        MiscMath.getConstant(
-                                (speed / zoom) * dist,
-                                1));
-                x += vel[0];
-                y += vel[1];
+                double vel[] = MiscMath.calculateVelocity((int)(target[0]-x), (int)(target[1]-y));
+                x += MiscMath.getConstant(vel[0]*speed*dist, 1);
+                y += MiscMath.getConstant(vel[1]*speed*dist, 1);
             }
         }
     }
 
-    public static void move(double dx, double dy) {
+    public static void drag(double dx, double dy) {
         if (dx == 0 && dy == 0) return;
         target_coords = null;
         target_entity = null;

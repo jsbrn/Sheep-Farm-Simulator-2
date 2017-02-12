@@ -42,12 +42,6 @@ public class Entity {
 
     /**
      * Creates a new entity.
-     * as well as the systems Movement and Render.
-     *
-     * @param x    The x-coordinate of the entity (world).
-     * @param y    The y-coordinate of the entity (world).
-     * @param id   The ID of the entity.
-     * @param name The name of the entity.
      * @return The created entity instance.
      */
     public static Entity create(String type) {
@@ -88,11 +82,11 @@ public class Entity {
         return hitbox == null ? false : hitbox.intersects(e);
     }
 
-    public final boolean intersects(int x, int y, int width, int height) {
+    public final boolean intersects(double x, double y, int width, int height) {
         return hitbox == null ? false : hitbox.intersects(x, y, width, height);
     }
 
-    public final boolean intersects(int x, int y) {
+    public final boolean intersects(double x, double y) {
         return hitbox == null ? false : hitbox.intersects(x, y);
     }
 
@@ -127,7 +121,7 @@ public class Entity {
         return position == null ? 0 : (int) position.getWorldX();
     }
 
-    public final void setWorldX(int wx) {
+    public final void setWorldX(double wx) {
         if (position == null) return;
         position.setWorldX(wx);
     }
@@ -136,7 +130,7 @@ public class Entity {
         return position == null ? 0 : (int) position.getWorldY();
     }
 
-    public final void setWorldY(int wy) {
+    public final void setWorldY(double wy) {
         if (position == null) return;
         position.setWorldY(wy);
     }

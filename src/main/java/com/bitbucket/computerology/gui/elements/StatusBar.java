@@ -25,38 +25,19 @@ public class StatusBar extends GUIElement {
         } catch (SlickException ex) {
             Logger.getLogger(StatusBar.class.getName()).log(Level.SEVERE, null, ex);
         }
-        money = new Label() {
-            public void update() {
-                super.update();
-                setText("$" + World.getWorld().getPlayer().getMoney());
-            }
-        };
-        money.setX(5);
-        money.setText("$0");
-        money.setIcon("images/gui/money_16.png");
-        money.setHeight(24);
-        sheep = new Label();
-        sheep.setX(50);
-        sheep.setText("0 sheep");
-        sheep.setIcon("images/gui/sheep_icon.png");
-        sheep.setHeight(24);
-        this.addComponent(money);
-        this.addComponent(sheep);
+        this.setX(0);
+        this.setY(0);
     }
 
     @Override
-    public void update() {
-        super.update();
-    }
+    public void update() { super.update(); }
 
     @Override
-    public int getWidth() {
-        return Display.getWidth();
-    }
-
-    @Override
-    public int getHeight() {
-        return (bar != null) ? bar.getHeight() : 0;
+    public int[] getOnscreenDimensions() {
+        int[] sup = super.getOnscreenDimensions();
+        sup[2] = Display.getWidth();
+        sup[3] = Display.getHeight();
+        return sup;
     }
 
     @Override

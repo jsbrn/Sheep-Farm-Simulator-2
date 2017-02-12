@@ -32,21 +32,6 @@ public class Label extends GUIElement {
         font_size = size;
     }
 
-    @Override
-    public int getWidth() {
-        return Assets.getFont(font_size).getWidth(text) + (icon != null ? icon.getWidth() + 3 : 0);
-    }
-
-    @Override
-    public int getHeight() {
-        if (super.getHeight() <= 0) {
-            int font = Assets.getFont(font_size).getHeight(text);
-            int img = (icon != null ? icon.getHeight() : 0);
-            return font > img ? font : img;
-        }
-        return super.getHeight();
-    }
-
     public void setText(String t) {
         text = t;
     }
@@ -54,14 +39,16 @@ public class Label extends GUIElement {
     @Override
     public void draw(Graphics g) {
 
+        int[] dims = getOnscreenDimensions();
+
         if (icon != null) {
-            g.drawImage(icon, getOnscreenX(), getOnscreenY() + getHeight() / 2 - icon.getHeight() / 2);
+            g.drawImage(icon, dims[0], dims[1] + dims[3] / 2 - icon.getHeight() / 2);
         }
 
         if (text.length() > 0) {
             g.setFont(Assets.getFont(font_size));
-            int str_x = getOnscreenX() + (icon != null ? icon.getWidth() + 3 : 0);
-            int str_y = getOnscreenY() + getHeight() / 2 - Assets.getFont(font_size).getHeight(text) / 2 - 1;
+            int str_x = dims[0] + (icon != null ? icon.getWidth() + 3 : 0);
+            int str_y = dims[1] + dims[3] / 2 - Assets.getFont(font_size).getHeight(text) / 2 - 1;
             g.setColor(Color.gray.darker());
             g.drawString(text, str_x + 1, str_y + 1);
             g.setColor(Color.white);

@@ -9,23 +9,51 @@ import java.util.ArrayList;
 
 public class GUIElement {
 
-    //describes what the x, y coords are relative to (i.e. with ORIGIN_RIGHT, an x value of -10 would
-    //put the element's top left corner 10 pixels from the right edge of the window
-    public static int ORIGIN_LEFT = 0, ORIGIN_RIGHT = 1, ORIGIN_TOP = 0, ORIGIN_BOTTOM = 1, ORIGIN_MIDDLE = 2;
-    ArrayList<GUIElement> components;
-    GUIElement parent;
-    int x, y, width, height, offset_modes[];
-    boolean visible = true, enabled = true;
+    public static final int ANCHOR_TOPLEFT = 0, ANCHOR_TOP = 1, ANCHOR_TOPRIGHT = 2,
+        ANCHOR_LEFT = 3, ANCHOR_MIDDLE = 4, ANCHOR_RIGHT = 5, ANCHOR_BOTTOMLEFT = 6,
+        ANCHOR_BOTTOM = 7, ANCHOR_BOTTOMRIGHT = 8;
+    private static final double[][][] anchor_values = {
+        {{0, 0}, {0.5, 0}, {1, 0}},
+        {{0, 0.5}, {0.5, 0.5}, {1, 0.5}},
+        {{0, 1}, {0.5, 1}, {1, 1}}
+    };
+
+
+    private ArrayList<GUIElement> components;
+    private GUIElement parent;
+    private boolean visible = true, enabled = true;
     private GUI gui; //the GUI that owns this element
+
+    private int dims[];
+
+    private ArrayList<int[]> anchors;
 
     public GUIElement() {
         this.components = new ArrayList<GUIElement>();
-        this.offset_modes = new int[]{ORIGIN_LEFT, ORIGIN_TOP};
-        this.x = 0;
-        this.y = 0;
-        this.width = 0;
-        this.height = 0;
         this.parent = null;
+        this.anchors = new ArrayList<int[]>();
+        this.dims = new int[]{0, 0, 100, 100};
+    }
+
+    public void anchor(int this_point, int parent_point, int offset_x, int offset_y) {
+        anchors.add(new int[]{this_point, parent_point, offset_x, offset_y});
+    }
+
+    public void clearAnchors() { anchors.clear(); }
+
+    /**
+     * Returns the multiplier found in anchor_values, above.
+     * @param i The index of the anchor point:<br><br>
+     *              0 1 2<br>
+     *              3 4 5<br>
+     *              6 7 8<br>
+     * @return A double[] containing the width/height multipliers for each
+     * axis.
+     */
+    private double[] anchorMultiplier(int i) {
+        int x = (i % 3);
+        int y = (i / 3);
+        return anchor_values[y][x];
     }
 
     public boolean enabled() {
@@ -100,54 +128,6 @@ public class GUIElement {
         parent = p;
     }
 
-    public final void setXOffsetMode(int mode) {
-        offset_modes[0] = mode;
-    }
-
-    public final void setYOffsetMode(int mode) {
-        offset_modes[1] = mode;
-    }
-
-    public final void addWidth(int w) {
-        width += w;
-    }
-
-    public final void addHeight(int h) {
-        height += h;
-    }
-
-    public final void setX(int x) {
-        this.x = x;
-    }
-
-    public final void setY(int y) {
-        this.y = y;
-    }
-
-    public final void addX(int x) {
-        this.x += x;
-    }
-
-    public final void addY(int y) {
-        this.y += y;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public final void setWidth(int w) {
-        width = w;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public final void setHeight(int h) {
-        height = h;
-    }
-
     public boolean mouseHovering() {
         if (getGUI() == null) return false;
         if (getGUI().getHovered() == null) return false;
@@ -155,8 +135,9 @@ public class GUIElement {
     }
 
     public boolean mouseIntersecting() {
+        int[] dims = getOnscreenDimensions();
         return isVisible() && MiscMath.pointIntersectsRect(Mouse.getX(), Display.getHeight() - Mouse.getY(),
-                getOnscreenX(), getOnscreenY(), getWidth(), getHeight());
+                dims[0], dims[1], dims[2], dims[3]);
     }
 
 
@@ -168,9 +149,11 @@ public class GUIElement {
     public GUIElement getGUIElement(int x, int y) {
         for (int i = components.size() - 1; i > -1; i--) {
             GUIElement g = components.get(i);
-            if (g.isVisible() && MiscMath.pointIntersectsRect(getOnscreenX() + x, getOnscreenY() + y,
-                    g.getOnscreenX(), g.getOnscreenY(), g.getWidth(), g.getHeight())) {
-                return g.getGUIElement(getOnscreenX() + x - g.getOnscreenX(), getOnscreenY() + y - g.getOnscreenY());
+            int[] dims = getOnscreenDimensions();
+            int[] g_dims = g.getOnscreenDimensions();
+            if (g.isVisible() && MiscMath.pointIntersectsRect(g_dims[0] + x, g_dims[1] + y,
+                    g_dims[0], g_dims[1], g_dims[2], g_dims[3])) {
+                return g.getGUIElement(dims[0] + x - g_dims[0], dims[1] + y - g_dims[1]);
             }
         }
         return this;
@@ -207,29 +190,52 @@ public class GUIElement {
         for (GUIElement g : components) g.reset();
     }
 
-    public int getOnscreenX() {
-        if (parent == null) {
-            if (offset_modes[0] == ORIGIN_MIDDLE) return Display.getWidth() / 2 + x;
-            if (offset_modes[0] == ORIGIN_RIGHT) return Display.getWidth() + x;
-            return x;
-        } else {
-            if (offset_modes[0] == ORIGIN_MIDDLE) return parent.getOnscreenX() + (parent.getWidth() / 2) + x;
-            if (offset_modes[0] == ORIGIN_RIGHT) return parent.getOnscreenX() + parent.getWidth() + x;
-            return parent.getOnscreenX() + x;
+    /**
+     * Returns the onscreen x, y, w, and h of the element.
+     * @return An int[4].
+     */
+    public int[] getOnscreenDimensions() {
+
+        if (anchors.isEmpty()) return dims;
+
+        int[] osc_dims = {Integer.MAX_VALUE, Integer.MAX_VALUE,
+                Integer.MIN_VALUE, Integer.MIN_VALUE};
+        int[] parent_dims =
+                parent == null ? new int[]{0, 0, Display.getWidth(), Display.getHeight()}
+                    : parent.getOnscreenDimensions();
+
+        for (int[] anchor: anchors) {
+            int i = (int)((parent_dims[2] * anchorMultiplier(anchor[1])[0]) //parent anchor point
+                    + anchor[2]); //offset x
+            int j = (int)((parent_dims[3] * anchorMultiplier(anchor[1])[1]) //parent anchor point
+                    + anchor[3]); //offset y
+            if (j > osc_dims[3] && i > osc_dims[2]) {
+                osc_dims[2] = i;
+                osc_dims[3] = j;
+            }
+
+            if (j > osc_dims[1] && i > osc_dims[0]) {
+                osc_dims[0] = i;
+                osc_dims[1] = j;
+            }
         }
+        return new int[]{
+                (osc_dims[0] == Integer.MAX_VALUE ? dims[0] : osc_dims[0]) + parent_dims[0],
+                (osc_dims[1] == Integer.MAX_VALUE ? dims[1] : osc_dims[1]) + parent_dims[1],
+                (osc_dims[2] == Integer.MIN_VALUE ? dims[2] : osc_dims[2]),
+                (osc_dims[3] == Integer.MIN_VALUE ? dims[3] : osc_dims[3]),
+        };
     }
 
-    public int getOnscreenY() {
-        if (parent == null) {
-            if (offset_modes[1] == ORIGIN_MIDDLE) return Display.getHeight() / 2 + y;
-            if (offset_modes[1] == ORIGIN_RIGHT) return Display.getHeight() + y;
-            return y;
-        } else {
-            if (offset_modes[1] == ORIGIN_MIDDLE) return parent.getOnscreenY() + (parent.getHeight() / 2) + y;
-            if (offset_modes[1] == ORIGIN_RIGHT) return parent.getOnscreenY() + parent.getHeight() + y;
-            return parent.getOnscreenY() + y;
-        }
-    }
+    public void setX(int x) { dims[0] = x; }
+    public void setY(int y) { dims[1] = y; }
+    public void addX(int x) { dims[0] += x; }
+    public void addY(int y) { dims[1] += y; }
+
+    public void setWidth(int width) { dims[0] = width; }
+    public void setHeight(int height) { dims[1] = height; }
+    public void addWidth(int width) { dims[0] += width; }
+    public void addHeight(int height) { dims[1] += height; }
 
     /**
      * Take the clicked mouse button (check if clicked first before calling),
@@ -238,33 +244,35 @@ public class GUIElement {
      * @param button The mouse button.
      * @return true if an element was clicked, false otherwise
      */
-    public boolean applyMouseClick(int button, int x, int y, int click_count) {
+    public final boolean applyMouseClick(int button, int x, int y, int click_count) {
         if (!isVisible() || !enabled()) return false;
         for (int i = components.size() - 1; i >= 0; i--) {
             if (components.get(i).applyMouseClick(button, x, y, click_count)) return true;
         }
+        int[] dims = getOnscreenDimensions();
         if (MiscMath.pointIntersectsRect(x, y,
-                getOnscreenX(), getOnscreenY(), getWidth(), getHeight())) {
+                dims[0], dims[1], dims[2], dims[3])) {
             onMouseClick(button, x, y, click_count);
             return true;
         }
         return false;
     }
 
-    public boolean applyMousePress(int button, int x, int y) {
+    public final boolean applyMousePress(int button, int x, int y) {
         if (!isVisible() || !enabled()) return false;
         for (int i = components.size() - 1; i >= 0; i--) {
             if (components.get(i).applyMousePress(button, x, y)) return true;
         }
+        int[] dims = getOnscreenDimensions();
         if (MiscMath.pointIntersectsRect(x, y,
-                getOnscreenX(), getOnscreenY(), getWidth(), getHeight())) {
+                dims[0], dims[1], dims[2], dims[3])) {
             onMousePress(button, x, y);
             return true;
         }
         return false;
     }
 
-    public boolean applyMouseRelease(int button, int x, int y) {
+    public final boolean applyMouseRelease(int button, int x, int y) {
         if (!isVisible() || !enabled()) return false;
         for (int i = components.size() - 1; i >= 0; i--) {
             components.get(i).applyMouseRelease(button, x, y);
@@ -273,16 +281,23 @@ public class GUIElement {
         return true;
     }
 
-    public void onMouseClick(int button, int x, int y, int click_count) {
+    public final boolean applyMouseScroll(int x, int y, int dir) {
+        if (!isVisible() || !enabled() || !hasFocus()) return false;
+        for (int i = components.size() - 1; i >= 0; i--) {
+            components.get(i).applyMouseScroll(x, y, dir);
+        }
+        onMouseScroll(x, y, dir);
+        return true;
     }
 
-    public void onMousePress(int button, int x, int y) {
-    }
+    public void onMouseClick(int button, int x, int y, int click_count) {}
 
-    public void onMouseRelease(int button, int x, int y) {
-    }
+    public void onMousePress(int button, int x, int y) {}
 
-    public void onKeyPress(char c) {
-    }
+    public void onMouseRelease(int button, int x, int y) {}
+
+    public void onKeyPress(char c) {}
+
+    public void onMouseScroll(int x, int y, int dir) {}
 
 }
