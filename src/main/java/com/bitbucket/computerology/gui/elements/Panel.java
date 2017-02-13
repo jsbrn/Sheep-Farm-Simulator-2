@@ -113,22 +113,25 @@ public class Panel extends GUIElement {
         Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
         if (show_bg && background == null) {
-            if (!isDialog()) {
+            if (!isDialog()) { //draw shadow
                 g.setColor(new Color(0, 0, 0, 125));
                 g.fillRect(0 + dims[2], 0 + 5, 5, dims[3] - 5);
                 g.fillRect(0 + 5, 0 + dims[3], dims[2] - 5, 5);
                 g.fillRect(0 + dims[2], 0 + dims[3], 5, 5);
             }
+            //draw background
             Color base = new Color(45, 50, 60);
             for (int r = 0; r != dims[3]; r++) {
                 int diff = dims[3] / 64 != 0 ? (Math.abs((dims[3] / 2) - r) / (dims[3] / 64)) : 1;
                 g.setColor(new Color(45 - diff, 50 - diff, 60 - diff, 225));
                 g.fillRect(0, 0 + r, dims[2], 1);
             }
+            //draw border
             g.setColor(Color.black);
             g.drawRect(0, 0, dims[2], dims[3]);
             g.setColor(base.brighter());
-            g.drawRect(1, 1, dims[2]-1, dims[3]-1);
+            g.drawRect(1, 1, dims[2]-2, dims[3]-2);
+            //draw header
             if ((icon != null || title.length() > 0) && background == null) {
                 int hrgb[] = new int[]{85, 170, 240}; //header rgb
                 for (int i = 0; i != getHeaderHeight(); i++) {
@@ -138,10 +141,12 @@ public class Panel extends GUIElement {
             }
         }
 
+        //draw the background image instead if set
         if (show_bg && background != null) {
             g.drawImage(background, 0, 0);
         }
 
+        //draw the icon in the corner
         if (icon != null) {
             g.drawImage(icon, 0 + 3, 0 + 3);
         }

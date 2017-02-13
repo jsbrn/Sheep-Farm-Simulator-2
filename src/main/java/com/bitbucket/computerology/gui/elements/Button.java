@@ -75,7 +75,6 @@ public class Button extends GUIElement {
     @Override
     public void drawToCanvas() {
         Graphics g = getCanvas();
-
         int[] dims = getOnscreenDimensions();
         
         //if set to drawToCanvas a background

@@ -1,6 +1,7 @@
 package com.bitbucket.computerology.gui;
 
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.misc.Window;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
@@ -30,6 +31,12 @@ public class GUIElement {
         this.parent = null;
         this.anchors = new Object[4][4];
         this.dims = new int[]{0, 0, 100, 100};
+        try {
+            this.gfx_image = new Image(Window.getScreenWidth(), Window.getScreenHeight());
+            this.canvas = this.gfx_image.getGraphics();
+        } catch (SlickException e) {
+            e.printStackTrace();
+        }
     }
 
     public void anchor(GUIElement parent, int mode, int parent_mode, int offset) {
@@ -176,7 +183,6 @@ public class GUIElement {
 
     public final void draw(Graphics g) {
         drawToCanvas();
-        System.out.println(getImage());
         if (getImage() == null) return;
         int[] dims = getOnscreenDimensions();
         g.drawImage(getImage(), dims[0], dims[1]);
@@ -209,32 +215,12 @@ public class GUIElement {
         }
     }
 
+    /**
+     * Clears and returns the Graphics instance held by the element's Image canvas.
+     */
     protected final Graphics getCanvas() {
-        resizeCanvas();
+        if (canvas != null) canvas.clear();
         return canvas;
-    }
-
-    private final void resizeCanvas() {
-
-        int[] dims = getOnscreenDimensions();
-        boolean init = false;
-        if (gfx_image == null || canvas == null) {
-            init = true;
-        } else {
-            if (gfx_image.getWidth() != dims[2] || gfx_image.getHeight() != dims[3])
-                init = true;
-        }
-
-        try {
-            if (init) {
-                gfx_image = new Image(dims[2], dims[3]);
-                canvas = gfx_image.getGraphics();
-                System.out.println(this+" canvas = "+canvas);
-            }
-        } catch (SlickException e) {
-            e.printStackTrace();
-        }
-
     }
 
     public Image getImage() { return gfx_image; }

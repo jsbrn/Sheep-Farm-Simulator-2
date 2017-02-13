@@ -35,15 +35,30 @@ public class MainMenu extends BasicGameState {
         game = sbg;
         GUI = new GUI();
 
+        final Panel world_select_menu = new Panel();
+        world_select_menu.setTitle("Choose a save...");
+        world_select_menu.anchorMiddle(null, 0, 0);
+        world_select_menu.setWidth(500);
+        world_select_menu.setHeight(600);
+        world_select_menu.setVisible(false);
+
         Panel main_menu = new Panel();
         main_menu.anchorMiddle(null, 0, 0);
         main_menu.setWidth(300);
         main_menu.setHeight(200);
 
-        Button play_button = new Button("Play game", Color.green.darker(), Color.white);
+        Button play_button = new Button("Play game", Color.green.darker(), Color.white) {
+
+            public void onMouseReleased(int button, int x, int y) {
+                if (button == 0) {
+                    world_select_menu.setVisible(true);
+                }
+            }
+
+        };
         play_button.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
         play_button.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
-        play_button.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, 100);
+        play_button.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
         play_button.setHeight(24);
         main_menu.addComponent(play_button);
 
