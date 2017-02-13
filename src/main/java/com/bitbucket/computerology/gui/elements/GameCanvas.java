@@ -69,7 +69,8 @@ public class GameCanvas extends GUIElement {
     }
 
     @Override
-    public void draw(Graphics g) {
+    public void drawToCanvas() {
+        Graphics g = getCanvas();
         if (World.getWorld() != null) World.getWorld().draw(g);
         if (GameScreen.DEBUG_MODE) {
             g.setColor(Color.red);

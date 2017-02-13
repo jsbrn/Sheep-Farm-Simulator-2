@@ -1,9 +1,10 @@
 package com.bitbucket.computerology.gui;
 
 import com.bitbucket.computerology.misc.MiscMath;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 
 import java.util.ArrayList;
 
@@ -20,6 +21,9 @@ public class GUIElement {
     private int dims[]; //the values used when no anchors are found
     private Object[][] anchors;
     private Object[] anchor_middle;
+
+    private Image gfx_image;
+    private Graphics canvas;
 
     public GUIElement() {
         this.components = new ArrayList<GUIElement>();
@@ -133,12 +137,6 @@ public class GUIElement {
         return equals(getGUI().getHovered());
     }
 
-    public boolean mouseIntersecting() {
-        int[] dims = getOnscreenDimensions();
-        return isVisible() && MiscMath.pointIntersectsRect(Mouse.getX(), Display.getHeight() - Mouse.getY(),
-                dims[0], dims[1], dims[2], dims[3]);
-    }
-
     /**
      * @param x The x coordinate relative to the on-screen x of its parent.
      * @param y The y coordinate relative to the on-screen y of its parent.
@@ -149,7 +147,7 @@ public class GUIElement {
             GUIElement g = components.get(i);
             int[] dims = getOnscreenDimensions();
             int[] g_dims = g.getOnscreenDimensions();
-            if (g.isVisible() && MiscMath.pointIntersectsRect(g_dims[0] + x, g_dims[1] + y,
+            if (g.isVisible() && MiscMath.pointIntersectsRect(dims[0] + x, dims[1] + y,
                     g_dims[0], g_dims[1], g_dims[2], g_dims[3])) {
                 return g.getGUIElement(dims[0] + x - g_dims[0], dims[1] + y - g_dims[1]);
             }
@@ -176,9 +174,70 @@ public class GUIElement {
         for (GUIElement g : components) g.update();
     }
 
-    public void draw(Graphics g) {
-        for (GUIElement e : components) e.draw(g);
+    public final void draw(Graphics g) {
+        drawToCanvas();
+        System.out.println(getImage());
+        if (getImage() == null) return;
+        int[] dims = getOnscreenDimensions();
+        g.drawImage(getImage(), dims[0], dims[1]);
+        drawComponents(g);
     }
+
+    /**
+     * Override, do the render, and call super to draw the sub-components
+     * to their canvases.
+     */
+    protected void drawToCanvas() {
+        for (GUIElement e : components) {
+            e.drawToCanvas();
+        }
+    }
+
+    private final void drawComponents(Graphics g) {
+        int[] dims = getOnscreenDimensions();
+        for (GUIElement e : components) {
+            if (e.getImage() == null) continue;
+            int[] e_dims = e.getOnscreenDimensions();
+            int[] union = new int[]{
+                    (int)MiscMath.max(0, dims[0]-e_dims[0]),
+                    (int)MiscMath.max(0, dims[1]-e_dims[1]),
+                    (int)MiscMath.min(e_dims[2], (dims[2]+dims[0])-e_dims[0]),
+                    (int)MiscMath.min(e_dims[3], (dims[3]+dims[1])-e_dims[1])
+            };
+            Image i = e.getImage().getSubImage(union[0], union[1], union[2], union[3]);
+            g.drawImage(i, e_dims[0], e_dims[1]);
+        }
+    }
+
+    protected final Graphics getCanvas() {
+        resizeCanvas();
+        return canvas;
+    }
+
+    private final void resizeCanvas() {
+
+        int[] dims = getOnscreenDimensions();
+        boolean init = false;
+        if (gfx_image == null || canvas == null) {
+            init = true;
+        } else {
+            if (gfx_image.getWidth() != dims[2] || gfx_image.getHeight() != dims[3])
+                init = true;
+        }
+
+        try {
+            if (init) {
+                gfx_image = new Image(dims[2], dims[3]);
+                canvas = gfx_image.getGraphics();
+                System.out.println(this+" canvas = "+canvas);
+            }
+        } catch (SlickException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public Image getImage() { return gfx_image; }
 
     /**
      * Can be overridden. Resets the element back to its default state.
@@ -234,15 +293,15 @@ public class GUIElement {
 
     }
 
-    public void setX(int x) { if (!anchored(ANCHOR_LEFT)) dims[0] = x; }
-    public void setY(int y) { if (!anchored(ANCHOR_TOP)) dims[1] = y; }
-    public void addX(int x) { setX(dims[0]+x); }
-    public void addY(int y) { setY(dims[1]+y); }
+    public final void setX(int x) { if (!anchored(ANCHOR_LEFT)) dims[0] = x; }
+    public final void setY(int y) { if (!anchored(ANCHOR_TOP)) dims[1] = y; }
+    public final void addX(int x) { setX(dims[0]+x); }
+    public final void addY(int y) { setY(dims[1]+y); }
 
-    public void setWidth(int width) { if (anchors[2][1] == null) dims[2] = width; }
-    public void setHeight(int height) { if (anchors[3][1] == null) dims[3] = height; }
-    public void addWidth(int width) { setWidth(dims[2]+width); }
-    public void addHeight(int height) { setHeight(dims[3]+height); }
+    public final void setWidth(int width) { if (anchors[2][1] == null) dims[2] = width; }
+    public final void setHeight(int height) { if (anchors[3][1] == null) dims[3] = height; }
+    public final void addWidth(int width) { setWidth(dims[2]+width); }
+    public final void addHeight(int height) { setHeight(dims[3]+height); }
 
     /**
      * Take the clicked mouse button (check if clicked first before calling),

@@ -41,14 +41,15 @@ public class StatusBar extends GUIElement {
     }
 
     @Override
-    public void draw(Graphics g) {
+    public void drawToCanvas() {
+        Graphics g = getCanvas();
         g.drawImage(overhang, Display.getWidth() / 2 - overhang.getWidth() / 2, 0);
         sundial.setRotation(360F * (float) (((double) World.getWorld().getTime() % 1400D) / 1400D));
         g.drawImage(sundial, Display.getWidth() / 2 - sundial.getWidth() / 2, 10 + frame.getHeight() / 2 - sundial.getHeight() / 2);
         g.drawImage(frame, Display.getWidth() / 2 - frame.getWidth() / 2, 10);
         g.drawImage(bar.getScaledCopy(Display.getWidth() / 2 - overhang.getWidth() / 2, bar.getHeight()), 0, 0);
         g.drawImage(bar.getScaledCopy(Display.getWidth() / 2, bar.getHeight()), Display.getWidth() / 2 + overhang.getWidth() / 2, 0);
-        super.draw(g);
+        super.drawToCanvas();
     }
 
 }

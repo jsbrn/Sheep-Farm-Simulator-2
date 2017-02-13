@@ -20,8 +20,15 @@ public class Button extends GUIElement {
 
     public Button() {
         this.text = "";
-        this.bg_color = Color.white;
-        this.text_color = Color.gray.darker();
+        this.bg_color = Color.black;
+        this.text_color = Color.white;
+    }
+
+    public Button(String text, Color bg, Color t) {
+        this();
+        this.text = text;
+        this.bg_color = bg;
+        this.text_color = t;
     }
 
     @Override
@@ -66,11 +73,12 @@ public class Button extends GUIElement {
     }
 
     @Override
-    public void draw(Graphics g) {
-        
+    public void drawToCanvas() {
+        Graphics g = getCanvas();
+
         int[] dims = getOnscreenDimensions();
         
-        //if set to draw a background
+        //if set to drawToCanvas a background
         if (background) {
             //create the top color
             int rgb[] = new int[]{bg_color.getRed() - GRAD, bg_color.getGreen() - GRAD, bg_color.getBlue() - GRAD};
@@ -88,43 +96,43 @@ public class Button extends GUIElement {
                 rgb[1] += transition;
                 rgb[2] += transition;
                 g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-                g.fillRect(dims[0], dims[1] + r, dims[2], 1);
+                g.fillRect(0, 0 + r, dims[2], 1);
             }
-            //if enabled, draw a bevelled border
+            //if enabled, drawToCanvas a bevelled border
             if (enabled()) {
                 g.setColor(bg_color);
-                g.fillRect(dims[0], dims[1], dims[2], 1);
-                g.fillRect(dims[0], dims[1], 1, dims[3]);
+                g.fillRect(0, 0, dims[2], 1);
+                g.fillRect(0, 0, 1, dims[3]);
                 g.setColor(new Color(bg_color.getRed() - (GRAD * 2), bg_color.getGreen() - (GRAD * 2), bg_color.getBlue() - (GRAD * 2)));
-                g.fillRect(dims[0], dims[1] + dims[3] - 1, dims[2], 1);
-                g.fillRect(dims[0] + dims[2] - 1, dims[1], 1, dims[3]);
-            } else { //if not enabled, draw a box with greyer variant of the original background color
+                g.fillRect(0, 0 + dims[3] - 1, dims[2], 1);
+                g.fillRect(0 + dims[2] - 1, 0, 1, dims[3]);
+            } else { //if not enabled, drawToCanvas a box with greyer variant of the original background color
                 g.setColor(new Color(50 + bg_color.getRed() / 4, 50 + bg_color.getGreen() / 4, 50 + bg_color.getBlue() / 4));
-                g.drawRect(dims[0], dims[1], dims[2] - 1, dims[3] - 1);
+                g.drawRect(0, 0, dims[2] - 1, dims[3] - 1);
             }
         }
         //if the button is not being pressed, the mouse is touching it, and it is enabled, lighten the background
         if (!pressed && mouseHovering() && enabled()) {
             g.setColor(new Color(255, 255, 255, 100));
-            g.fillRect(dims[0], dims[1], dims[2], dims[3]);
+            g.fillRect(0, 0, dims[2], dims[3]);
         }
-        //if the icon is not null, draw it in the appropriate location (depends on whether there is text)
+        //if the icon is not null, drawToCanvas it in the appropriate location (depends on whether there is text)
         if (icon != null) {
             if (text.length() > 0) {
-                g.drawImage(icon, dims[0] + 2, dims[1] + dims[3] / 2 - icon.getHeight() / 2);
+                g.drawImage(icon, 0 + 2, 0 + dims[3] / 2 - icon.getHeight() / 2);
             } else {
-                g.drawImage(icon, dims[0] + dims[2] / 2 - icon.getWidth() / 2,
-                        dims[1] + dims[3] / 2 - icon.getHeight() / 2);
+                g.drawImage(icon, 0 + dims[2] / 2 - icon.getWidth() / 2,
+                        0 + dims[3] / 2 - icon.getHeight() / 2);
             }
         }
-        //draw text if any
+        //drawToCanvas text if any
         if (text.length() > 0) {
             g.setFont(Assets.getFont(12));
-            int str_x = dims[0] + dims[2] / 2 - Assets.getFont(12).getWidth(text) / 2;
-            int str_y = dims[1] + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+            int str_x = 0 + dims[2] / 2 - Assets.getFont(12).getWidth(text) / 2;
+            int str_y = 0 + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
             if (icon != null) {
-                str_x = dims[0] + 6 + icon.getHeight();
-                str_y = dims[1] + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+                str_x = 0 + 6 + icon.getHeight();
+                str_y = 0 + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
             }
             g.setColor(Color.gray.darker());
             g.drawString(text, str_x + 1, str_y + 1);

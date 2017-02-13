@@ -85,7 +85,8 @@ public class TextField extends GUIElement {
     }
 
     @Override
-    public void draw(Graphics g) {
+    public void drawToCanvas() {
+        Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
         g.setColor(Color.black);
         g.drawRect(dims[0] - 2, dims[1] - 2, dims[2] + 3, dims[3] + 3);

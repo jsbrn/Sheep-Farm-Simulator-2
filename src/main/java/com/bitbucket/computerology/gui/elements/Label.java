@@ -37,8 +37,8 @@ public class Label extends GUIElement {
     }
 
     @Override
-    public void draw(Graphics g) {
-
+    public void drawToCanvas() {
+        Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
 
         if (icon != null) {
