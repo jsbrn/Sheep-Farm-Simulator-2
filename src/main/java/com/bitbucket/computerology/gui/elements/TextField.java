@@ -89,21 +89,21 @@ public class TextField extends GUIElement {
         Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
         g.setColor(Color.black);
-        g.drawRect(dims[0] - 2, dims[1] - 2, dims[2] + 3, dims[3] + 3);
+        g.drawRect(0 - 2, 0 - 2, dims[2] + 3, dims[3] + 3);
         g.setColor(new Color(45, 50, 75).brighter());
-        g.drawRect(dims[0] - 1, dims[1] - 1, dims[2] + 1, dims[3] + 1);
+        g.drawRect(0 - 1, 0 - 1, dims[2] + 1, dims[3] + 1);
         g.setColor(Color.white);
-        g.fillRect(dims[0], dims[1], dims[2], dims[3]);
+        g.fillRect(0, 0, dims[2], dims[3]);
         g.setColor(Color.black);
         if (blink > blink_speed && hasFocus())
-            g.fillRect(dims[0] + 5 + Assets.getFont(12).getWidth(text), dims[1] + 3, 2, dims[3] - 6);
+            g.fillRect(0 + 5 + Assets.getFont(12).getWidth(text), 0 + 3, 2, dims[3] - 6);
         g.setFont(Assets.getFont(12));
         if (text.length() > 0) {
             g.setColor(text_color);
-            g.drawString(text, dims[0] + 5, dims[1] + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2);
+            g.drawString(text, 0 + 5, 0 + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2);
         } else if (!hasFocus()) {
             g.setColor(alt_text_color);
-            g.drawString(alt_text, dims[0] + 5, dims[1] + dims[3] / 2 - Assets.getFont(12).getHeight(alt_text) / 2);
+            g.drawString(alt_text, 0 + 5, 0 + dims[3] / 2 - Assets.getFont(12).getHeight(alt_text) / 2);
         }
     }
 

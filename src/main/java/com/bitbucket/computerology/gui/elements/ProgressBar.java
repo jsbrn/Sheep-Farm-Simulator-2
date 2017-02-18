@@ -38,18 +38,14 @@ public class ProgressBar extends GUIElement {
         title = s;
     }
 
-    public void addText(String t) {
-        if (Assets.getFont(12).getWidth(title) + 6 < getOnscreenDimensions()[2] - 10) title += t;
-    }
-
     @Override
     public void drawToCanvas() {
         Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
         g.setColor(Color.black);
-        g.drawRect(dims[1] - 2, dims[1] - 2, dims[2] + 3, dims[3] + 3);
+        g.drawRect(0 - 2, 0 - 2, dims[2] + 3, dims[3] + 3);
         g.setColor(new Color(45, 50, 75).brighter());
-        g.drawRect(dims[1] - 1, dims[1] - 1, dims[2] + 1, dims[3] + 1);
+        g.drawRect(0 - 1, 0 - 1, dims[2] + 1, dims[3] + 1);
 
         int rgb[] = new int[]{background_color.getRed(), background_color.getGreen(), background_color.getBlue()};
         int transition = 50 / (dims[3] > 0 ? dims[3] : 1);
@@ -58,7 +54,7 @@ public class ProgressBar extends GUIElement {
             rgb[1] += transition;
             rgb[2] += transition;
             g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-            g.fillRect(dims[1], dims[1] + r, dims[2], 1);
+            g.fillRect(0, 0 + r, dims[2], 1);
         }
 
         rgb = new int[]{bar_color.getRed(), bar_color.getGreen(), bar_color.getBlue()};
@@ -68,7 +64,7 @@ public class ProgressBar extends GUIElement {
             rgb[1] += transition;
             rgb[2] += transition;
             g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-            g.fillRect(dims[1], dims[1] + r, (int) ((progress / max) * dims[2]), 1);
+            g.fillRect(0, 0 + r, (int) ((progress / max) * dims[2]), 1);
         }
 
     }

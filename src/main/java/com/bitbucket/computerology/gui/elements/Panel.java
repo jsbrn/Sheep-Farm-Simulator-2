@@ -15,6 +15,9 @@ import java.util.logging.Logger;
 
 public class Panel extends GUIElement {
 
+    public static Color BACKGROUND_COLOR = new Color(0, 0, 0, 200),
+        SHADOW_COLOR = new Color(0, 0, 0, 125);
+
     boolean show_bg = true;
     String title;
     Image icon, background;
@@ -22,12 +25,12 @@ public class Panel extends GUIElement {
     boolean dragging = false, resizing = false;
     int last_x = 0, last_y = 0;
 
-    boolean resizable, movable, closable;
+    boolean resizable, draggable, closable;
 
     public Panel() {
         this.title = "";
         this.resizable = true;
-        this.movable = true;
+        this.draggable = true;
         this.closable = true;
     }
 
@@ -48,7 +51,7 @@ public class Panel extends GUIElement {
     }
 
     public void setDraggable(boolean b) {
-        this.movable = b;
+        this.draggable = b;
     }
 
     @Override
@@ -89,7 +92,8 @@ public class Panel extends GUIElement {
     }
 
     public int getHeaderHeight() {
-        return Assets.getFont(12).getHeight(title) + 6;
+        return Assets.getFont(12).getHeight(title)
+                + (Assets.getFont(20).getHeight(title)/2);
     }
 
     public void setBackground(String icon_url) {
@@ -114,31 +118,19 @@ public class Panel extends GUIElement {
         int[] dims = getOnscreenDimensions();
         if (show_bg && background == null) {
             if (!isDialog()) { //draw shadow
-                g.setColor(new Color(0, 0, 0, 125));
-                g.fillRect(0 + dims[2], 0 + 5, 5, dims[3] - 5);
-                g.fillRect(0 + 5, 0 + dims[3], dims[2] - 5, 5);
-                g.fillRect(0 + dims[2], 0 + dims[3], 5, 5);
+                g.setColor(SHADOW_COLOR);
+                g.fillRect(dims[2], 5, 5, dims[3] - 5);
+                g.fillRect(5, dims[3], dims[2] - 5, 5);
+                g.fillRect(dims[2], dims[3], 5, 5);
             }
             //draw background
-            Color base = new Color(45, 50, 60);
-            for (int r = 0; r != dims[3]; r++) {
-                int diff = dims[3] / 64 != 0 ? (Math.abs((dims[3] / 2) - r) / (dims[3] / 64)) : 1;
-                g.setColor(new Color(45 - diff, 50 - diff, 60 - diff, 225));
-                g.fillRect(0, 0 + r, dims[2], 1);
-            }
+            g.setColor(BACKGROUND_COLOR);
+            g.fillRect(0, 0, dims[2], dims[3]);
             //draw border
             g.setColor(Color.black);
             g.drawRect(0, 0, dims[2], dims[3]);
-            g.setColor(base.brighter());
+            g.setColor(BACKGROUND_COLOR.brighter());
             g.drawRect(1, 1, dims[2]-2, dims[3]-2);
-            //draw header
-            if ((icon != null || title.length() > 0) && background == null) {
-                int hrgb[] = new int[]{85, 170, 240}; //header rgb
-                for (int i = 0; i != getHeaderHeight(); i++) {
-                    g.setColor(new Color(hrgb[0] + (i * 2), hrgb[1] + (i * 2), hrgb[2] + (i * 2), 150));
-                    g.fillRect(0, 0 + i, dims[2], 1);
-                }
-            }
         }
 
         //draw the background image instead if set
@@ -146,20 +138,15 @@ public class Panel extends GUIElement {
             g.drawImage(background, 0, 0);
         }
 
-        //draw the icon in the corner
-        if (icon != null) {
-            g.drawImage(icon, 0 + 3, 0 + 3);
-        }
+        if (title.length() > 0 && background == null) {
+            g.setFont(Assets.getFont(20));
 
-        if (title.length() > 0) {
-            g.setFont(Assets.getFont(12));
-            int str_x = 0 + (icon != null ? icon.getWidth() + 6 : 3);
-            int str_y = 0 + 3;
-            g.setColor(Color.gray.darker());
-            g.drawString(title, str_x - 1, str_y - 1);
+            int str_x = 5;
+            int str_y = -3 + Assets.getFont(20).getHeight(title)/4;
             g.setColor(Color.white);
             g.drawString(title, str_x, str_y);
         }
+
         super.drawToCanvas(); //draw subcomponents to their own canvases
     }
 

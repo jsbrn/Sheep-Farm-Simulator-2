@@ -34,21 +34,23 @@ public class Label extends GUIElement {
 
     public void setText(String t) {
         text = t;
+        setWidth(Assets.getFont(font_size).getWidth(t));
     }
 
     @Override
     public void drawToCanvas() {
         Graphics g = getCanvas();
+
         int[] dims = getOnscreenDimensions();
 
         if (icon != null) {
-            g.drawImage(icon, dims[0], dims[1] + dims[3] / 2 - icon.getHeight() / 2);
+            g.drawImage(icon, 0, dims[3] / 2 - icon.getHeight() / 2);
         }
 
         if (text.length() > 0) {
             g.setFont(Assets.getFont(font_size));
-            int str_x = dims[0] + (icon != null ? icon.getWidth() + 3 : 0);
-            int str_y = dims[1] + dims[3] / 2 - Assets.getFont(font_size).getHeight(text) / 2 - 1;
+            int str_x = (icon != null ? icon.getWidth() + 3 : 0);
+            int str_y = dims[3] / 2 - Assets.getFont(font_size).getHeight(text) / 2 - 1;
             g.setColor(Color.gray.darker());
             g.drawString(text, str_x + 1, str_y + 1);
             g.setColor(Color.white);

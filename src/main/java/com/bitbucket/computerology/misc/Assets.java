@@ -42,6 +42,7 @@ public class Assets {
         if (pass == 1) {
             STATUS = "background";
             loadMenuBackground();
+            loadGradients();
             return false;
         }
         if (pass == 2) {
@@ -65,7 +66,7 @@ public class Assets {
         }
         if (pass >= 6 && pass < 6 + FONTS.length) {
             STATUS = "fonts";
-            Font awtFont = new Font("Arial", Font.PLAIN, 8 + ((pass - 6) * 4));
+            Font awtFont = new Font("Times New Roman", Font.PLAIN, 8 + ((pass - 6) * 4));
             TrueTypeFont f = new TrueTypeFont(awtFont, true);
             FONTS[pass - 6] = f;
             return false;
@@ -79,6 +80,17 @@ public class Assets {
         try {
             Assets.MAIN_MENU_BACKGROUND = new Image("images/gui/background.png", false, Image.FILTER_NEAREST)
                     .getScaledCopy(Window.getScreenWidth(), Window.getScreenHeight());
+        } catch (SlickException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void loadGradients() {
+        try {
+            Assets.BLACK_GRADIENT = new Image("images/gui/gradient.png",
+                    false, Image.FILTER_NEAREST);
+            Assets.WHITE_GRADIENT = new Image("images/gui/gradient.png",
+                    false, Image.FILTER_NEAREST);
         } catch (SlickException e) {
             e.printStackTrace();
         }
@@ -119,7 +131,7 @@ public class Assets {
             if (FONTS[index] != null) return FONTS[index];
         }
         if (placeholder_font == null) {
-            Font awtFont = new Font("Arial", Font.PLAIN, 16);
+            Font awtFont = new Font("Times New Roman", Font.PLAIN, 16);
             placeholder_font = new TrueTypeFont(awtFont, true);
         }
         return placeholder_font;

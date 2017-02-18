@@ -21,6 +21,8 @@ public class MainMenu extends BasicGameState {
     StateBasedGame game;
     boolean initialized = false;
 
+    Panel main_menu, world_select_menu;
+
     public MainMenu(int state) {
     }
 
@@ -35,23 +37,24 @@ public class MainMenu extends BasicGameState {
         game = sbg;
         GUI = new GUI();
 
-        final Panel world_select_menu = new Panel();
+        world_select_menu = new Panel();
         world_select_menu.setTitle("Choose a save...");
         world_select_menu.anchorMiddle(null, 0, 0);
         world_select_menu.setWidth(500);
         world_select_menu.setHeight(600);
-        world_select_menu.setVisible(false);
+        world_select_menu.setVisible(true);
 
-        Panel main_menu = new Panel();
+        main_menu = new Panel();
         main_menu.anchorMiddle(null, 0, 0);
         main_menu.setWidth(300);
         main_menu.setHeight(200);
 
         Button play_button = new Button("Play game", Color.green.darker(), Color.white) {
 
-            public void onMouseReleased(int button, int x, int y) {
+            public void onMousePress(int button, int x, int y) {
                 if (button == 0) {
                     world_select_menu.setVisible(true);
+                    main_menu.setVisible(false);
                 }
             }
 
@@ -62,7 +65,25 @@ public class MainMenu extends BasicGameState {
         play_button.setHeight(24);
         main_menu.addComponent(play_button);
 
+
+        Button back_button = new Button("Back", Color.gray.darker(), Color.white) {
+
+            public void onMousePress(int button, int x, int y) {
+                if (button == 0) {
+                    world_select_menu.setVisible(false);
+                    main_menu.setVisible(true);
+                }
+            }
+
+        };
+        back_button.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 40);
+        back_button.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+        back_button.setWidth(100);
+        back_button.setHeight(24);
+        world_select_menu.addComponent(back_button);
+
         GUI.addComponent(main_menu);
+        GUI.addComponent(world_select_menu);
 
         initialized = true;
     }

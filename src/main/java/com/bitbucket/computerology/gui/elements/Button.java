@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 
 public class Button extends GUIElement {
 
+    public static Color[] CONFIRM
+
     private static int GRAD = 35; //gradient magnitude
     private boolean background = true, auto_width = false, pressed = false;
     private Image icon;
@@ -76,54 +78,7 @@ public class Button extends GUIElement {
     public void drawToCanvas() {
         Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
-        
-        //if set to drawToCanvas a background
-        if (background) {
-            //create the top color
-            int rgb[] = new int[]{bg_color.getRed() - GRAD, bg_color.getGreen() - GRAD, bg_color.getBlue() - GRAD};
-            //if not enabled, set it to grey but with a touch of the original color :D
-            if (!enabled()) {
-                rgb[0] = 50 + (rgb[0] / 4);
-                rgb[1] = 50 + (rgb[1] / 4);
-                rgb[2] = 50 + (rgb[2] / 4);
-            }
-            //for each pixel row of the button, transition to a color symmetrically brighter to the top color
-            //that is, the specified background color is the middle row of the background
-            int transition = (GRAD * 2) / (dims[3] > 0 ? dims[3] : 1);
-            for (int r = 0; r != dims[3]; r++) {
-                rgb[0] += transition;
-                rgb[1] += transition;
-                rgb[2] += transition;
-                g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-                g.fillRect(0, 0 + r, dims[2], 1);
-            }
-            //if enabled, drawToCanvas a bevelled border
-            if (enabled()) {
-                g.setColor(bg_color);
-                g.fillRect(0, 0, dims[2], 1);
-                g.fillRect(0, 0, 1, dims[3]);
-                g.setColor(new Color(bg_color.getRed() - (GRAD * 2), bg_color.getGreen() - (GRAD * 2), bg_color.getBlue() - (GRAD * 2)));
-                g.fillRect(0, 0 + dims[3] - 1, dims[2], 1);
-                g.fillRect(0 + dims[2] - 1, 0, 1, dims[3]);
-            } else { //if not enabled, drawToCanvas a box with greyer variant of the original background color
-                g.setColor(new Color(50 + bg_color.getRed() / 4, 50 + bg_color.getGreen() / 4, 50 + bg_color.getBlue() / 4));
-                g.drawRect(0, 0, dims[2] - 1, dims[3] - 1);
-            }
-        }
-        //if the button is not being pressed, the mouse is touching it, and it is enabled, lighten the background
-        if (!pressed && mouseHovering() && enabled()) {
-            g.setColor(new Color(255, 255, 255, 100));
-            g.fillRect(0, 0, dims[2], dims[3]);
-        }
-        //if the icon is not null, drawToCanvas it in the appropriate location (depends on whether there is text)
-        if (icon != null) {
-            if (text.length() > 0) {
-                g.drawImage(icon, 0 + 2, 0 + dims[3] / 2 - icon.getHeight() / 2);
-            } else {
-                g.drawImage(icon, 0 + dims[2] / 2 - icon.getWidth() / 2,
-                        0 + dims[3] / 2 - icon.getHeight() / 2);
-            }
-        }
+
         //drawToCanvas text if any
         if (text.length() > 0) {
             g.setFont(Assets.getFont(12));
@@ -141,4 +96,8 @@ public class Button extends GUIElement {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Button["+text+"]";
+    }
 }

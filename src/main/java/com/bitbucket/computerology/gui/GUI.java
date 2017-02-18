@@ -74,7 +74,7 @@ public class GUI {
 
     public final void update() {
         for (GUIElement g : components) {
-            if (g.isVisible()) g.update();
+            g.update();
         }
     }
 
