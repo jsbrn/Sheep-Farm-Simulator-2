@@ -19,7 +19,6 @@ public class Panel extends GUIElement {
         SHADOW_COLOR = new Color(0, 0, 0, 125);
 
     boolean show_bg = true;
-    String title;
     Image icon, background;
 
     boolean dragging = false, resizing = false;
@@ -28,10 +27,9 @@ public class Panel extends GUIElement {
     boolean resizable, draggable, closable;
 
     public Panel() {
-        this.title = "";
-        this.resizable = true;
-        this.draggable = true;
-        this.closable = true;
+        this.resizable = false;
+        this.draggable = false;
+        this.closable = false;
     }
 
     @Override
@@ -57,7 +55,7 @@ public class Panel extends GUIElement {
     @Override
     public void onMousePress(int button, int x, int y) {
         int[] dims = getOnscreenDimensions();
-        if (MiscMath.pointIntersectsRect(x, y, dims[0], dims[1], dims[2], getHeaderHeight())) {
+        if (MiscMath.pointIntersectsRect(x, y, dims[0], dims[1], dims[2], 24)) {
             dragging = true;
             last_x = x;
             last_y = y;
@@ -91,21 +89,12 @@ public class Panel extends GUIElement {
         }
     }
 
-    public int getHeaderHeight() {
-        return Assets.getFont(12).getHeight(title)
-                + (Assets.getFont(20).getHeight(title)/2);
-    }
-
     public void setBackground(String icon_url) {
         try {
             background = new Image(icon_url, false, Image.FILTER_LINEAR);
         } catch (SlickException ex) {
             Logger.getLogger(Panel.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public void setTitle(String t) {
-        title = t;
     }
 
     public void showBackground(boolean b) {
@@ -116,35 +105,27 @@ public class Panel extends GUIElement {
     public void drawToCanvas() {
         Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
-        if (show_bg && background == null) {
-            if (!isDialog()) { //draw shadow
-                g.setColor(SHADOW_COLOR);
-                g.fillRect(dims[2], 5, 5, dims[3] - 5);
-                g.fillRect(5, dims[3], dims[2] - 5, 5);
-                g.fillRect(dims[2], dims[3], 5, 5);
+
+        if (show_bg) {
+
+            if (background == null) {
+                if (!isDialog()) { //draw shadow
+                    g.setColor(SHADOW_COLOR);
+                    g.fillRect(dims[2], 5, 5, dims[3]);
+                    g.fillRect(5, dims[3], dims[2] - 5, 5);
+                }
+                //draw background
+                g.setColor(BACKGROUND_COLOR);
+                g.fillRect(0, 0, dims[2], dims[3]);
+                //draw border
+                g.setColor(Color.black);
+                g.drawRect(0, 0, dims[2], dims[3]);
+                g.setColor(BACKGROUND_COLOR.brighter());
+                g.drawRect(1, 1, dims[2] - 2, dims[3] - 2);
+            } else {
+                g.drawImage(background, 0, 0);
             }
-            //draw background
-            g.setColor(BACKGROUND_COLOR);
-            g.fillRect(0, 0, dims[2], dims[3]);
-            //draw border
-            g.setColor(Color.black);
-            g.drawRect(0, 0, dims[2], dims[3]);
-            g.setColor(BACKGROUND_COLOR.brighter());
-            g.drawRect(1, 1, dims[2]-2, dims[3]-2);
-        }
 
-        //draw the background image instead if set
-        if (show_bg && background != null) {
-            g.drawImage(background, 0, 0);
-        }
-
-        if (title.length() > 0 && background == null) {
-            g.setFont(Assets.getFont(20));
-
-            int str_x = 5;
-            int str_y = -3 + Assets.getFont(20).getHeight(title)/4;
-            g.setColor(Color.white);
-            g.drawString(title, str_x, str_y);
         }
 
         super.drawToCanvas(); //draw subcomponents to their own canvases

@@ -12,24 +12,22 @@ import java.util.logging.Logger;
 
 public class Button extends GUIElement {
 
-    public static Color[] CONFIRM
-
     private static int GRAD = 35; //gradient magnitude
-    private boolean background = true, auto_width = false, pressed = false;
+    private boolean pressed = false;
     private Image icon;
     private String text;
-    private Color bg_color, text_color;
+    private Color bg_color, border_color, text_color;
 
     public Button() {
         this.text = "";
-        this.bg_color = Color.black;
+        this.bg_color = Color.darkGray;
         this.text_color = Color.white;
     }
 
     public Button(String text, Color bg, Color t) {
         this();
         this.text = text;
-        this.bg_color = bg;
+        setBackgroundColor(bg);
         this.text_color = t;
     }
 
@@ -59,15 +57,12 @@ public class Button extends GUIElement {
         text = t;
     }
 
-    public void showBackground(boolean b) {
-        background = b;
-    }
-
     public void setBackgroundColor(Color c) {
         int rbg[] = new int[]{c.getRed() > GRAD ? (c.getRed() < 255 - GRAD ? c.getRed() : 255 - GRAD) : GRAD,
                 c.getGreen() > GRAD ? (c.getGreen() < 255 - GRAD ? c.getGreen() : 255 - GRAD) : GRAD,
                 c.getBlue() > GRAD ? (c.getBlue() < 255 - GRAD ? c.getBlue() : 255 - GRAD) : GRAD};
         bg_color = new Color(rbg[0], rbg[1], rbg[2]);
+        border_color = new Color(rbg[0]+50, rbg[1]+50, rbg[2]+50);
     }
 
     public void setTextColor(Color c) {
@@ -79,19 +74,26 @@ public class Button extends GUIElement {
         Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
 
+        g.setColor(mouseHovering() ? border_color : bg_color);
+        if (!enabled()) g.setColor(Color.gray);
+        g.fillRect(0, 0, dims[2], dims[3]);
+        g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), 0, 0);
+        g.setColor(border_color);
+        g.drawRect(0, 0, dims[2]-1, dims[3]-1);
+
         //drawToCanvas text if any
         if (text.length() > 0) {
             g.setFont(Assets.getFont(12));
-            int str_x = 0 + dims[2] / 2 - Assets.getFont(12).getWidth(text) / 2;
-            int str_y = 0 + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+            int str_x = dims[2] / 2 - Assets.getFont(12).getWidth(text) / 2;
+            int str_y = dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
             if (icon != null) {
-                str_x = 0 + 6 + icon.getHeight();
-                str_y = 0 + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+                str_x = 6 + icon.getHeight();
+                str_y = dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
             }
             g.setColor(Color.gray.darker());
             g.drawString(text, str_x + 1, str_y + 1);
             //text color depends on enabled state of button
-            g.setColor(enabled() ? text_color : Color.lightGray);
+            g.setColor(enabled() ? text_color : Color.darkGray);
             g.drawString(text, str_x, str_y);
         }
     }

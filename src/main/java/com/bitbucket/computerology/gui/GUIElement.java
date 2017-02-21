@@ -118,14 +118,14 @@ public class GUIElement {
         return components;
     }
 
-    public final void addComponent(GUIElement g) {
+    public void addComponent(GUIElement g) {
         if (!components.contains(g)) {
             components.add(g);
             g.setParent(this);
         }
     }
 
-    public final void removeComponent(int index) {
+    public void removeComponent(int index) {
         GUIElement removed = components.remove(index);
         removed.setParent(null);
     }
@@ -223,13 +223,13 @@ public class GUIElement {
         return canvas;
     }
 
-    public Image getImage() { return gfx_image; }
+    public final Image getImage() { return gfx_image; }
 
     /**
      * Can be overridden. Resets the element back to its default state.
      * Call super.update() to reset sub-components.
      */
-    public void reset() {
+    public final void reset() {
         for (GUIElement g : components) g.reset();
     }
 

@@ -3,6 +3,7 @@ package com.bitbucket.computerology.gui.states;
 import com.bitbucket.computerology.gui.GUI;
 import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.elements.Button;
+import com.bitbucket.computerology.gui.elements.ListElement;
 import com.bitbucket.computerology.gui.elements.Panel;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
@@ -14,6 +15,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.io.File;
+
 public class MainMenu extends BasicGameState {
 
     public static GUI GUI;
@@ -21,7 +24,7 @@ public class MainMenu extends BasicGameState {
     StateBasedGame game;
     boolean initialized = false;
 
-    Panel main_menu, world_select_menu;
+    Panel main_menu, world_select_menu, saves_panel;
 
     public MainMenu(int state) {
     }
@@ -38,7 +41,6 @@ public class MainMenu extends BasicGameState {
         GUI = new GUI();
 
         world_select_menu = new Panel();
-        world_select_menu.setTitle("Choose a save...");
         world_select_menu.anchorMiddle(null, 0, 0);
         world_select_menu.setWidth(500);
         world_select_menu.setHeight(600);
@@ -49,12 +51,37 @@ public class MainMenu extends BasicGameState {
         main_menu.setWidth(300);
         main_menu.setHeight(200);
 
-        Button play_button = new Button("Play game", Color.green.darker(), Color.white) {
+        saves_panel = new Panel() {
+
+            @Override
+            public void refresh() {
+                getComponents().clear();
+                File save_dir = new File(Assets.ROOT_DIR+"/saves");
+                File[] saves = save_dir.listFiles();
+                for (int i = 0; i < saves.length; i++) {
+                    ListElement l = new ListElement(i);
+                    l.anchor(this, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 0);
+                    l.anchor(this, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, 0);
+                    l.anchor(this, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*100);
+                    l.setHeight(100);
+                    this.addComponent(l);
+                }
+            }
+
+        };
+        saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+        saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+        saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
+        saves_panel.showBackground(false);
+        world_select_menu.addComponent(saves_panel);
+
+        Button play_button = new Button("Play", Color.green, Color.white) {
 
             public void onMousePress(int button, int x, int y) {
                 if (button == 0) {
                     world_select_menu.setVisible(true);
                     main_menu.setVisible(false);
+                    saves_panel.refresh();
                 }
             }
 
@@ -66,7 +93,7 @@ public class MainMenu extends BasicGameState {
         main_menu.addComponent(play_button);
 
 
-        Button back_button = new Button("Back", Color.gray.darker(), Color.white) {
+        Button back_button = new Button("Back", Color.black, Color.white) {
 
             public void onMousePress(int button, int x, int y) {
                 if (button == 0) {

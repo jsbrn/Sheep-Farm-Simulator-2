@@ -16,19 +16,20 @@ import java.util.Properties;
 public class Assets {
 
     public static final int MAIN_MENU = 1, LOADING_SCREEN = 2, GAME_SCREEN = 0;
-    public static int ASSET_COUNT = 16; //this number needs to be accurate
+    public static final int ASSET_COUNT = 16; //this number needs to be accurate
     public static String STATUS = ""; //a description of what is being loaded currently
     public static Image MAIN_MENU_BACKGROUND;
     //version info, menu IDs, and the root directory
-    public static int UPDATE_ID = 0;
+    public static final int UPDATE_ID = 0;
     public static String VERSION_NAME = "0.0.1-dev", ROOT_DIR, SAVE_DIR;
     //used to keep track of the asset loading
-    static int pass = 0;
+    private static int pass = 0;
     //assets
-    static Image[] TERRAIN = new Image[3]; //3 zoom levels
-    static Image[] TERRAIN_CORNERS = new Image[3];
-    static TrueTypeFont[] FONTS;
-    static TrueTypeFont placeholder_font;
+    private static Image[] TERRAIN = new Image[3]; //3 zoom levels
+    private static Image[] TERRAIN_CORNERS = new Image[3];
+    private static TrueTypeFont[] FONTS;
+    private static TrueTypeFont placeholder_font;
+    public static Image WHITE_GRADIENT, BLACK_GRADIENT;
     private static boolean loaded;
 
     public static boolean loaded() {
@@ -66,8 +67,8 @@ public class Assets {
         }
         if (pass >= 6 && pass < 6 + FONTS.length) {
             STATUS = "fonts";
-            Font awtFont = new Font("Times New Roman", Font.PLAIN, 8 + ((pass - 6) * 4));
-            TrueTypeFont f = new TrueTypeFont(awtFont, true);
+            Font awtFont = new Font("Arial", Font.PLAIN, 8 + ((pass - 6) * 4));
+            TrueTypeFont f = new TrueTypeFont(awtFont, false);
             FONTS[pass - 6] = f;
             return false;
         }
@@ -131,7 +132,7 @@ public class Assets {
             if (FONTS[index] != null) return FONTS[index];
         }
         if (placeholder_font == null) {
-            Font awtFont = new Font("Times New Roman", Font.PLAIN, 16);
+            Font awtFont = new Font("Arial", Font.PLAIN, 16);
             placeholder_font = new TrueTypeFont(awtFont, true);
         }
         return placeholder_font;
