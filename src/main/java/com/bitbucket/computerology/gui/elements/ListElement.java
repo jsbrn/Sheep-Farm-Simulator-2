@@ -16,6 +16,8 @@ public class ListElement extends GUIElement {
 
     public void drawToCanvas() {
 
+        System.out.println("DRAWING LIST ELEMENT");
+
         Graphics g = getCanvas();
         int[] dims = getOnscreenDimensions();
         g.setColor(bg_color);

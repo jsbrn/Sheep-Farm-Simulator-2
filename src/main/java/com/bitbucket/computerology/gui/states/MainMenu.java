@@ -58,7 +58,7 @@ public class MainMenu extends BasicGameState {
                 getComponents().clear();
                 File save_dir = new File(Assets.ROOT_DIR+"/saves");
                 File[] saves = save_dir.listFiles();
-                for (int i = 0; i < saves.length; i++) {
+                for (int i = 0; i < 5; i++) {
                     ListElement l = new ListElement(i);
                     l.anchor(this, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 0);
                     l.anchor(this, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, 0);
@@ -72,6 +72,7 @@ public class MainMenu extends BasicGameState {
         saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
         saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
         saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
+        saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
         saves_panel.showBackground(false);
         world_select_menu.addComponent(saves_panel);
 

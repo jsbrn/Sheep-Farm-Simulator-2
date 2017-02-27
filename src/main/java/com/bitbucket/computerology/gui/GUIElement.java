@@ -23,20 +23,11 @@ public class GUIElement {
     private Object[][] anchors;
     private Object[] anchor_middle;
 
-    private Image gfx_image;
-    private Graphics canvas;
-
     public GUIElement() {
         this.components = new ArrayList<GUIElement>();
         this.parent = null;
         this.anchors = new Object[4][4];
         this.dims = new int[]{0, 0, 100, 100};
-        try {
-            this.gfx_image = new Image(Window.getScreenWidth(), Window.getScreenHeight());
-            this.canvas = this.gfx_image.getGraphics();
-        } catch (SlickException e) {
-            e.printStackTrace();
-        }
     }
 
     public void anchor(GUIElement parent, int mode, int parent_mode, int offset) {
@@ -118,14 +109,14 @@ public class GUIElement {
         return components;
     }
 
-    public void addComponent(GUIElement g) {
+    public final void addComponent(GUIElement g) {
         if (!components.contains(g)) {
             components.add(g);
             g.setParent(this);
         }
     }
 
-    public void removeComponent(int index) {
+    public final void removeComponent(int index) {
         GUIElement removed = components.remove(index);
         removed.setParent(null);
     }
@@ -183,9 +174,9 @@ public class GUIElement {
 
     public final void draw(Graphics g) {
         drawToCanvas();
-        if (getImage() == null) return;
+        if (getGUI().getImage() == null) return;
         int[] dims = getOnscreenDimensions();
-        g.drawImage(getImage(), dims[0], dims[1]);
+        g.drawImage(getGUI().getImage().get, dims[0], dims[1]);
         drawComponents(g);
     }
 
@@ -212,18 +203,9 @@ public class GUIElement {
             };
             Image i = e.getImage().getSubImage(union[0], union[1], union[2], union[3]);
             g.drawImage(i, e_dims[0], e_dims[1]);
+            e.drawComponents(g);
         }
     }
-
-    /**
-     * Clears and returns the Graphics instance held by the element's Image canvas.
-     */
-    protected final Graphics getCanvas() {
-        if (canvas != null) canvas.clear();
-        return canvas;
-    }
-
-    public final Image getImage() { return gfx_image; }
 
     /**
      * Can be overridden. Resets the element back to its default state.

@@ -6,6 +6,8 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 
 import java.util.ArrayList;
 
@@ -13,6 +15,10 @@ public class GUI {
 
     private ArrayList<GUIElement> components;
     private GUIElement focus, dialog;
+
+    private Graphics canvas;
+    private Image gfx_img;
+    private ArrayList<int[]> allocated;
 
     public GUI() {
         this.components = new ArrayList<GUIElement>();
@@ -107,7 +113,23 @@ public class GUI {
         return null;
     }
 
+    public final void createCanvas(int width, int height) {
+        try {
+            gfx_img = new Image(width, height);
+            canvas = gfx_img.getGraphics();
+            allocated = new ArrayList<int[]>();
+        } catch (SlickException e) {
+            e.printStackTrace();
+        }
+    }
+
     public final void draw(Graphics g) {
+
+        if (gfx_img == null) return;
+        if (canvas == null) return;
+
+        canvas.clear();
+
         for (GUIElement e : components) {
             if (e.isVisible()) {
                 if (!e.equals(dialog)) {
@@ -120,6 +142,23 @@ public class GUI {
             g.fillRect(0, 0, Display.getWidth(), Display.getHeight());
             dialog.draw(g);
         }
+    }
+
+    private final int[] allocateCanvasSpace(GUIElement e) {
+        if (allocated.isEmpty()) return new int[]{0, 0};
+        int[] e_dims = e.getOnscreenDimensions();
+        for (int[] a: allocated) {
+            for (int[] a2: allocated) {
+                if (!MiscMath.rectanglesIntersect(a2[0], a2[1], a2[2], a2[3],
+                        a[0] + a[2] + 1, a[1] + 1, e_dims[2], e_dims[3])) {
+                    return new int[]{a[0] + a[2] + 1, a[1] + 1};
+                }
+                if (!MiscMath.rectanglesIntersect(a2[0], a2[1], a2[2], a2[3], a[0] + 1, a[1] + a[3] + 1, e_dims[2], e_dims[3])) {
+                    return new int[]{a[0] + 1, a[1] + a[3] + 1};
+                }
+            }
+        }
+        return new int[]{-1, -1};
     }
 
     public final boolean applyMouseClick(int button, int x, int y, int click_count) {
