@@ -15,13 +15,13 @@ public class ListElement extends GUIElement {
     }
 
     public void drawToCanvas() {
+        super.drawToCanvas();
+        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
 
-        System.out.println("DRAWING LIST ELEMENT");
-
-        Graphics g = getCanvas();
+        Graphics g = getGUI().getCanvas();
         int[] dims = getOnscreenDimensions();
         g.setColor(bg_color);
-        g.fillRect(0, 0, dims[2], dims[3]);
+        g.fillRect(x, y, dims[2], dims[3]);
 
         super.drawToCanvas();
 

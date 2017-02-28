@@ -86,24 +86,26 @@ public class TextField extends GUIElement {
 
     @Override
     public void drawToCanvas() {
-        Graphics g = getCanvas();
+        super.drawToCanvas();
+        Graphics g = getGUI().getCanvas();
+        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
         int[] dims = getOnscreenDimensions();
         g.setColor(Color.black);
-        g.drawRect(0 - 2, 0 - 2, dims[2] + 3, dims[3] + 3);
+        g.drawRect(x - 2, y - 2, dims[2] + 3, dims[3] + 3);
         g.setColor(new Color(45, 50, 75).brighter());
-        g.drawRect(0 - 1, 0 - 1, dims[2] + 1, dims[3] + 1);
+        g.drawRect(x - 1, y - 1, dims[2] + 1, dims[3] + 1);
         g.setColor(Color.white);
-        g.fillRect(0, 0, dims[2], dims[3]);
+        g.fillRect(x, y, dims[2], dims[3]);
         g.setColor(Color.black);
         if (blink > blink_speed && hasFocus())
-            g.fillRect(0 + 5 + Assets.getFont(12).getWidth(text), 0 + 3, 2, dims[3] - 6);
+            g.fillRect(x + 5 + Assets.getFont(12).getWidth(text), y + 3, 2, dims[3] - 6);
         g.setFont(Assets.getFont(12));
         if (text.length() > 0) {
             g.setColor(text_color);
-            g.drawString(text, 0 + 5, 0 + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2);
+            g.drawString(text, x + 5, y + dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2);
         } else if (!hasFocus()) {
             g.setColor(alt_text_color);
-            g.drawString(alt_text, 0 + 5, 0 + dims[3] / 2 - Assets.getFont(12).getHeight(alt_text) / 2);
+            g.drawString(alt_text, x + 5, y + dims[3] / 2 - Assets.getFont(12).getHeight(alt_text) / 2);
         }
     }
 

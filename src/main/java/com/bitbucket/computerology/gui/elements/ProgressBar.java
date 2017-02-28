@@ -1,7 +1,6 @@
 package com.bitbucket.computerology.gui.elements;
 
 import com.bitbucket.computerology.gui.GUIElement;
-import com.bitbucket.computerology.misc.Assets;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
@@ -40,12 +39,14 @@ public class ProgressBar extends GUIElement {
 
     @Override
     public void drawToCanvas() {
-        Graphics g = getCanvas();
+        super.drawToCanvas();
+        Graphics g = getGUI().getCanvas();
         int[] dims = getOnscreenDimensions();
+        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
         g.setColor(Color.black);
-        g.drawRect(0 - 2, 0 - 2, dims[2] + 3, dims[3] + 3);
+        g.drawRect(x - 2, y - 2, dims[2] + 3, dims[3] + 3);
         g.setColor(new Color(45, 50, 75).brighter());
-        g.drawRect(0 - 1, 0 - 1, dims[2] + 1, dims[3] + 1);
+        g.drawRect(x - 1, y - 1, dims[2] + 1, dims[3] + 1);
 
         int rgb[] = new int[]{background_color.getRed(), background_color.getGreen(), background_color.getBlue()};
         int transition = 50 / (dims[3] > 0 ? dims[3] : 1);
@@ -54,7 +55,7 @@ public class ProgressBar extends GUIElement {
             rgb[1] += transition;
             rgb[2] += transition;
             g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-            g.fillRect(0, 0 + r, dims[2], 1);
+            g.fillRect(x, y + r, dims[2], 1);
         }
 
         rgb = new int[]{bar_color.getRed(), bar_color.getGreen(), bar_color.getBlue()};
@@ -64,7 +65,7 @@ public class ProgressBar extends GUIElement {
             rgb[1] += transition;
             rgb[2] += transition;
             g.setColor(new Color(rgb[0], rgb[1], rgb[2]));
-            g.fillRect(0, 0 + r, (int) ((progress / max) * dims[2]), 1);
+            g.fillRect(x, y + r, (int) ((progress / max) * dims[2]), 1);
         }
 
     }

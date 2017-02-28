@@ -71,15 +71,17 @@ public class Button extends GUIElement {
 
     @Override
     public void drawToCanvas() {
-        Graphics g = getCanvas();
+        super.drawToCanvas();
+        Graphics g = getGUI().getCanvas();
+        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
         int[] dims = getOnscreenDimensions();
 
         g.setColor(mouseHovering() ? border_color : bg_color);
         if (!enabled()) g.setColor(Color.gray);
-        g.fillRect(0, 0, dims[2], dims[3]);
-        g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), 0, 0);
+        g.fillRect(x, y, dims[2], dims[3]);
+        g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), x, y);
         g.setColor(border_color);
-        g.drawRect(0, 0, dims[2]-1, dims[3]-1);
+        g.drawRect(x, y, dims[2]-1, dims[3]-1);
 
         //drawToCanvas text if any
         if (text.length() > 0) {
@@ -91,10 +93,10 @@ public class Button extends GUIElement {
                 str_y = dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
             }
             g.setColor(Color.gray.darker());
-            g.drawString(text, str_x + 1, str_y + 1);
+            g.drawString(text, x + str_x + 1, y + str_y + 1);
             //text color depends on enabled state of button
             g.setColor(enabled() ? text_color : Color.darkGray);
-            g.drawString(text, str_x, str_y);
+            g.drawString(text, x + str_x, y + str_y);
         }
     }
 

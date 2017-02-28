@@ -27,7 +27,7 @@ public class MapCanvas extends GUIElement {
 
     @Override
     public void drawToCanvas() {
-
+        super.drawToCanvas();
     }
 
 }

@@ -1,11 +1,9 @@
 package com.bitbucket.computerology.gui;
 
 import com.bitbucket.computerology.misc.MiscMath;
-import com.bitbucket.computerology.misc.Window;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
-import org.newdawn.slick.SlickException;
 
 import java.util.ArrayList;
 
@@ -22,6 +20,8 @@ public class GUIElement {
     private int dims[]; //the values used when no anchors are found
     private Object[][] anchors;
     private Object[] anchor_middle;
+
+    private int[] canvas_location;
 
     public GUIElement() {
         this.components = new ArrayList<GUIElement>();
@@ -173,27 +173,35 @@ public class GUIElement {
     }
 
     public final void draw(Graphics g) {
-        drawToCanvas();
-        if (getGUI().getImage() == null) return;
+        if (getGUI().getImage(this) == null) return;
         int[] dims = getOnscreenDimensions();
-        g.drawImage(getGUI().getImage().get, dims[0], dims[1]);
+        g.drawImage(getGUI().getImage(this), dims[0], dims[1]);
         drawComponents(g);
     }
 
     /**
      * Override, do the render, and call super to draw the sub-components
-     * to their canvases.
+     * to their canvases. Super must be called before the actual drawing begins.
      */
     protected void drawToCanvas() {
+        setCanvasLocation(getGUI().findFreeCanvasSpace(this));
         for (GUIElement e : components) {
             e.drawToCanvas();
         }
     }
 
+    protected void setCanvasLocation(int[] loc) {
+        canvas_location = loc;
+    }
+
+    protected int[] getCanvasLocation() {
+        return canvas_location;
+    }
+
     private final void drawComponents(Graphics g) {
         int[] dims = getOnscreenDimensions();
         for (GUIElement e : components) {
-            if (e.getImage() == null) continue;
+            if (e.getGUI().getImage(e) == null) continue;
             int[] e_dims = e.getOnscreenDimensions();
             int[] union = new int[]{
                     (int)MiscMath.max(0, dims[0]-e_dims[0]),
@@ -201,7 +209,7 @@ public class GUIElement {
                     (int)MiscMath.min(e_dims[2], (dims[2]+dims[0])-e_dims[0]),
                     (int)MiscMath.min(e_dims[3], (dims[3]+dims[1])-e_dims[1])
             };
-            Image i = e.getImage().getSubImage(union[0], union[1], union[2], union[3]);
+            Image i = e.getGUI().getImage(e).getSubImage(union[0], union[1], union[2], union[3]);
             g.drawImage(i, e_dims[0], e_dims[1]);
             e.drawComponents(g);
         }

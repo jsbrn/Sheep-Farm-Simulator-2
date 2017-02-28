@@ -38,12 +38,12 @@ public class Window {
             int year = Calendar.getInstance().get(Calendar.YEAR);
             int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
             Image scrn = new Image(Window.getWidth(), Window.getHeight());
-            String file_url = System.getProperty("user.home") + "/sheepfarmsimulator//screenshots/"
+            String file_url = System.getProperty("user.home") + "/secret/screenshots/"
                     + year + "" + month + "" + day;
             g.copyArea(scrn, 0, 0);
             //make screenshots folder
-            if (new File(System.getProperty("user.home") + "/sheepfarmsimulator/screenshots/").exists() == false) {
-                new File(System.getProperty("user.home") + "/sheepfarmsimulator/screenshots/").mkdir();
+            if (new File(System.getProperty("user.home") + "/secret/screenshots/").exists() == false) {
+                new File(System.getProperty("user.home") + "/secret/screenshots/").mkdir();
             }
             //check if image_exists already
             if (new File(file_url + ".png").exists()) {

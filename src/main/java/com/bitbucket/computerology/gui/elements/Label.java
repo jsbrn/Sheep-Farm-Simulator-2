@@ -39,12 +39,15 @@ public class Label extends GUIElement {
 
     @Override
     public void drawToCanvas() {
-        Graphics g = getCanvas();
+        super.drawToCanvas();
+        Graphics g = getGUI().getCanvas();
+
+        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
 
         int[] dims = getOnscreenDimensions();
 
         if (icon != null) {
-            g.drawImage(icon, 0, dims[3] / 2 - icon.getHeight() / 2);
+            g.drawImage(icon, x, y + (dims[3] / 2 - icon.getHeight() / 2));
         }
 
         if (text.length() > 0) {
@@ -52,9 +55,9 @@ public class Label extends GUIElement {
             int str_x = (icon != null ? icon.getWidth() + 3 : 0);
             int str_y = dims[3] / 2 - Assets.getFont(font_size).getHeight(text) / 2 - 1;
             g.setColor(Color.gray.darker());
-            g.drawString(text, str_x + 1, str_y + 1);
+            g.drawString(text, x + str_x + 1, y + str_y + 1);
             g.setColor(Color.white);
-            g.drawString(text, str_x, str_y);
+            g.drawString(text, x + str_x, y + str_y);
         }
     }
 
