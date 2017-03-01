@@ -63,6 +63,7 @@ public class Button extends GUIElement {
                 c.getBlue() > GRAD ? (c.getBlue() < 255 - GRAD ? c.getBlue() : 255 - GRAD) : GRAD};
         bg_color = new Color(rbg[0], rbg[1], rbg[2]);
         border_color = new Color(rbg[0]+50, rbg[1]+50, rbg[2]+50);
+        new Color(0, 0, 0);
     }
 
     public void setTextColor(Color c) {
@@ -70,20 +71,18 @@ public class Button extends GUIElement {
     }
 
     @Override
-    public void drawToCanvas() {
-        super.drawToCanvas();
-        Graphics g = getGUI().getCanvas();
-        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
+    public void draw(Graphics g) {
+        
         int[] dims = getOnscreenDimensions();
 
         g.setColor(mouseHovering() ? border_color : bg_color);
         if (!enabled()) g.setColor(Color.gray);
-        g.fillRect(x, y, dims[2], dims[3]);
-        g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), x, y);
+        g.fillRect(dims[0], dims[1], dims[2], dims[3]);
+        g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), dims[0], dims[1]);
         g.setColor(border_color);
-        g.drawRect(x, y, dims[2]-1, dims[3]-1);
+        g.drawRect(dims[0], dims[1], dims[2]-1, dims[3]-1);
 
-        //drawToCanvas text if any
+        //draw text if any
         if (text.length() > 0) {
             g.setFont(Assets.getFont(12));
             int str_x = dims[2] / 2 - Assets.getFont(12).getWidth(text) / 2;
@@ -93,11 +92,14 @@ public class Button extends GUIElement {
                 str_y = dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
             }
             g.setColor(Color.gray.darker());
-            g.drawString(text, x + str_x + 1, y + str_y + 1);
+            g.drawString(text, dims[0] + str_x + 1, dims[1] + str_y + 1);
             //text color depends on enabled state of button
             g.setColor(enabled() ? text_color : Color.darkGray);
-            g.drawString(text, x + str_x, y + str_y);
+            g.drawString(text, dims[0] + str_x, dims[1] + str_y);
         }
+
+        super.draw(g);
+
     }
 
     @Override

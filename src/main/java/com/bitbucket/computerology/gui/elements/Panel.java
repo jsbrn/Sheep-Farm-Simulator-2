@@ -39,8 +39,10 @@ public class Panel extends GUIElement {
             last_x = Mouse.getX();
             last_y = Display.getHeight() - Mouse.getY();
         } else if (resizing) {
-            this.addWidth(Mouse.getX() - last_x);
-            this.addHeight((Display.getHeight() - Mouse.getY()) - last_y);
+            this.addWidth((Mouse.getX() - last_x)
+                    * (anchored(GUIElement.ANCHOR_MID_X) ? 2 : 1));
+            this.addHeight(((Display.getHeight() - Mouse.getY()) - last_y)
+                    * (anchored(GUIElement.ANCHOR_MID_Y) ? 2 : 1));
             last_x = Mouse.getX();
             last_y = Display.getHeight() - Mouse.getY();
         }
@@ -101,32 +103,32 @@ public class Panel extends GUIElement {
     }
 
     @Override
-    public void drawToCanvas() {
-        super.drawToCanvas();
-        Graphics g = getGUI().getCanvas();
+    public void draw(Graphics g) {
         int[] dims = getOnscreenDimensions();
-        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
         if (show_bg) {
 
             if (background == null) {
                 if (!isDialog()) { //draw shadow
                     g.setColor(SHADOW_COLOR);
-                    g.fillRect(x + dims[2], y + 5, 5, dims[3]);
-                    g.fillRect(x + 5, y + dims[3], dims[2] - 5, 5);
+                    g.fillRect(dims[0] + dims[2], dims[1] + 5, 5, dims[3]);
+                    g.fillRect(dims[0] + 5, dims[1] + dims[3], dims[2] - 5, 5);
                 }
                 //draw background
                 g.setColor(BACKGROUND_COLOR);
-                g.fillRect(x, y, dims[2], dims[3]);
+                g.fillRect(dims[0], dims[1], dims[2], dims[3]);
                 //draw border
                 g.setColor(Color.black);
-                g.drawRect(x, y, dims[2], dims[3]);
+                g.drawRect(dims[0], dims[1], dims[2], dims[3]);
                 g.setColor(BACKGROUND_COLOR.brighter());
-                g.drawRect(x + 1, x + 1, dims[2] - 2, dims[3] - 2);
+                g.drawRect(dims[0] + 1, dims[1] + 1, dims[2] - 2, dims[3] - 2);
             } else {
-                g.drawImage(background, x, y);
+                g.drawImage(background, dims[0], dims[1]);
             }
 
         }
+
+        super.draw(g);
+
     }
 
 }

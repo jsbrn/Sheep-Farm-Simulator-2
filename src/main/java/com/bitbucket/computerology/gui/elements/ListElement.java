@@ -11,19 +11,18 @@ public class ListElement extends GUIElement {
 
     public ListElement(int index) {
         this.even = index % 2 == 0;
-        this.bg_color = new Color(10, 10, 25, even ? 150 : 100);
+        int mult = even ? 2 : 1;
+        this.bg_color = new Color(20*mult, 20*mult, 25*mult);
     }
 
-    public void drawToCanvas() {
-        super.drawToCanvas();
-        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
+    @Override
+    public void draw(Graphics g) {
 
-        Graphics g = getGUI().getCanvas();
         int[] dims = getOnscreenDimensions();
         g.setColor(bg_color);
-        g.fillRect(x, y, dims[2], dims[3]);
+        g.fillRect(dims[0], dims[1], dims[2], dims[3]);
 
-        super.drawToCanvas();
+        super.draw(g);
 
     }
 

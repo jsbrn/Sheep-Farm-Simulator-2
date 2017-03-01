@@ -2,7 +2,6 @@ package com.bitbucket.computerology.gui;
 
 import com.bitbucket.computerology.gui.elements.Panel;
 import com.bitbucket.computerology.misc.MiscMath;
-import com.bitbucket.computerology.misc.Window;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
@@ -17,12 +16,12 @@ public class GUI {
     private ArrayList<GUIElement> components;
     private GUIElement focus, dialog;
 
-    private Graphics canvas;
+    /*private Graphics canvas;
     private Image gfx_img;
-    private ArrayList<int[]> allocated;
+    private ArrayList<int[]> allocated;*/
 
     public GUI() {
-        createCanvas(Window.getScreenWidth()*4, Window.getScreenHeight()*4);
+        //createCanvas(Window.getScreenWidth()*4, Window.getScreenHeight()*4);
         this.components = new ArrayList<GUIElement>();
     }
 
@@ -115,7 +114,7 @@ public class GUI {
         return null;
     }
 
-    public final void createCanvas(int width, int height) {
+    /*public final void createCanvas(int width, int height) {
         try {
             gfx_img = new Image(width, height);
             canvas = gfx_img.getGraphics();
@@ -127,9 +126,11 @@ public class GUI {
 
     public final int[] findFreeCanvasSpace(GUIElement e) {
         if (allocated.isEmpty()) return new int[]{0, 0, 0, 0};
+
         int[] e_dims = e.getOnscreenDimensions();
         for (int[] a: allocated) {
             for (int[] a2: allocated) {
+                if (a2.equals(a)) continue;
                 if (!MiscMath.rectanglesIntersect(a2[0], a2[1], a2[2], a2[3],
                         a[0] + a[2] + 1, a[1] + 1, e_dims[2], e_dims[3])) {
                     int[] rect = new int[]{a[0] + a[2] + 1, a[1] + 1, e_dims[2], e_dims[3]};
@@ -165,19 +166,18 @@ public class GUI {
     public final Image getImage(GUIElement e) {
         int[] dims = e.getOnscreenDimensions();
         return gfx_img.getSubImage(e.getCanvasLocation()[0], e.getCanvasLocation()[1], dims[2], dims[3]);
-    }
+    }*/
 
     public final void draw(Graphics g) {
 
-        if (gfx_img == null) return;
+        /*if (gfx_img == null) return;
         if (canvas == null) return;
 
         canvas.clear();
-        allocated.clear();
+        allocated.clear();*/
 
         for (GUIElement e : components) {
-            e.drawToCanvas();
-            e.draw(g);
+            if (e.isVisible() && !e.isDialog()) e.draw(g);
         }
 
         if (dialog != null) {

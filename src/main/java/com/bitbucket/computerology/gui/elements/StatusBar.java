@@ -36,24 +36,19 @@ public class StatusBar extends GUIElement {
     public int[] getOnscreenDimensions() {
         int[] sup = super.getOnscreenDimensions();
         sup[2] = Display.getWidth();
-        sup[3] = overhang.getHeight();
-        // FIXME: 27/02/17
+        sup[3] = 24;
         return sup;
     }
 
     @Override
-    public void drawToCanvas() {
-        // FIXME: 27/02/17
-        super.drawToCanvas();
-        Graphics g = getGUI().getCanvas();
-        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
+    public void draw(Graphics g) {
         g.drawImage(overhang, Display.getWidth() / 2 - overhang.getWidth() / 2, 0);
         sundial.setRotation(360F * (float) (((double) World.getWorld().getTime() % 1400D) / 1400D));
         g.drawImage(sundial, Display.getWidth() / 2 - sundial.getWidth() / 2, 10 + frame.getHeight() / 2 - sundial.getHeight() / 2);
         g.drawImage(frame, Display.getWidth() / 2 - frame.getWidth() / 2, 10);
-        g.drawImage(bar.getScaledCopy(Display.getWidth() / 2 - overhang.getWidth() / 2, bar.getHeight()), x, y);
+        g.drawImage(bar.getScaledCopy(Display.getWidth() / 2 - overhang.getWidth() / 2, bar.getHeight()), 0, 0);
         g.drawImage(bar.getScaledCopy(Display.getWidth() / 2, bar.getHeight()), Display.getWidth() / 2 + overhang.getWidth() / 2, 0);
-        super.drawToCanvas();
+        super.draw(g);
     }
 
 }

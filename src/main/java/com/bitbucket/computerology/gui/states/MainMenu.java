@@ -41,13 +41,15 @@ public class MainMenu extends BasicGameState {
         GUI = new GUI();
 
         world_select_menu = new Panel();
-        world_select_menu.anchorMiddle(null, 0, 0);
+        world_select_menu.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
+        world_select_menu.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
         world_select_menu.setWidth(500);
         world_select_menu.setHeight(600);
-        world_select_menu.setVisible(true);
+        world_select_menu.setVisible(false);
 
         main_menu = new Panel();
-        main_menu.anchorMiddle(null, 0, 0);
+        main_menu.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
+        main_menu.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
         main_menu.setWidth(300);
         main_menu.setHeight(200);
 
@@ -58,12 +60,17 @@ public class MainMenu extends BasicGameState {
                 getComponents().clear();
                 File save_dir = new File(Assets.ROOT_DIR+"/saves");
                 File[] saves = save_dir.listFiles();
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < saves.length; i++) {
                     ListElement l = new ListElement(i);
                     l.anchor(this, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 0);
                     l.anchor(this, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, 0);
-                    l.anchor(this, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*100);
-                    l.setHeight(100);
+                    l.anchor(this, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*24);
+                    l.setHeight(32);
+
+                    Button play = new Button();
+                    play.setIcon("images/gui/play_icon.png");
+
+
                     this.addComponent(l);
                 }
             }

@@ -1,16 +1,16 @@
 package com.bitbucket.computerology.gui;
 
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.misc.Window;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 
 import java.util.ArrayList;
 
 public class GUIElement {
 
-    public static final int ANCHOR_LEFT = 0, ANCHOR_TOP = 1, ANCHOR_RIGHT = 2, ANCHOR_BOTTOM = 3
-            , ANCHOR_MIDDLE = 4;
+    public static final int ANCHOR_MID_X = 0, ANCHOR_MID_Y = 1,
+            ANCHOR_LEFT = 2, ANCHOR_TOP = 3, ANCHOR_RIGHT = 4, ANCHOR_BOTTOM = 5;
 
     private ArrayList<GUIElement> components;
     private GUIElement parent;
@@ -19,14 +19,11 @@ public class GUIElement {
 
     private int dims[]; //the values used when no anchors are found
     private Object[][] anchors;
-    private Object[] anchor_middle;
-
-    private int[] canvas_location;
 
     public GUIElement() {
         this.components = new ArrayList<GUIElement>();
         this.parent = null;
-        this.anchors = new Object[4][4];
+        this.anchors = new Object[6][4];
         this.dims = new int[]{0, 0, 100, 100};
     }
 
@@ -39,21 +36,12 @@ public class GUIElement {
         anchors[mode][3] = offset;
     }
 
-    public void anchorMiddle(GUIElement parent, int offset_x, int offset_y) {
-        anchor_middle = new Object[3];
-        anchor_middle[0] = parent;
-        anchor_middle[1] = offset_x;
-        anchor_middle[2] = offset_y;
-    }
-
     public void clearAnchors() {
-        anchor_middle = null;
-        anchors = new Object[4][4];
+        anchors = new Object[6][4];
     }
 
     public boolean anchored(int mode) {
         if (mode < -1 || mode >= anchors.length) return false;
-        if (mode == ANCHOR_MIDDLE) return anchor_middle != null;
         return anchors[mode][1] != null;
     }
 
@@ -172,25 +160,13 @@ public class GUIElement {
         for (GUIElement g : components) g.update();
     }
 
-    public final void draw(Graphics g) {
-        if (getGUI().getImage(this) == null) return;
-        int[] dims = getOnscreenDimensions();
-        g.drawImage(getGUI().getImage(this), dims[0], dims[1]);
-        drawComponents(g);
-    }
-
-    /**
-     * Override, do the render, and call super to draw the sub-components
-     * to their canvases. Super must be called before the actual drawing begins.
-     */
-    protected void drawToCanvas() {
-        setCanvasLocation(getGUI().findFreeCanvasSpace(this));
+    public void draw(Graphics g) {
         for (GUIElement e : components) {
-            e.drawToCanvas();
+            e.draw(g);
         }
     }
 
-    protected void setCanvasLocation(int[] loc) {
+    /*protected void setCanvasLocation(int[] loc) {
         canvas_location = loc;
     }
 
@@ -213,7 +189,7 @@ public class GUIElement {
             g.drawImage(i, e_dims[0], e_dims[1]);
             e.drawComponents(g);
         }
-    }
+    }*/
 
     /**
      * Can be overridden. Resets the element back to its default state.
@@ -229,40 +205,53 @@ public class GUIElement {
      */
     public int[] getOnscreenDimensions() {
 
-        if (anchor_middle != null) {
-            GUIElement e = anchor_middle[0] == null ? parent : (GUIElement)anchor_middle[0];
-            int[] e_dims = e == null ? new int[]{0, 0, Display.getWidth(), Display.getHeight()}
-                    : e.getOnscreenDimensions();
-            int[] mid = {e_dims[2]/2, e_dims[3]/2};
-            return new int[]{mid[0]-(dims[2]/2)+(Integer)anchor_middle[1],
-                    mid[1]-(dims[3]/2)+(Integer)anchor_middle[2], dims[2], dims[3]};
-        }
-
         int[] osc_dims = new int[]{dims[0], dims[1], dims[2], dims[3]};
 
         for (Object[] anchor: anchors) {
             if (anchor[1] == null) continue;
             GUIElement e = anchor[0] == null ? parent : (GUIElement)anchor[0];
-            int[] e_dims = e != null ? e.getOnscreenDimensions()
-                    : new int[]{0, 0, Display.getWidth(), Display.getHeight()};
+            int[] p_dims = e != null ? e.getOnscreenDimensions()
+                    : new int[]{0, 0, Window.getWidth(), Window.getHeight()};
             int mode = (Integer)anchor[1];
             int parent_mode = (Integer)anchor[2];
             int offset = (Integer)anchor[3];
 
-            if (mode == ANCHOR_LEFT) {
-                osc_dims[0] = offset + (parent_mode == ANCHOR_RIGHT ? e_dims[2] : 0) + e_dims[0];
+            if (mode != ANCHOR_MID_X) {
+                if (mode == ANCHOR_LEFT) {
+                    osc_dims[0] = offset + p_dims[0]
+                            + (parent_mode == ANCHOR_MID_X ? p_dims[2] / 2
+                            : (parent_mode == ANCHOR_RIGHT ? p_dims[2] : 0));
+                }
+                if (mode == ANCHOR_RIGHT) {
+                    osc_dims[2] = offset + p_dims[0] - osc_dims[0]
+                            + (parent_mode == ANCHOR_MID_X ? p_dims[2] / 2
+                            : (parent_mode == ANCHOR_RIGHT ? p_dims[2] : 0));
+                }
+            } else {
+                osc_dims[2] = dims[2];
+                osc_dims[0] = p_dims[0] - (osc_dims[2] / 2)
+                        + (parent_mode == ANCHOR_MID_X ? p_dims[2] / 2
+                        : (parent_mode == ANCHOR_RIGHT ? p_dims[2] : 0));
             }
-            if (mode == ANCHOR_TOP) {
-                osc_dims[1] = offset + (parent_mode == ANCHOR_BOTTOM ? e_dims[3] : 0) + e_dims[1];
+
+            if (mode != ANCHOR_MID_Y) {
+                if (mode == ANCHOR_TOP) {
+                    osc_dims[1] = offset + p_dims[1]
+                            + (parent_mode == ANCHOR_MID_Y ? p_dims[3] / 2
+                            : (parent_mode == ANCHOR_BOTTOM ? p_dims[3] : 0));
+                }
+                if (mode == ANCHOR_BOTTOM) {
+                    osc_dims[1] = offset + p_dims[1] - osc_dims[3]
+                            + (parent_mode == ANCHOR_MID_Y ? p_dims[3] / 2
+                            : (parent_mode == ANCHOR_BOTTOM ? p_dims[3] : 0));
+                }
+            } else {
+                osc_dims[3] = dims[3];
+                osc_dims[1] = p_dims[1] - (osc_dims[3] / 2)
+                        + (parent_mode == ANCHOR_MID_Y ? p_dims[3] / 2
+                        : (parent_mode == ANCHOR_BOTTOM ? p_dims[3] : 0));
             }
-            if (mode == ANCHOR_RIGHT) {
-                osc_dims[2] = (offset + (parent_mode == ANCHOR_LEFT ? e_dims[0] : e_dims[0]+e_dims[2]))
-                        - osc_dims[0];
-            }
-            if (mode == ANCHOR_BOTTOM) {
-                osc_dims[3] = (offset + (parent_mode == ANCHOR_TOP ? e_dims[1] : e_dims[1]+e_dims[3]))
-                        - osc_dims[1];
-            }
+
         }
 
         return osc_dims;

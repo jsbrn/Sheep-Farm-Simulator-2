@@ -69,18 +69,17 @@ public class GameCanvas extends GUIElement {
     }
 
     @Override
-    public void drawToCanvas() {
-        super.drawToCanvas();
-        Graphics g = getGUI().getCanvas();
-
-        int x = getCanvasLocation()[0], y = getCanvasLocation()[1];
+    public void draw(Graphics g) {
 
         if (World.getWorld() != null) World.getWorld().draw(g);
         if (GameScreen.DEBUG_MODE) {
             g.setColor(Color.red);
             int sc[] = MiscMath.getOnscreenCoords(Camera.getX(), Camera.getY());
-            g.fillRect(x + sc[0] - 2, y + sc[1] - 2, 4, 4);
+            g.fillRect(sc[0] - 2, sc[1] - 2, 4, 4);
         }
+
+        super.draw(g);
+
     }
 
 }
