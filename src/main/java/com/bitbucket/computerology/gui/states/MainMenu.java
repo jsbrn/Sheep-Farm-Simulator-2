@@ -25,7 +25,7 @@ public class MainMenu extends BasicGameState {
     StateBasedGame game;
     boolean initialized = false;
 
-    Panel main_menu, world_select_menu, saves_panel;
+    Panel main_menu, world_select_menu;
 
     public MainMenu(int state) {
     }
@@ -41,7 +41,65 @@ public class MainMenu extends BasicGameState {
         game = sbg;
         GUI = new GUI();
 
-        world_select_menu = new Panel();
+        world_select_menu = new Panel() {
+
+            @Override
+            public void refresh() {
+                getComponents().clear();
+                //header label
+                Label head = new Label();
+                head.setText("Choose a save...");
+                head.setFontSize(20);
+                head.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+                head.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
+                addComponent(head);
+
+
+                //build the list of save files
+                File save_dir = new File(Assets.ROOT_DIR+"/saves");
+                File[] saves = save_dir.listFiles();
+                for (int i = 0; i < saves.length; i++) {
+                    final File curr_save = saves[i];
+                    ListElement le = new ListElement(i);
+                    le.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+                    le.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_MID_X, -10);
+                    le.anchor(head, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_BOTTOM, 10 + (i*40));
+                    le.setHeight(40);
+
+                    Label label = new Label();
+                    label.setText(curr_save.getName());
+                    label.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
+                    label.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+                    le.addComponent(label);
+
+                    Button play = new Button("Play!", Color.green, Color.white);
+                    play.setWidth(48);
+                    play.setHeight(24);
+                    play.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
+                    play.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+                    le.addComponent(play);
+
+                    Button delete = new Button("Delete", Color.red, Color.white) {
+                        @Override
+                        public void onMousePress(int button, int x, int y) {
+                            if (button == 0) {
+                                curr_save.delete();
+                                getParent().getParent().refresh();
+                            }
+                        }
+                    };
+                    delete.setWidth(48);
+                    delete.setHeight(24);
+                    delete.anchor(play, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
+                    delete.anchor(play, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, -10);
+                    le.addComponent(delete);
+
+                    this.addComponent(le);
+
+                }
+            }
+
+        };
         world_select_menu.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
         world_select_menu.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
         world_select_menu.setWidth(500);
@@ -55,54 +113,13 @@ public class MainMenu extends BasicGameState {
         main_menu.setHeight(200);
         main_menu.setResizable(false);
         main_menu.setDraggable(false);
-
-        saves_panel = new Panel() {
-
-            @Override
-            public void refresh() {
-                getComponents().clear();
-                File save_dir = new File(Assets.ROOT_DIR+"/saves");
-                File[] saves = save_dir.listFiles();
-                for (int i = 0; i < saves.length; i++) {
-                    ListElement le = new ListElement(i);
-                    le.anchor(this, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 0);
-                    le.anchor(this, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, 0);
-                    le.anchor(this, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*24);
-                    le.setHeight(40);
-
-                    Label label = new Label();
-                    label.setText(saves[i].getName());
-                    label.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-                    label.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
-                    le.addComponent(label);
-
-                    Button play = new Button("Play!", Color.black, Color.white);
-                    play.setWidth(24);
-                    play.setHeight(24);
-                    play.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
-                    play.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
-                    le.addComponent(play);
-
-
-                    this.addComponent(le);
-                }
-            }
-
-        };
-        saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
-        saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
-        saves_panel.anchor(world_select_menu, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
-        saves_panel.showBackground(false);
-        world_select_menu.addComponent(saves_panel);
-
         Button play_button = new Button("Play", Color.green, Color.white) {
 
             public void onMousePress(int button, int x, int y) {
                 if (button == 0) {
                     world_select_menu.setVisible(true);
                     main_menu.setVisible(false);
-                    saves_panel.refresh();
+                    world_select_menu.refresh();
                 }
             }
 
@@ -114,7 +131,7 @@ public class MainMenu extends BasicGameState {
         main_menu.addComponent(play_button);
 
 
-        Button back_button = new Button("Back", Color.black, Color.white) {
+        /*Button back_button = new Button("Back", Color.black, Color.white) {
 
             public void onMousePress(int button, int x, int y) {
                 if (button == 0) {
@@ -124,11 +141,11 @@ public class MainMenu extends BasicGameState {
             }
 
         };
-        back_button.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 40);
+        back_button.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
         back_button.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        back_button.setWidth(100);
+        back_button.setWidth(300);
         back_button.setHeight(24);
-        world_select_menu.addComponent(back_button);
+        world_select_menu.addComponent(back_button);*/
 
         GUI.addComponent(main_menu);
         GUI.addComponent(world_select_menu);

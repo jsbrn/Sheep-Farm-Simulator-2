@@ -254,12 +254,19 @@ public class GUIElement {
             }
         }
 
-        //if anchored on the w/h sides only, then adjust the position using the manual dims
-        if (!anchored(ANCHOR_LEFT) && anchored(ANCHOR_RIGHT)) osc_dims[0] = osc_dims[0] + osc_dims[2] - dims[2];
-        if (!anchored(ANCHOR_TOP) && anchored(ANCHOR_BOTTOM)) osc_dims[1] = osc_dims[1] + osc_dims[3] - dims[3];
-
-        System.out.println(this.getClass()+" -- ["+osc_dims[0]+", "+osc_dims[1]+", "+osc_dims[2]+", "+osc_dims[3]
-                +"] : dims[2] = "+dims[2]);
+        /* after determining the positions of each edge
+         * check if the right side is anchored and the left is not,
+         * and if not, adjust the position to maintain the manual width specified in dims[2]
+         * (do the same for the y axis too)
+         */
+        if (!anchored(ANCHOR_LEFT) && anchored(ANCHOR_RIGHT)) {
+            osc_dims[0] = osc_dims[0] + osc_dims[2] - dims[2];
+            osc_dims[2] = dims[2];
+        }
+        if (!anchored(ANCHOR_TOP) && anchored(ANCHOR_BOTTOM)) {
+            osc_dims[1] = osc_dims[1] + osc_dims[3] - dims[3];
+            osc_dims[3] = dims[3];
+        }
 
         return osc_dims;
 
