@@ -22,6 +22,7 @@ public class LoadingScreen extends BasicGameState {
     boolean initialized = false;
 
     public LoadingScreen(int state) {
+
     }
 
     @Override

@@ -208,14 +208,15 @@ public class GUIElement {
         int[] osc_dims = new int[]{dims[0], dims[1], dims[2], dims[3]};
 
         for (Object[] anchor: anchors) {
-            if (anchor[1] == null) continue;
+            if (anchor[1] == null) continue; //if anchor not set
             GUIElement e = anchor[0] == null ? parent : (GUIElement)anchor[0];
             int[] p_dims = e != null ? e.getOnscreenDimensions()
                     : new int[]{0, 0, Window.getWidth(), Window.getHeight()};
             int mode = (Integer)anchor[1];
             int parent_mode = (Integer)anchor[2];
             int offset = (Integer)anchor[3];
-
+            //determine the position of each corner, and generate the rectangle
+            //so that osc_dims = {x, y, w, h}
             if (mode != ANCHOR_MID_X) {
                 if (mode == ANCHOR_LEFT) {
                     osc_dims[0] = offset + p_dims[0]
@@ -251,20 +252,26 @@ public class GUIElement {
                         + (parent_mode == ANCHOR_MID_Y ? p_dims[3] / 2
                         : (parent_mode == ANCHOR_BOTTOM ? p_dims[3] : 0));
             }
-
         }
+
+        //if anchored on the w/h sides only, then adjust the position using the manual dims
+        if (!anchored(ANCHOR_LEFT) && anchored(ANCHOR_RIGHT)) osc_dims[0] = osc_dims[0] + osc_dims[2] - dims[2];
+        if (!anchored(ANCHOR_TOP) && anchored(ANCHOR_BOTTOM)) osc_dims[1] = osc_dims[1] + osc_dims[3] - dims[3];
+
+        System.out.println(this.getClass()+" -- ["+osc_dims[0]+", "+osc_dims[1]+", "+osc_dims[2]+", "+osc_dims[3]
+                +"] : dims[2] = "+dims[2]);
 
         return osc_dims;
 
     }
 
-    public final void setX(int x) { if (!anchored(ANCHOR_LEFT)) dims[0] = x; }
-    public final void setY(int y) { if (!anchored(ANCHOR_TOP)) dims[1] = y; }
+    public final void setX(int x) { if (!anchored(GUIElement.ANCHOR_LEFT)) dims[0] = x; }
+    public final void setY(int y) { if (!anchored(GUIElement.ANCHOR_TOP)) dims[1] = y; }
     public final void addX(int x) { setX(dims[0]+x); }
     public final void addY(int y) { setY(dims[1]+y); }
 
-    public final void setWidth(int width) { if (anchors[2][1] == null) dims[2] = width; }
-    public final void setHeight(int height) { if (anchors[3][1] == null) dims[3] = height; }
+    public final void setWidth(int width) { if (!anchored(GUIElement.ANCHOR_RIGHT)) dims[2] = width; }
+    public final void setHeight(int height) { if (!anchored(GUIElement.ANCHOR_BOTTOM)) dims[3] = height; }
     public final void addWidth(int width) { setWidth(dims[2]+width); }
     public final void addHeight(int height) { setHeight(dims[3]+height); }
 

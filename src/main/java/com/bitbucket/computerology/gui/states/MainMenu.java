@@ -3,6 +3,7 @@ package com.bitbucket.computerology.gui.states;
 import com.bitbucket.computerology.gui.GUI;
 import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.elements.Button;
+import com.bitbucket.computerology.gui.elements.Label;
 import com.bitbucket.computerology.gui.elements.ListElement;
 import com.bitbucket.computerology.gui.elements.Panel;
 import com.bitbucket.computerology.misc.Assets;
@@ -52,6 +53,8 @@ public class MainMenu extends BasicGameState {
         main_menu.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
         main_menu.setWidth(300);
         main_menu.setHeight(200);
+        main_menu.setResizable(false);
+        main_menu.setDraggable(false);
 
         saves_panel = new Panel() {
 
@@ -61,17 +64,27 @@ public class MainMenu extends BasicGameState {
                 File save_dir = new File(Assets.ROOT_DIR+"/saves");
                 File[] saves = save_dir.listFiles();
                 for (int i = 0; i < saves.length; i++) {
-                    ListElement l = new ListElement(i);
-                    l.anchor(this, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 0);
-                    l.anchor(this, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, 0);
-                    l.anchor(this, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*24);
-                    l.setHeight(32);
+                    ListElement le = new ListElement(i);
+                    le.anchor(this, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 0);
+                    le.anchor(this, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, 0);
+                    le.anchor(this, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*24);
+                    le.setHeight(40);
 
-                    Button play = new Button();
-                    play.setIcon("images/gui/play_icon.png");
+                    Label label = new Label();
+                    label.setText(saves[i].getName());
+                    label.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+                    label.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
+                    le.addComponent(label);
+
+                    Button play = new Button("Play!", Color.black, Color.white);
+                    play.setWidth(24);
+                    play.setHeight(24);
+                    play.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
+                    play.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+                    le.addComponent(play);
 
 
-                    this.addComponent(l);
+                    this.addComponent(le);
                 }
             }
 

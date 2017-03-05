@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 public class Button extends GUIElement {
 
     private static int GRAD = 35; //gradient magnitude
-    private boolean pressed = false;
     private Image icon;
     private String text;
     private Color bg_color, border_color, text_color;
@@ -29,16 +28,6 @@ public class Button extends GUIElement {
         this.text = text;
         setBackgroundColor(bg);
         this.text_color = t;
-    }
-
-    @Override
-    public void onMousePress(int button, int x, int y) {
-        pressed = true;
-    }
-
-    @Override
-    public void onMouseRelease(int button, int x, int y) {
-        pressed = false;
     }
 
     public void setIcon(String icon_url) {

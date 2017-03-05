@@ -52,6 +52,8 @@ public class Panel extends GUIElement {
     public void setDraggable(boolean b) {
         this.draggable = b;
     }
+    public void setResizable(boolean resizable) { this.resizable = resizable; }
+    public void setClosable(boolean closable) { this.closable = closable; }
 
     @Override
     public void onMousePress(int button, int x, int y) {
