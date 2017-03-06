@@ -2,6 +2,7 @@ package com.bitbucket.computerology.gui;
 
 import com.bitbucket.computerology.gui.elements.Panel;
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.misc.Window;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
@@ -15,6 +16,8 @@ public class GUI {
 
     private ArrayList<GUIElement> components;
     private GUIElement focus, dialog;
+
+    float dialog_alpha = 0;
 
     /*private Graphics canvas;
     private Image gfx_img;
@@ -35,9 +38,9 @@ public class GUI {
     }
 
     /**
-     * Gets the element currently focussed on
+     * Gets the element that currently has focus. Mostly used for key bindings.
      *
-     * @return
+     * @return A GUIElement instance.
      */
     public final GUIElement getFocus() {
         return focus;
@@ -83,6 +86,8 @@ public class GUI {
         for (GUIElement g : components) {
             g.update();
         }
+        dialog_alpha += MiscMath.getConstant(dialog != null ? 1 : -1, 1);
+        dialog_alpha = (float)MiscMath.clamp(dialog_alpha, 0, 0.5);
     }
 
     public final void reset() {
@@ -92,6 +97,12 @@ public class GUI {
     }
 
     public final GUIElement getGUIElement(int onscreen_x, int onscreen_y) {
+        if (dialog != null) {
+            int[] g_dims = dialog.getOnscreenDimensions();
+            if (MiscMath.pointIntersectsRect(onscreen_x, onscreen_y,
+                    g_dims[0], g_dims[1], g_dims[2], g_dims[3]))
+                return dialog.getGUIElement(onscreen_x - g_dims[0], onscreen_y - g_dims[1]);
+        }
         for (int i = components.size() - 1; i > -1; i--) {
             GUIElement g = components.get(i);
             int[] g_dims = g.getOnscreenDimensions();
@@ -104,7 +115,7 @@ public class GUI {
     }
 
     public final GUIElement getHovered() {
-        GUIElement hovered = getGUIElement(Mouse.getX(), Display.getHeight() - Mouse.getY());
+        GUIElement hovered = getGUIElement(Mouse.getX(), Window.getHeight() - Mouse.getY());
         if (hovered == null) return null;
         if (dialog != null) {
             if (hovered.isDialog()) return hovered;
@@ -180,16 +191,20 @@ public class GUI {
             if (e.isVisible() && !e.isDialog()) e.draw(g);
         }
 
+        //draw dialog dark bg
+        if (dialog_alpha > 0) {
+            g.setColor(new Color(0, 0, 0, (int) (dialog_alpha * 255)));
+            g.fillRect(0, 0, Window.getWidth(), Window.getHeight());
+        }
+
         if (dialog != null) {
-            g.setColor(new Color(0, 0, 0, 125));
-            g.fillRect(0, 0, Display.getWidth(), Display.getHeight());
             dialog.draw(g);
         }
     }
 
     public final boolean applyMouseClick(int button, int x, int y, int click_count) {
         for (int i = components.size() - 1; i >= 0; i--) {
-            if (dialog != null && !components.get(i).equals(dialog)) continue;
+            if (dialog != null && !components.get(i).isDialog()) continue;
             if (components.get(i).applyMouseClick(button, x, y, click_count)) return true;
         }
         return false;
@@ -207,7 +222,7 @@ public class GUI {
      */
     public final boolean applyMousePress(int button, int x, int y) {
         for (int i = components.size() - 1; i >= 0; i--) {
-            if (dialog != null && !components.get(i).equals(dialog)) continue;
+            if (dialog != null && !components.get(i).isDialog()) continue;
             if (components.get(i).applyMousePress(button, x, y)) return true;
         }
         return false;
@@ -215,7 +230,7 @@ public class GUI {
 
     public final boolean applyMouseRelease(int button, int x, int y) {
         for (int i = components.size() - 1; i >= 0; i--) {
-            if (dialog != null && !components.get(i).equals(dialog)) continue;
+            if (dialog != null && !components.get(i).isDialog()) continue;
             components.get(i).applyMouseRelease(button, x, y);
         }
         return true;
@@ -229,7 +244,7 @@ public class GUI {
 
     public final boolean applyMouseScroll(int x, int y, int dir) {
         for (int i = components.size() - 1; i >= 0; i--) {
-            if (dialog != null && !components.get(i).equals(dialog)) continue;
+            if (dialog != null && !components.get(i).isDialog()) continue;
             components.get(i).applyMouseScroll(x, y, dir);
         }
         return true;

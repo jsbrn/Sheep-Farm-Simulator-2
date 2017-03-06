@@ -130,7 +130,6 @@ public class World {
         } catch (IOException ex) {
             Logger.getLogger(World.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     private void init() {
@@ -579,9 +578,29 @@ public class World {
     }
 
     public void generate() {
-        generateTerrain(16, 1, 0.095, 0.905, 0.1, 0.39);
+        int[] gen_settings = loadWorldSettings();
+        generateTerrain(gen_settings[0], 1, 0.095, 0.905, 0.1, 0.39);
         generateTradeRoutes();
         generateAround(getSpawn()[0], getSpawn()[1]);
+    }
+
+    private static int[] loadWorldSettings() {
+        int[] settings = new int[6];
+        File f = new File(Assets.SAVE_DIR + "/generator_settings.txt");
+        if (!f.exists()) return settings;
+        FileReader fr;
+        try {
+            fr = new FileReader(f);
+            BufferedReader br = new BufferedReader(fr);
+            while (true) {
+                String line = br.readLine();
+                if (line == null) break;
+                if (line.indexOf("size=") == 0) settings[0] = Integer.parseInt(line.replace("size=", ""));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return settings;
     }
 
     /**

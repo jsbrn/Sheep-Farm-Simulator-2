@@ -2,10 +2,7 @@ package com.bitbucket.computerology.gui.states;
 
 import com.bitbucket.computerology.gui.GUI;
 import com.bitbucket.computerology.gui.GUIElement;
-import com.bitbucket.computerology.gui.elements.Button;
-import com.bitbucket.computerology.gui.elements.Label;
-import com.bitbucket.computerology.gui.elements.ListElement;
-import com.bitbucket.computerology.gui.elements.Panel;
+import com.bitbucket.computerology.gui.elements.*;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
 import org.lwjgl.opengl.Display;
@@ -16,16 +13,17 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 
 public class MainMenu extends BasicGameState {
 
     public static GUI GUI;
-    static double bg_x = 0, bg_dx = -50;
-    StateBasedGame game;
-    boolean initialized = false;
+    private StateBasedGame game;
+    private boolean initialized = false;
 
-    Panel main_menu, world_select_menu;
+    private static Panel main_menu, world_select_menu, world_create_menu;
 
     public MainMenu(int state) {
     }
@@ -41,18 +39,55 @@ public class MainMenu extends BasicGameState {
         game = sbg;
         GUI = new GUI();
 
+        /**
+         * WORLD CREATION MENU
+         */
+        world_create_menu = buildWorldCreateMenu();
+        GUI.addComponent(world_create_menu);
+
+        /**
+         * WORLD SELECT MENU
+         */
         world_select_menu = new Panel() {
 
             @Override
             public void refresh() {
                 getComponents().clear();
-                //header label
-                Label head = new Label();
-                head.setText("Choose a save...");
-                head.setFontSize(20);
-                head.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-                head.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
-                addComponent(head);
+
+                Button back = new Button("Back", Color.black, Color.white) {
+
+                    @Override
+                    public void onMousePress(int button, int x, int y) {
+                        world_select_menu.setVisible(false);
+                        main_menu.setVisible(true);
+                    }
+
+                };
+                back.setHeight(24);
+                back.setWidth(48);
+                back.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+                back.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
+                this.addComponent(back);
+
+                Button new_save = new Button("New...", Color.black, Color.white) {
+
+                    @Override
+                    public void onMousePress(int button, int x, int y) {
+                        GUI.dialog(world_create_menu);
+                    }
+
+                };
+                new_save.setHeight(24);
+                new_save.setWidth(64);
+                new_save.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+                new_save.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
+                this.addComponent(new_save);
+
+                Icon icon = new Icon();
+                icon.setImage("images/gui/placeholder.png");
+                icon.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+                icon.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, getHeaderHeight()+10);
+                this.addComponent(icon);
 
 
                 //build the list of save files
@@ -62,8 +97,8 @@ public class MainMenu extends BasicGameState {
                     final File curr_save = saves[i];
                     ListElement le = new ListElement(i);
                     le.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-                    le.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_MID_X, -10);
-                    le.anchor(head, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_BOTTOM, 10 + (i*40));
+                    le.anchor(icon, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, -10);
+                    le.anchor(icon, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*40);
                     le.setHeight(40);
 
                     Label label = new Label();
@@ -72,7 +107,12 @@ public class MainMenu extends BasicGameState {
                     label.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
                     le.addComponent(label);
 
-                    Button play = new Button("Play!", Color.green, Color.white);
+                    Button play = new Button("Play!", Color.green, Color.white) {
+                        @Override
+                        public void onMousePress(int button, int x, int y) {
+                            world_create_menu.refresh();
+                        }
+                    };
                     play.setWidth(48);
                     play.setHeight(24);
                     play.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
@@ -83,7 +123,7 @@ public class MainMenu extends BasicGameState {
                         @Override
                         public void onMousePress(int button, int x, int y) {
                             if (button == 0) {
-                                curr_save.delete();
+                                deleteDirectory(curr_save);
                                 getParent().getParent().refresh();
                             }
                         }
@@ -102,9 +142,13 @@ public class MainMenu extends BasicGameState {
         };
         world_select_menu.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
         world_select_menu.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
-        world_select_menu.setWidth(500);
-        world_select_menu.setHeight(600);
+        world_select_menu.setWidth(600);
+        world_select_menu.setHeight(500);
+        world_select_menu.setTitle("Choose a save...");
         world_select_menu.setVisible(false);
+        world_select_menu.setClosable(false);
+        world_select_menu.setResizable(false);
+        world_select_menu.setDraggable(false);
 
         main_menu = new Panel();
         main_menu.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
@@ -113,6 +157,8 @@ public class MainMenu extends BasicGameState {
         main_menu.setHeight(200);
         main_menu.setResizable(false);
         main_menu.setDraggable(false);
+        main_menu.setClosable(false);
+
         Button play_button = new Button("Play", Color.green, Color.white) {
 
             public void onMousePress(int button, int x, int y) {
@@ -129,23 +175,6 @@ public class MainMenu extends BasicGameState {
         play_button.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
         play_button.setHeight(24);
         main_menu.addComponent(play_button);
-
-
-        /*Button back_button = new Button("Back", Color.black, Color.white) {
-
-            public void onMousePress(int button, int x, int y) {
-                if (button == 0) {
-                    world_select_menu.setVisible(false);
-                    main_menu.setVisible(true);
-                }
-            }
-
-        };
-        back_button.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
-        back_button.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        back_button.setWidth(300);
-        back_button.setHeight(24);
-        world_select_menu.addComponent(back_button);*/
 
         GUI.addComponent(main_menu);
         GUI.addComponent(world_select_menu);
@@ -187,4 +216,71 @@ public class MainMenu extends BasicGameState {
     public void keyPressed(int key, char c) {
         GUI.applyKeyPress(c);
     }
+
+    private void deleteDirectory(File dir) {
+        if (!dir.isDirectory()) return;
+        for (File f : dir.listFiles()) {
+            if (f.isDirectory()) deleteDirectory(f); else f.delete();
+        }
+        dir.delete();
+    }
+
+    private static Panel buildWorldCreateMenu() {
+
+        Panel p = new Panel();
+        p.setWidth(250);
+        p.setHeight(450);
+        p.setTitle("Create world");
+        p.setVisible(false);
+
+        final TextField name_field = new TextField() {
+            @Override
+            public void refresh() {
+                reset();
+            }
+        };
+        name_field.setAltText("Enter a name...");
+        name_field.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+        name_field.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+        name_field.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10 + p.getHeaderHeight());
+        name_field.setHeight(24);
+        p.addComponent(name_field);
+
+        Button create_btn = new Button("Create!", Color.black, Color.white) {
+
+            @Override
+            public void onMousePress(int button, int x, int y) {
+                saveWorldSettings();
+                GUI.clearDialog();
+                world_select_menu.refresh();
+            }
+
+            public void saveWorldSettings() {
+                if (name_field.getText().length() <= 0) return;
+                File f = new File(Assets.ROOT_DIR + "/saves/"+name_field.getText());
+                if (f.exists()) return;
+                f.mkdir();
+                f = new File(Assets.ROOT_DIR + "/saves/"+name_field.getText()+"/generator_settings.txt");
+                FileWriter fw;
+                System.out.println("Saving to file " + f.getAbsoluteFile().getAbsolutePath());
+                try {
+                    if (!f.exists()) f.createNewFile();
+                    fw = new FileWriter(f);
+                    BufferedWriter bw = new BufferedWriter(fw);
+                    bw.write("size=");
+                    bw.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        };
+        create_btn.setHeight(24);
+        create_btn.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
+        create_btn.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
+        p.addComponent(create_btn);
+
+        return p;
+    }
+
 }

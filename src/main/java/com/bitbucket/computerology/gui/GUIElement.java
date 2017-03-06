@@ -128,7 +128,7 @@ public class GUIElement {
      * @param y The y coordinate relative to the on-screen y of its parent.
      * @return
      */
-    public GUIElement getGUIElement(int x, int y) {
+    public final GUIElement getGUIElement(int x, int y) {
         for (int i = components.size() - 1; i > -1; i--) {
             GUIElement g = components.get(i);
             int[] dims = getOnscreenDimensions();
@@ -147,7 +147,7 @@ public class GUIElement {
      *
      * @return True if yes, false if no.
      */
-    public boolean isDialog() {
+    public final boolean isDialog() {
         if (getGUI() == null) return false;
         if (parent == null) return equals(getGUI().getDialog());
         return parent.isDialog();
@@ -207,6 +207,13 @@ public class GUIElement {
 
         int[] osc_dims = new int[]{dims[0], dims[1], dims[2], dims[3]};
 
+        //if top level element and is the GUI's current dialog menu
+        if (isDialog() && getParent() == null) {
+            osc_dims[0] = (Window.getWidth()/2) - (dims[2]/2);
+            osc_dims[1] = (Window.getHeight()/2) - (dims[3]/2);
+            return osc_dims;
+        }
+        //otherwise, continue with calculating the anchors
         for (Object[] anchor: anchors) {
             if (anchor[1] == null) continue; //if anchor not set
             GUIElement e = anchor[0] == null ? parent : (GUIElement)anchor[0];
@@ -290,7 +297,7 @@ public class GUIElement {
      * @return true if an element was clicked, false otherwise
      */
     public final boolean applyMouseClick(int button, int x, int y, int click_count) {
-        if (!isVisible() || !enabled()) return false;
+        if (!isDialog() && (!isVisible() || !enabled())) return false;
         for (int i = components.size() - 1; i >= 0; i--) {
             if (components.get(i).applyMouseClick(button, x, y, click_count)) return true;
         }
@@ -304,7 +311,7 @@ public class GUIElement {
     }
 
     public final boolean applyMousePress(int button, int x, int y) {
-        if (!isVisible() || !enabled()) return false;
+        if (!isDialog() && (!isVisible() || !enabled())) return false;
         for (int i = components.size() - 1; i >= 0; i--) {
             if (components.get(i).applyMousePress(button, x, y)) return true;
         }
@@ -318,7 +325,7 @@ public class GUIElement {
     }
 
     public final boolean applyMouseRelease(int button, int x, int y) {
-        if (!isVisible() || !enabled()) return false;
+        if (!isDialog() && (!isVisible() || !enabled())) return false;
         for (int i = components.size() - 1; i >= 0; i--) {
             components.get(i).applyMouseRelease(button, x, y);
         }
@@ -327,7 +334,7 @@ public class GUIElement {
     }
 
     public final boolean applyMouseScroll(int x, int y, int dir) {
-        if (!isVisible() || !enabled() || !hasFocus()) return false;
+        if (!isDialog() && (!isVisible() || !enabled())) return false;
         for (int i = components.size() - 1; i >= 0; i--) {
             components.get(i).applyMouseScroll(x, y, dir);
         }

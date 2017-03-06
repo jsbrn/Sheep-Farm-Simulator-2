@@ -47,7 +47,7 @@ public class LoadingScreen extends BasicGameState {
         label.setText("");
         label.setFontSize(16);
         label.anchor(bar, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
-        label.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_TOP, -10);
+        label.anchor(bar, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_TOP, -10);
         GUI.addComponent(label);
         GUI.addComponent(bar);
 

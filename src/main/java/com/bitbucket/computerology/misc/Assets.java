@@ -68,7 +68,7 @@ public class Assets {
         if (pass >= 6 && pass < 6 + FONTS.length) {
             STATUS = "fonts";
             Font awtFont = new Font("Arial", Font.PLAIN, 8 + ((pass - 6) * 4));
-            TrueTypeFont f = new TrueTypeFont(awtFont, false);
+            TrueTypeFont f = new TrueTypeFont(awtFont, true);
             FONTS[pass - 6] = f;
             return false;
         }

@@ -11,8 +11,8 @@ public class ListElement extends GUIElement {
 
     public ListElement(int index) {
         this.even = index % 2 == 0;
-        int mult = even ? 2 : 1;
-        this.bg_color = new Color(20*mult, 20*mult, 25*mult);
+        float mult = even ? 1.25f : 1;
+        this.bg_color = new Color((int)(75*mult), (int)(75*mult), (int)(75*mult));
     }
 
     @Override
