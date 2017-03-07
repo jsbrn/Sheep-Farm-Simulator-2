@@ -73,7 +73,9 @@ public class MainMenu extends BasicGameState {
 
                     @Override
                     public void onMousePress(int button, int x, int y) {
+
                         GUI.dialog(world_create_menu);
+
                     }
 
                 };
@@ -227,7 +229,8 @@ public class MainMenu extends BasicGameState {
 
     private static Panel buildWorldCreateMenu() {
 
-        Panel p = new Panel();
+        Panel p = new Panel() {
+        };
         p.setWidth(250);
         p.setHeight(450);
         p.setTitle("Create world");

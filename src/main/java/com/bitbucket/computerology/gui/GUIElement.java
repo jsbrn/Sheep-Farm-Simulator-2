@@ -91,6 +91,7 @@ public class GUIElement {
 
     public final void setVisible(boolean v) {
         visible = v;
+        if (visible) onVisible();
     }
 
     public final ArrayList<GUIElement> getComponents() {
@@ -351,5 +352,7 @@ public class GUIElement {
     public void onKeyPress(char c) {}
 
     public void onMouseScroll(int x, int y, int dir) {}
+
+    public void onVisible() {}
 
 }

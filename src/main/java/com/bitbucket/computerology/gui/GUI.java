@@ -60,6 +60,7 @@ public class GUI {
     public final void dialog(Panel e) {
         if (dialog == null) dialog = e;
         focus = null;
+        e.onVisible();
     }
 
     public final void clearDialog() {
