@@ -59,6 +59,10 @@ public class TextField extends GUIElement {
         text = s;
     }
 
+    public void clearText() {
+        setText("");
+    }
+
     public String getAltText() {
         return alt_text;
     }
@@ -70,8 +74,8 @@ public class TextField extends GUIElement {
     @Override
     public void onMouseRelease(int button, int x, int y) {
         int[] dims = getOnscreenDimensions();
-        if (!MiscMath.pointIntersectsRect(x, y, dims[0], dims[1], dims[2], dims[3]))
-            releaseFocus();
+        /*if (!MiscMath.pointIntersectsRect(x, y, dims[0], dims[1], dims[2], dims[3]))
+            releaseFocus();*/
     }
 
     @Override

@@ -238,8 +238,10 @@ public class MainMenu extends BasicGameState {
 
         final TextField name_field = new TextField() {
             @Override
-            public void refresh() {
-                reset();
+            public void onVisible() {
+                System.out.println("Now visible!!!!");
+                clearText();
+                grabFocus();
             }
         };
         name_field.setAltText("Enter a name...");
@@ -252,7 +254,7 @@ public class MainMenu extends BasicGameState {
         Button create_btn = new Button("Create!", Color.black, Color.white) {
 
             @Override
-            public void onMousePress(int button, int x, int y) {
+            public void onMouseRelease(int button, int x, int y) {
                 saveWorldSettings();
                 GUI.clearDialog();
                 world_select_menu.refresh();

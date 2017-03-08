@@ -91,7 +91,8 @@ public class GUIElement {
 
     public final void setVisible(boolean v) {
         visible = v;
-        if (visible) onVisible();
+        if (visible) applyOnVisible();
+        if (!visible) applyOnInvisible();
     }
 
     public final ArrayList<GUIElement> getComponents() {
@@ -343,6 +344,22 @@ public class GUIElement {
         return true;
     }
 
+    public final boolean applyOnVisible() {
+        for (int i = components.size() - 1; i >= 0; i--) {
+            components.get(i).applyOnVisible();
+        }
+        onVisible();
+        return true;
+    }
+
+    public final boolean applyOnInvisible() {
+        for (int i = components.size() - 1; i >= 0; i--) {
+            components.get(i).applyOnInvisible();
+        }
+        onInvisible();
+        return true;
+    }
+
     public void onMouseClick(int button, int x, int y, int click_count) {}
 
     public void onMousePress(int button, int x, int y) {}
@@ -354,5 +371,7 @@ public class GUIElement {
     public void onMouseScroll(int x, int y, int dir) {}
 
     public void onVisible() {}
+
+    public void onInvisible() {}
 
 }

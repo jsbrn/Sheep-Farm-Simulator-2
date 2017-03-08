@@ -58,12 +58,15 @@ public class GUI {
      * @param e The element you wish to restrict input to.
      */
     public final void dialog(Panel e) {
-        if (dialog == null) dialog = e;
+        if (dialog == null) {
+            dialog = e;
+            e.applyOnVisible();
+        }
         focus = null;
-        e.onVisible();
     }
 
     public final void clearDialog() {
+        if (dialog != null) dialog.applyOnInvisible();
         dialog = null;
     }
 
