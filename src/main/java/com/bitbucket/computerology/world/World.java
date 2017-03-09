@@ -65,7 +65,7 @@ public class World {
     }
 
     public static void save() {
-        File f = new File(Assets.SAVE_DIR + "/world.txt");
+        File f = new File(Assets.CURR_SAVE_DIR + "/world.txt");
         FileWriter fw;
         System.out.println("Saving to file " + f.getAbsoluteFile().getAbsolutePath());
         try {
@@ -101,7 +101,7 @@ public class World {
     }
 
     public static void load() {
-        File f = new File(Assets.SAVE_DIR + "/world.txt");
+        File f = new File(Assets.CURR_SAVE_DIR + "/world.txt");
         if (!f.exists()) return;
         FileReader fr;
         System.out.println("Loading from file: " + f.getAbsoluteFile().getAbsolutePath());
@@ -586,7 +586,7 @@ public class World {
 
     private static int[] loadWorldSettings() {
         int[] settings = new int[6];
-        File f = new File(Assets.SAVE_DIR + "/generator_settings.txt");
+        File f = new File(Assets.CURR_SAVE_DIR + "/generator_settings.txt");
         if (!f.exists()) return settings;
         FileReader fr;
         try {

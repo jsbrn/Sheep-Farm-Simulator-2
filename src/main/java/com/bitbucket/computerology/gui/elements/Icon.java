@@ -14,8 +14,7 @@ public class Icon extends GUIElement {
     int font_size = 12;
 
     public Icon() {
-        setWidth(10);
-        setHeight(10);
+
     }
 
     public Icon(String url) {
@@ -41,11 +40,6 @@ public class Icon extends GUIElement {
         g.drawImage(icon, dims[0], dims[1]);
 
         super.draw(g);
-
-        //if (GameScreen.DEBUG_MODE) {
-            g.setColor(Color.red);
-            g.drawRect(dims[0], dims[1], dims[2], dims[3]);
-        //}
 
     }
 

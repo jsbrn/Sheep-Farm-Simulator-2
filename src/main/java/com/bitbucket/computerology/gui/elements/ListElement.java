@@ -12,7 +12,7 @@ public class ListElement extends GUIElement {
     public ListElement(int index) {
         this.even = index % 2 == 0;
         float mult = even ? 1.25f : 1;
-        this.bg_color = new Color((int)(75*mult), (int)(75*mult), (int)(75*mult));
+        this.bg_color = new Color((int)(100*mult), (int)(100*mult), (int)(100*mult));
     }
 
     @Override

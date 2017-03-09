@@ -57,7 +57,8 @@ public class MainMenu extends BasicGameState {
                 Button back = new Button("Back", Color.black, Color.white) {
 
                     @Override
-                    public void onMousePress(int button, int x, int y) {
+                    public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                        if (!intersection) return;
                         world_select_menu.setVisible(false);
                         main_menu.setVisible(true);
                     }
@@ -72,10 +73,9 @@ public class MainMenu extends BasicGameState {
                 Button new_save = new Button("New...", Color.black, Color.white) {
 
                     @Override
-                    public void onMousePress(int button, int x, int y) {
-
+                    public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                        if (!intersection) return;
                         GUI.dialog(world_create_menu);
-
                     }
 
                 };
@@ -86,7 +86,7 @@ public class MainMenu extends BasicGameState {
                 this.addComponent(new_save);
 
                 Icon icon = new Icon();
-                icon.setImage("images/gui/placeholder.png");
+                icon.setImage("images/gui/no_preview.png");
                 icon.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
                 icon.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, getHeaderHeight()+10);
                 this.addComponent(icon);
@@ -97,11 +97,21 @@ public class MainMenu extends BasicGameState {
                 File[] saves = save_dir.listFiles();
                 for (int i = 0; i < saves.length; i++) {
                     final File curr_save = saves[i];
+
+                    ListViewer l = new ListViewer();
+                    l.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+                    l.anchor(icon, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, -10);
+                    l.anchor(icon, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 0);
+                    l.anchor(back, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_TOP, -10);
+
+
+
                     ListElement le = new ListElement(i);
-                    le.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-                    le.anchor(icon, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, -10);
-                    le.anchor(icon, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*40);
+                    le.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 0);
+                    le.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, 0);
+                    le.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*40);
                     le.setHeight(40);
+                    l.addComponent(le);
 
                     Label label = new Label();
                     label.setText(curr_save.getName());
@@ -109,9 +119,11 @@ public class MainMenu extends BasicGameState {
                     label.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
                     le.addComponent(label);
 
+
                     Button play = new Button("Play!", Color.green, Color.white) {
                         @Override
-                        public void onMousePress(int button, int x, int y) {
+                        public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                            if (!intersection) return;
                             world_create_menu.refresh();
                         }
                     };
@@ -123,10 +135,11 @@ public class MainMenu extends BasicGameState {
 
                     Button delete = new Button("Delete", Color.red, Color.white) {
                         @Override
-                        public void onMousePress(int button, int x, int y) {
+                        public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                            if (!intersection) return;
                             if (button == 0) {
                                 deleteDirectory(curr_save);
-                                getParent().getParent().refresh();
+                                getParent().getParent().getParent().refresh();
                             }
                         }
                     };
@@ -136,7 +149,7 @@ public class MainMenu extends BasicGameState {
                     delete.anchor(play, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, -10);
                     le.addComponent(delete);
 
-                    this.addComponent(le);
+                    this.addComponent(l);
 
                 }
             }
@@ -163,7 +176,8 @@ public class MainMenu extends BasicGameState {
 
         Button play_button = new Button("Play", Color.green, Color.white) {
 
-            public void onMousePress(int button, int x, int y) {
+            public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                if (!intersection) return;
                 if (button == 0) {
                     world_select_menu.setVisible(true);
                     main_menu.setVisible(false);
@@ -229,32 +243,45 @@ public class MainMenu extends BasicGameState {
 
     private static Panel buildWorldCreateMenu() {
 
-        Panel p = new Panel() {
-        };
+        Panel p = new Panel();
         p.setWidth(250);
         p.setHeight(450);
         p.setTitle("Create world");
         p.setVisible(false);
 
+        Label name = new Label("Name");
+        name.setStyle(Label.WHITE);
+        name.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+        name.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10 + p.getHeaderHeight());
+        p.addComponent(name);
+
         final TextField name_field = new TextField() {
             @Override
             public void onVisible() {
-                System.out.println("Now visible!!!!");
-                clearText();
-                grabFocus();
+            System.out.println("Now visible!!!!");
+            clearText();
+            grabFocus();
             }
         };
         name_field.setAltText("Enter a name...");
         name_field.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
         name_field.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
-        name_field.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10 + p.getHeaderHeight());
+        name_field.anchor(name, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_BOTTOM, 10);
         name_field.setHeight(24);
         p.addComponent(name_field);
+
+        Slider slider = new Slider();
+        slider.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+        slider.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+        slider.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+        slider.anchor(name_field, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_BOTTOM, 10);
+        p.addComponent(slider);
 
         Button create_btn = new Button("Create!", Color.black, Color.white) {
 
             @Override
-            public void onMouseRelease(int button, int x, int y) {
+            public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                if (!intersection) return;
                 saveWorldSettings();
                 GUI.clearDialog();
                 world_select_menu.refresh();

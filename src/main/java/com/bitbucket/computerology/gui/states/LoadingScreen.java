@@ -18,7 +18,6 @@ public class LoadingScreen extends BasicGameState {
     public static int DELTA_TIME = 1;
     public static GUI GUI;
     static ProgressBar bar;
-    static Label label;
     boolean initialized = false;
 
     public LoadingScreen(int state) {
@@ -42,13 +41,6 @@ public class LoadingScreen extends BasicGameState {
         bar.setProgress(0);
         bar.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
         bar.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
-
-        label = new Label();
-        label.setText("");
-        label.setFontSize(16);
-        label.anchor(bar, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
-        label.anchor(bar, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_TOP, -10);
-        GUI.addComponent(label);
         GUI.addComponent(bar);
 
         initialized = true;
@@ -65,8 +57,6 @@ public class LoadingScreen extends BasicGameState {
         if (Assets.loadAssets()) {
             sbg.enterState(Assets.MAIN_MENU);
         } else {
-            label.setText("Loading " + Assets.STATUS + "...");
-            label.setX(-label.getOnscreenDimensions()[2] / 2);
             bar.addProgress(1);
         }
 

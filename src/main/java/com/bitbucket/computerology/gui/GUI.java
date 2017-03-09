@@ -47,6 +47,7 @@ public class GUI {
     }
 
     public final void setFocus(GUIElement g) {
+        System.out.println("Setting focus to "+g);
         focus = g;
     }
 
@@ -58,11 +59,11 @@ public class GUI {
      * @param e The element you wish to restrict input to.
      */
     public final void dialog(Panel e) {
+        focus = null;
         if (dialog == null) {
             dialog = e;
             e.applyOnVisible();
         }
-        focus = null;
     }
 
     public final void clearDialog() {
@@ -92,12 +93,6 @@ public class GUI {
         }
         dialog_alpha += MiscMath.getConstant(dialog != null ? 1 : -1, 1);
         dialog_alpha = (float)MiscMath.clamp(dialog_alpha, 0, 0.5);
-    }
-
-    public final void reset() {
-        for (GUIElement g : components) {
-            g.reset();
-        }
     }
 
     public final GUIElement getGUIElement(int onscreen_x, int onscreen_y) {

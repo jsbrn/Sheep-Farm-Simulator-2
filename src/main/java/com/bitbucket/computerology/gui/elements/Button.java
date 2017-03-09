@@ -15,7 +15,7 @@ public class Button extends GUIElement {
     private static int GRAD = 35; //gradient magnitude
     private Image icon;
     private String text;
-    private Color bg_color, border_color, text_color;
+    private Color bg_color, hover_color, text_color;
 
     public Button() {
         this.text = "";
@@ -51,7 +51,7 @@ public class Button extends GUIElement {
                 c.getGreen() > GRAD ? (c.getGreen() < 255 - GRAD ? c.getGreen() : 255 - GRAD) : GRAD,
                 c.getBlue() > GRAD ? (c.getBlue() < 255 - GRAD ? c.getBlue() : 255 - GRAD) : GRAD};
         bg_color = new Color(rbg[0], rbg[1], rbg[2]);
-        border_color = new Color(rbg[0]+50, rbg[1]+50, rbg[2]+50);
+        hover_color = new Color(rbg[0]+50, rbg[1]+50, rbg[2]+50);
         new Color(0, 0, 0);
     }
 
@@ -64,11 +64,11 @@ public class Button extends GUIElement {
         
         int[] dims = getOnscreenDimensions();
 
-        g.setColor(mouseHovering() ? border_color : bg_color);
+        g.setColor(mouseHovering() ? hover_color : bg_color);
         if (!enabled()) g.setColor(Color.gray);
         g.fillRect(dims[0], dims[1], dims[2], dims[3]);
         g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), dims[0], dims[1]);
-        g.setColor(border_color);
+        g.setColor(bg_color.darker());
         g.drawRect(dims[0], dims[1], dims[2]-1, dims[3]-1);
 
         //draw text if any

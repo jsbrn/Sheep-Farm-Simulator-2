@@ -2,7 +2,6 @@ package com.bitbucket.computerology.gui;
 
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.misc.Window;
-import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Graphics;
 
 import java.util.ArrayList;
@@ -194,14 +193,6 @@ public class GUIElement {
     }*/
 
     /**
-     * Can be overridden. Resets the element back to its default state.
-     * Call super.update() to reset sub-components.
-     */
-    public final void reset() {
-        for (GUIElement g : components) g.reset();
-    }
-
-    /**
      * Returns the onscreen x, y, w, and h of the element.
      * @return An int[4].
      */
@@ -331,7 +322,9 @@ public class GUIElement {
         for (int i = components.size() - 1; i >= 0; i--) {
             components.get(i).applyMouseRelease(button, x, y);
         }
-        onMouseRelease(button, x, y);
+        int[] dims = getOnscreenDimensions();
+        onMouseRelease(button, x, y, MiscMath.pointIntersectsRect(x, y,
+                    dims[0], dims[1], dims[2], dims[3]));
         return true;
     }
 
@@ -364,7 +357,7 @@ public class GUIElement {
 
     public void onMousePress(int button, int x, int y) {}
 
-    public void onMouseRelease(int button, int x, int y) {}
+    public void onMouseRelease(int button, int x, int y, boolean intersection) {}
 
     public void onKeyPress(char c) {}
 

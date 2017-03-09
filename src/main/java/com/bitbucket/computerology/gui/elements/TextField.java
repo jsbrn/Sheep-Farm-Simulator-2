@@ -38,7 +38,7 @@ public class TextField extends GUIElement {
     }
 
     @Override
-    public void onMouseClick(int button, int x, int y, int click_count) {
+    public void onMousePress(int button, int x, int y) {
         grabFocus();
         blink = blink_speed * 2;
     }
@@ -72,7 +72,7 @@ public class TextField extends GUIElement {
     }
 
     @Override
-    public void onMouseRelease(int button, int x, int y) {
+    public void onMouseRelease(int button, int x, int y, boolean intersection) {
         int[] dims = getOnscreenDimensions();
         /*if (!MiscMath.pointIntersectsRect(x, y, dims[0], dims[1], dims[2], dims[3]))
             releaseFocus();*/
@@ -92,9 +92,7 @@ public class TextField extends GUIElement {
     public void draw(Graphics g) {
         int[] dims = getOnscreenDimensions();
         g.setColor(Color.black);
-        g.drawRect(dims[0] - 2, dims[1] - 2, dims[2] + 3, dims[3] + 3);
-        g.setColor(new Color(45, 50, 75).brighter());
-        g.drawRect(dims[0] - 1, dims[1] - 1, dims[2] + 1, dims[3] + 1);
+        g.drawRect(dims[0], dims[1], dims[2], dims[3]);
         g.setColor(Color.white);
         g.fillRect(dims[0], dims[1], dims[2], dims[3]);
         g.setColor(Color.black);

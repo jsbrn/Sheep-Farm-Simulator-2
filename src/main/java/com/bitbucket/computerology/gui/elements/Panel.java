@@ -82,7 +82,7 @@ public class Panel extends GUIElement {
     }
 
     @Override
-    public void onMouseRelease(int button, int x, int y) {
+    public void onMouseRelease(int button, int x, int y, boolean intersection) {
         dragging = false;
         resizing = false;
     }
