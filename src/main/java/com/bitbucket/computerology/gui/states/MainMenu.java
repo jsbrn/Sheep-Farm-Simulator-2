@@ -5,6 +5,7 @@ import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.elements.*;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.world.World;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -124,6 +125,9 @@ public class MainMenu extends BasicGameState {
                         public void onMouseRelease(int button, int x, int y, boolean intersection) {
                             if (!intersection) return;
                             world_create_menu.refresh();
+                            World.newWorld(curr_save.getName());
+                            World.getWorld().generate();
+                            game.enterState(Assets.GAME_SCREEN);
                         }
                     };
                     play.setWidth(48);
@@ -266,12 +270,20 @@ public class MainMenu extends BasicGameState {
         name_field.setHeight(24);
         p.addComponent(name_field);
 
-        Slider slider = new Slider();
+        Label sizelabel = new Label("Size");
+        sizelabel.setStyle(Label.WHITE);
+        sizelabel.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        sizelabel.anchor(name_field, GUIElement.ANCHOR_TOP, 1, 10);
+        p.addComponent(sizelabel);
+
+        final Slider slider = new Slider();
         slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
-        slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        slider.anchor(sizelabel, GUIElement.ANCHOR_TOP, 1, 10);
         slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
         slider.setSnap(true);
-        slider.anchor(name_field, GUIElement.ANCHOR_TOP, 1, 10);
+        slider.setMax(64);
+        slider.setMin(8);
+        slider.setIncrement(8);
         p.addComponent(slider);
 
         Button create_btn = new Button("Create!", Color.black, Color.white) {
@@ -296,7 +308,7 @@ public class MainMenu extends BasicGameState {
                     if (!f.exists()) f.createNewFile();
                     fw = new FileWriter(f);
                     BufferedWriter bw = new BufferedWriter(fw);
-                    bw.write("size=");
+                    bw.write("size="+slider.getValue());
                     bw.close();
                 } catch (Exception e) {
                     e.printStackTrace();

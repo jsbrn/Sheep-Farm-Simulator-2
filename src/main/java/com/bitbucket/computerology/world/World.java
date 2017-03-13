@@ -14,6 +14,8 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Polygon;
+import org.newdawn.slick.geom.Transform;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -46,6 +48,8 @@ public class World {
 
     private ArrayList<int[]> queued_map_updates;
 
+    private String save_name;
+
     private World(int seed) {
         this.seed = seed;
         init();
@@ -60,12 +64,13 @@ public class World {
         return world;
     }
 
-    public static void newWorld() {
+    public static void newWorld(String save_name) {
         world = new World();
+        world.save_name = save_name;
     }
 
     public static void save() {
-        File f = new File(Assets.CURR_SAVE_DIR + "/world.txt");
+        File f = new File(Assets.ROOT_DIR+"/saves/" +world.save_name+ "/world.txt");
         FileWriter fw;
         System.out.println("Saving to file " + f.getAbsoluteFile().getAbsolutePath());
         try {
@@ -101,7 +106,7 @@ public class World {
     }
 
     public static void load() {
-        File f = new File(Assets.CURR_SAVE_DIR + "/world.txt");
+        File f = new File(Assets.ROOT_DIR+"/saves/" +world.save_name + "/world.txt");
         if (!f.exists()) return;
         FileReader fr;
         System.out.println("Loading from file: " + f.getAbsoluteFile().getAbsolutePath());
@@ -413,6 +418,7 @@ public class World {
             return false;
         }
         sectors.add(index, s);
+
         return true;
     }
 
@@ -586,7 +592,7 @@ public class World {
 
     private static int[] loadWorldSettings() {
         int[] settings = new int[6];
-        File f = new File(Assets.CURR_SAVE_DIR + "/generator_settings.txt");
+        File f = new File(Assets.ROOT_DIR+"/saves/" +world.save_name + "/generator_settings.txt");
         if (!f.exists()) return settings;
         FileReader fr;
         try {
@@ -600,7 +606,12 @@ public class World {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        f.delete();
         return settings;
+    }
+
+    public boolean isGenerated() {
+        return new File(Assets.ROOT_DIR+"/saves/" +world.save_name+"/world.txt").exists();
     }
 
     /**
@@ -627,6 +638,7 @@ public class World {
                                  double forest_scale, double forest_height, int forest_passes,
                                  double town_ratio,
                                  boolean desert_near_tundra, boolean tundra_at_poles) {
+        System.out.println("Generating world of size "+size_sectors+"x"+size_sectors);
         this.biome_map = new byte[size_sectors * Sector.sizeChunks()][size_sectors * Sector.sizeChunks()];
         this.forest_map = new boolean[size_sectors * Sector.sizeChunks()][size_sectors * Sector.sizeChunks()];
         this.size_sectors = size_sectors;

@@ -21,7 +21,7 @@ public class Assets {
     public static Image MAIN_MENU_BACKGROUND;
     //version info, menu IDs, and the root directory
     public static final int UPDATE_ID = 0;
-    public static String VERSION_NAME = "0.0.1-dev", ROOT_DIR, CURR_SAVE_DIR;
+    public static String VERSION_NAME = "0.0.1-dev", ROOT_DIR;
     //used to keep track of the asset loading
     private static int pass = 0;
     //assets
