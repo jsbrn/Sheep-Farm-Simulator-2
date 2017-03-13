@@ -39,8 +39,8 @@ public class LoadingScreen extends BasicGameState {
         bar.setHeight(16);
         bar.setMax(Assets.ASSET_COUNT);
         bar.setProgress(0);
-        bar.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
-        bar.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
+        bar.anchor(null, GUIElement.ANCHOR_MID_X, 0.5, 0);
+        bar.anchor(null, GUIElement.ANCHOR_MID_Y, 0.5, 0);
         GUI.addComponent(bar);
 
         initialized = true;

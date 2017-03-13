@@ -1,15 +1,17 @@
 package com.bitbucket.computerology.gui;
 
+import com.bitbucket.computerology.gui.elements.Panel;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.misc.Window;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
 import java.util.ArrayList;
 
 public class GUIElement {
 
-    public static final int ANCHOR_MID_X = 0, ANCHOR_MID_Y = 1,
-            ANCHOR_LEFT = 2, ANCHOR_TOP = 3, ANCHOR_RIGHT = 4, ANCHOR_BOTTOM = 5;
+    public static final int ANCHOR_LEFT = 0, ANCHOR_MID_X = 1,
+            ANCHOR_RIGHT = 2, ANCHOR_TOP = 3, ANCHOR_MID_Y = 4, ANCHOR_BOTTOM = 5;
 
     private ArrayList<GUIElement> components;
     private GUIElement parent;
@@ -22,21 +24,15 @@ public class GUIElement {
     public GUIElement() {
         this.components = new ArrayList<GUIElement>();
         this.parent = null;
-        this.anchors = new Object[6][4];
+        this.anchors = new Object[6][3];
         this.dims = new int[]{0, 0, 100, 100};
     }
 
-    public void anchor(GUIElement parent, int mode, int parent_mode, int offset) {
-        if (mode < -1 || mode >= anchors.length) return;
-        if (parent_mode < -1 || parent_mode >= anchors.length) return;
-        anchors[mode][0] = parent;
-        anchors[mode][1] = mode;
-        anchors[mode][2] = parent_mode;
-        anchors[mode][3] = offset;
-    }
-
-    public void clearAnchors() {
-        anchors = new Object[6][4];
+    public void anchor(GUIElement parent, int edge, double percentage, int offset) {
+        if (edge < -1 || edge >= anchors.length) return;
+        anchors[edge][0] = parent;
+        anchors[edge][1] = percentage;
+        anchors[edge][2] = offset;
     }
 
     public boolean anchored(int mode) {
@@ -165,6 +161,9 @@ public class GUIElement {
         for (GUIElement e : components) {
             e.draw(g);
         }
+        g.setColor(Color.red);
+        int[] dims = getOnscreenDimensions();
+        g.drawRect(dims[0], dims[1], dims[2], dims[3]);
     }
 
     /*protected void setCanvasLocation(int[] loc) {
@@ -198,77 +197,76 @@ public class GUIElement {
      */
     public int[] getOnscreenDimensions() {
 
-        int[] osc_dims = new int[]{dims[0], dims[1], dims[2], dims[3]};
+        int[] points = new int[]{dims[0], dims[1], dims[2], dims[3]};
 
-        //if top level element and is the GUI's current dialog menu
+        //if this is a panel and is the current dialog, return the middle of window
         if (isDialog() && getParent() == null) {
-            osc_dims[0] = (Window.getWidth()/2) - (dims[2]/2);
-            osc_dims[1] = (Window.getHeight()/2) - (dims[3]/2);
-            return osc_dims;
+            points[0] = (Window.getWidth()/2) - (dims[2]/2);
+            points[1] = (Window.getHeight()/2) - (dims[3]/2);
+            points[2] = dims[2];
+            points[3] = dims[3];
+            return points;
         }
+
         //otherwise, continue with calculating the anchors
-        for (Object[] anchor: anchors) {
-            if (anchor[1] == null) continue; //if anchor not set
-            GUIElement e = anchor[0] == null ? parent : (GUIElement)anchor[0];
-            int[] p_dims = e != null ? e.getOnscreenDimensions()
+        for (int i = 0; i < anchors.length; i++) {
+            Object[] anchor = anchors[i];
+            if (!anchored(i)) continue; //if anchor not set
+            GUIElement anchored_to = anchor[0] == null ? parent : (GUIElement) anchor[0];
+            int[] p_dims = anchored_to != null ? anchored_to.getOnscreenDimensions()
                     : new int[]{0, 0, Window.getWidth(), Window.getHeight()};
-            int mode = (Integer)anchor[1];
-            int parent_mode = (Integer)anchor[2];
-            int offset = (Integer)anchor[3];
-            //determine the position of each corner, and generate the rectangle
-            //so that osc_dims = {x, y, w, h}
-            if (mode != ANCHOR_MID_X) {
-                if (mode == ANCHOR_LEFT) {
-                    osc_dims[0] = offset + p_dims[0]
-                            + (parent_mode == ANCHOR_MID_X ? p_dims[2] / 2
-                            : (parent_mode == ANCHOR_RIGHT ? p_dims[2] : 0));
-                }
-                if (mode == ANCHOR_RIGHT) {
-                    osc_dims[2] = offset + p_dims[0] - osc_dims[0]
-                            + (parent_mode == ANCHOR_MID_X ? p_dims[2] / 2
-                            : (parent_mode == ANCHOR_RIGHT ? p_dims[2] : 0));
-                }
-            } else {
-                osc_dims[2] = dims[2];
-                osc_dims[0] = p_dims[0] - (osc_dims[2] / 2)
-                        + (parent_mode == ANCHOR_MID_X ? p_dims[2] / 2
-                        : (parent_mode == ANCHOR_RIGHT ? p_dims[2] : 0));
+            int mode = i;
+            double percent = (Double) anchor[1];
+            int offset = (Integer) anchor[2];
+
+            //if not anchored to the middle, handle the position of each edge
+            if (!anchored(ANCHOR_MID_X)) {
+                if (mode == ANCHOR_LEFT) points[0] = (int) (p_dims[0] + offset + ((double) p_dims[2] * percent));
+                if (mode == ANCHOR_RIGHT) points[2] = (int) (p_dims[0] + offset + ((double) p_dims[2] * percent));
+            }
+            if (!anchored(ANCHOR_MID_Y)) {
+                if (mode == ANCHOR_TOP) points[1] = (int) (p_dims[1] + offset + ((double) p_dims[3] * percent));
+                if (mode == ANCHOR_BOTTOM) points[3] = (int) (p_dims[1] + offset + ((double) p_dims[3] * percent));
             }
 
-            if (mode != ANCHOR_MID_Y) {
-                if (mode == ANCHOR_TOP) {
-                    osc_dims[1] = offset + p_dims[1]
-                            + (parent_mode == ANCHOR_MID_Y ? p_dims[3] / 2
-                            : (parent_mode == ANCHOR_BOTTOM ? p_dims[3] : 0));
-                }
-                if (mode == ANCHOR_BOTTOM) {
-                    osc_dims[1] = offset + p_dims[1] - osc_dims[3]
-                            + (parent_mode == ANCHOR_MID_Y ? p_dims[3] / 2
-                            : (parent_mode == ANCHOR_BOTTOM ? p_dims[3] : 0));
-                }
-            } else {
-                osc_dims[3] = dims[3];
-                osc_dims[1] = p_dims[1] - (osc_dims[3] / 2)
-                        + (parent_mode == ANCHOR_MID_Y ? p_dims[3] / 2
-                        : (parent_mode == ANCHOR_BOTTOM ? p_dims[3] : 0));
+            //otherwise, use the specified dimensions to calculate the corner points
+            //mid overrides the others
+            if (mode == ANCHOR_MID_X) {
+                points[0] = (p_dims[0] - (dims[2]/2)) + offset + (int)((double) p_dims[2] * percent);
+                points[2] = points[0] + dims[2];
             }
+            if (mode == ANCHOR_MID_Y) {
+                points[1] = p_dims[1] - (dims[3]/2) + offset + (int)((double) p_dims[3] * percent);
+                points[3] = points[1] + dims[3];
+            }
+
         }
 
-        /* after determining the positions of each edge
-         * check if the right side is anchored and the left is not,
-         * and if not, adjust the position to maintain the manual width specified in dims[2]
-         * (do the same for the y axis too)
+        /* if only one edge is anchored on an axis, adjust the other point to reflect the specified width in dims[]
+         * but only if not anchored mid on that axis
+         * (do for both axes)
          */
-        if (!anchored(ANCHOR_LEFT) && anchored(ANCHOR_RIGHT)) {
-            osc_dims[0] = osc_dims[0] + osc_dims[2] - dims[2];
-            osc_dims[2] = dims[2];
+        if (!anchored(ANCHOR_MID_X)) {
+            if (!anchored(ANCHOR_LEFT) && anchored(ANCHOR_RIGHT)) {
+                points[0] = points[2] - dims[2];
+            }
+            if (anchored(ANCHOR_LEFT) && !anchored(ANCHOR_RIGHT)) {
+                points[2] = points[0] + dims[2];
+            }
         }
-        if (!anchored(ANCHOR_TOP) && anchored(ANCHOR_BOTTOM)) {
-            osc_dims[1] = osc_dims[1] + osc_dims[3] - dims[3];
-            osc_dims[3] = dims[3];
+        if (!anchored(ANCHOR_MID_Y)) {
+            if (!anchored(ANCHOR_TOP) && anchored(ANCHOR_BOTTOM)) {
+                points[1] = points[3] - dims[3];
+            }
+            if (anchored(ANCHOR_TOP) && !anchored(ANCHOR_BOTTOM)) {
+                points[3] = points[1] + dims[3];
+            }
         }
 
-        return osc_dims;
+        //since each pair is a coordinate, convert the second pair into width/height
+        points[2] -= points[0]; points[3] -= points[1];
+
+        return points;
 
     }
 

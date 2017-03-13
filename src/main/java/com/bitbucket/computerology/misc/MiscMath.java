@@ -175,8 +175,7 @@ public class MiscMath {
      * @return The value of a after rounding.
      */
     public static double round(double a, double b) {
-        double q = a / b;
-        return q - Math.floor(q) >= .5 ? Math.ceil(q) * a : Math.floor(q) * a;
+        return Math.round(a / b) * b;
     }
 
     public static boolean linesIntersect(int[] l, int[] l2) {

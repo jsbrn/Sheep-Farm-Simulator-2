@@ -66,8 +66,8 @@ public class MainMenu extends BasicGameState {
                 };
                 back.setHeight(24);
                 back.setWidth(48);
-                back.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-                back.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
+                back.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+                back.anchor(null, GUIElement.ANCHOR_BOTTOM, 1, -10);
                 this.addComponent(back);
 
                 Button new_save = new Button("New...", Color.black, Color.white) {
@@ -81,16 +81,23 @@ public class MainMenu extends BasicGameState {
                 };
                 new_save.setHeight(24);
                 new_save.setWidth(64);
-                new_save.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
-                new_save.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
+                new_save.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+                new_save.anchor(null, GUIElement.ANCHOR_BOTTOM, 1, -10);
                 this.addComponent(new_save);
 
                 Icon icon = new Icon();
                 icon.setImage("images/gui/no_preview.png");
-                icon.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
-                icon.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, getHeaderHeight()+10);
+                icon.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+                icon.anchor(null, GUIElement.ANCHOR_TOP, 0, getHeaderHeight()+10);
                 this.addComponent(icon);
 
+                ListViewer l = new ListViewer();
+                l.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+                l.anchor(icon, GUIElement.ANCHOR_RIGHT, 0, -10);
+                l.anchor(null, GUIElement.ANCHOR_TOP, 0,
+                        getHeaderHeight()+10);
+                l.anchor(back, GUIElement.ANCHOR_BOTTOM, 0, -10);
+                this.addComponent(l);
 
                 //build the list of save files
                 File save_dir = new File(Assets.ROOT_DIR+"/saves");
@@ -98,25 +105,17 @@ public class MainMenu extends BasicGameState {
                 for (int i = 0; i < saves.length; i++) {
                     final File curr_save = saves[i];
 
-                    ListViewer l = new ListViewer();
-                    l.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-                    l.anchor(icon, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, -10);
-                    l.anchor(icon, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 0);
-                    l.anchor(back, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_TOP, -10);
-
-
-
                     ListElement le = new ListElement(i);
-                    le.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 0);
-                    le.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, 0);
-                    le.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, i*40);
+                    le.anchor(null, GUIElement.ANCHOR_LEFT, 0, 0);
+                    le.anchor(null, GUIElement.ANCHOR_RIGHT, 1, 0);
+                    le.anchor(null, GUIElement.ANCHOR_TOP, 0, i*40);
                     le.setHeight(40);
                     l.addComponent(le);
 
                     Label label = new Label();
                     label.setText(curr_save.getName());
-                    label.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
-                    label.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
+                    label.anchor(null, GUIElement.ANCHOR_MID_Y, 0.5, 0);
+                    label.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
                     le.addComponent(label);
 
 
@@ -129,8 +128,8 @@ public class MainMenu extends BasicGameState {
                     };
                     play.setWidth(48);
                     play.setHeight(24);
-                    play.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
-                    play.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+                    play.anchor(null, GUIElement.ANCHOR_MID_Y, 0.5, 0);
+                    play.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
                     le.addComponent(play);
 
                     Button delete = new Button("Delete", Color.red, Color.white) {
@@ -145,18 +144,15 @@ public class MainMenu extends BasicGameState {
                     };
                     delete.setWidth(48);
                     delete.setHeight(24);
-                    delete.anchor(play, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
-                    delete.anchor(play, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_LEFT, -10);
+                    delete.anchor(play, GUIElement.ANCHOR_MID_Y, 0.5, 0);
+                    delete.anchor(play, GUIElement.ANCHOR_RIGHT, 0, -10);
                     le.addComponent(delete);
-
-                    this.addComponent(l);
-
                 }
             }
 
         };
-        world_select_menu.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
-        world_select_menu.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
+        world_select_menu.anchor(null, GUIElement.ANCHOR_MID_X, 0.5, 0);
+        world_select_menu.anchor(null, GUIElement.ANCHOR_MID_Y, 0.5, 0);
         world_select_menu.setWidth(600);
         world_select_menu.setHeight(500);
         world_select_menu.setTitle("Choose a save...");
@@ -166,8 +162,8 @@ public class MainMenu extends BasicGameState {
         world_select_menu.setDraggable(false);
 
         main_menu = new Panel();
-        main_menu.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
-        main_menu.anchor(null, GUIElement.ANCHOR_MID_Y, GUIElement.ANCHOR_MID_Y, 0);
+        main_menu.anchor(null, GUIElement.ANCHOR_MID_X, 0.5, 0);
+        main_menu.anchor(null, GUIElement.ANCHOR_MID_Y, 0.5, 0);
         main_menu.setWidth(300);
         main_menu.setHeight(200);
         main_menu.setResizable(false);
@@ -186,9 +182,9 @@ public class MainMenu extends BasicGameState {
             }
 
         };
-        play_button.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        play_button.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10);
-        play_button.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
+        play_button.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        play_button.anchor(null, GUIElement.ANCHOR_TOP, 0, 10);
+        play_button.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
         play_button.setHeight(24);
         main_menu.addComponent(play_button);
 
@@ -251,8 +247,8 @@ public class MainMenu extends BasicGameState {
 
         Label name = new Label("Name");
         name.setStyle(Label.WHITE);
-        name.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        name.anchor(null, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_TOP, 10 + p.getHeaderHeight());
+        name.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        name.anchor(null, GUIElement.ANCHOR_TOP, 0, 10 + p.getHeaderHeight());
         p.addComponent(name);
 
         final TextField name_field = new TextField() {
@@ -264,17 +260,18 @@ public class MainMenu extends BasicGameState {
             }
         };
         name_field.setAltText("Enter a name...");
-        name_field.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        name_field.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
-        name_field.anchor(name, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_BOTTOM, 10);
+        name_field.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        name_field.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+        name_field.anchor(name, GUIElement.ANCHOR_TOP, 1, 10);
         name_field.setHeight(24);
         p.addComponent(name_field);
 
         Slider slider = new Slider();
-        slider.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        slider.anchor(null, GUIElement.ANCHOR_LEFT, GUIElement.ANCHOR_LEFT, 10);
-        slider.anchor(null, GUIElement.ANCHOR_RIGHT, GUIElement.ANCHOR_RIGHT, -10);
-        slider.anchor(name_field, GUIElement.ANCHOR_TOP, GUIElement.ANCHOR_BOTTOM, 10);
+        slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+        slider.setSnap(true);
+        slider.anchor(name_field, GUIElement.ANCHOR_TOP, 1, 10);
         p.addComponent(slider);
 
         Button create_btn = new Button("Create!", Color.black, Color.white) {
@@ -308,8 +305,8 @@ public class MainMenu extends BasicGameState {
 
         };
         create_btn.setHeight(24);
-        create_btn.anchor(null, GUIElement.ANCHOR_MID_X, GUIElement.ANCHOR_MID_X, 0);
-        create_btn.anchor(null, GUIElement.ANCHOR_BOTTOM, GUIElement.ANCHOR_BOTTOM, -10);
+        create_btn.anchor(null, GUIElement.ANCHOR_MID_X, 0.5, 0);
+        create_btn.anchor(null, GUIElement.ANCHOR_BOTTOM, 1, -10);
         p.addComponent(create_btn);
 
         return p;
