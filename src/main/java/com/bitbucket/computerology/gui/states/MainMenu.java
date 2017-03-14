@@ -126,7 +126,12 @@ public class MainMenu extends BasicGameState {
                             if (!intersection) return;
                             world_create_menu.refresh();
                             World.newWorld(curr_save.getName());
-                            World.getWorld().generate();
+                            if (World.getWorld().isGenerated()) {
+                                World.getWorld().load();
+                            } else {
+                                World.getWorld().generate();
+                                World.save();
+                            }
                             game.enterState(Assets.GAME_SCREEN);
                         }
                     };

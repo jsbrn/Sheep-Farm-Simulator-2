@@ -584,14 +584,14 @@ public class World {
     }
 
     public void generate() {
-        int[] gen_settings = loadWorldSettings();
-        generateTerrain(gen_settings[0], 1, 0.095, 0.905, 0.1, 0.39);
+        double[] gen_settings = loadWorldSettings();
+        generateTerrain((int)gen_settings[0], 1, 0.095, 0.905, 0.1, 0.39);
         generateTradeRoutes();
         generateAround(getSpawn()[0], getSpawn()[1]);
     }
 
-    private static int[] loadWorldSettings() {
-        int[] settings = new int[6];
+    private static double[] loadWorldSettings() {
+        double[] settings = new double[6];
         File f = new File(Assets.ROOT_DIR+"/saves/" +world.save_name + "/generator_settings.txt");
         if (!f.exists()) return settings;
         FileReader fr;
@@ -601,7 +601,7 @@ public class World {
             while (true) {
                 String line = br.readLine();
                 if (line == null) break;
-                if (line.indexOf("size=") == 0) settings[0] = Integer.parseInt(line.replace("size=", ""));
+                if (line.indexOf("size=") == 0) settings[0] = Double.parseDouble(line.replace("size=", ""));
             }
         } catch (Exception e) {
             e.printStackTrace();

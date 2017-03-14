@@ -40,6 +40,7 @@ public class Panel extends GUIElement {
 
     @Override
     public void update() {
+
         if (dragging && draggable) {
             this.addX(Mouse.getX() - last_x);
             this.addY((Display.getHeight() - Mouse.getY()) - last_y);

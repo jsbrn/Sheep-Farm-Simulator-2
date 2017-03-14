@@ -5,6 +5,7 @@ import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.elements.*;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.misc.Window;
 import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
@@ -51,7 +52,7 @@ public class GameScreen extends BasicGameState {
 
     public void drawMap(Graphics g) {
         if (World.getWorld().getMapTexture() != null)
-            g.drawImage(World.getWorld().getMapTexture(), 0, 0);
+            g.drawImage(World.getWorld().getMapTexture().getScaledCopy(Window.getHeight(), Window.getHeight()), 0, 0);
     }
 
 
@@ -142,7 +143,6 @@ public class GameScreen extends BasicGameState {
     public void pollMouseScroll() {
         int dir = Mouse.getDWheel();
         dir = dir > 0 ? 1 : (dir < 0 ? -1 : 0); //clamp
-        System.out.println(dir);
         GUI.applyMouseScroll(input.getMouseX(), input.getMouseY(), dir);
     }
 
