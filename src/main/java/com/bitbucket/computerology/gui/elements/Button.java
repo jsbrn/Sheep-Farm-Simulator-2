@@ -15,11 +15,11 @@ public class Button extends GUIElement {
     private static int GRAD = 35; //gradient magnitude
     private Image icon;
     private String text;
-    private Color bg_color, hover_color, text_color;
+    private Color bg_color, hover_color, text_color, border_color;
 
     public Button() {
         this.text = "";
-        this.bg_color = Color.darkGray;
+        this.setBackgroundColor(Color.black);
         this.text_color = Color.white;
     }
 
@@ -47,12 +47,13 @@ public class Button extends GUIElement {
     }
 
     public void setBackgroundColor(Color c) {
-        int rbg[] = new int[]{c.getRed() > GRAD ? (c.getRed() < 255 - GRAD ? c.getRed() : 255 - GRAD) : GRAD,
+        int rgb[] = new int[]{c.getRed() > GRAD ? (c.getRed() < 255 - GRAD ? c.getRed() : 255 - GRAD) : GRAD,
                 c.getGreen() > GRAD ? (c.getGreen() < 255 - GRAD ? c.getGreen() : 255 - GRAD) : GRAD,
                 c.getBlue() > GRAD ? (c.getBlue() < 255 - GRAD ? c.getBlue() : 255 - GRAD) : GRAD};
-        bg_color = new Color(rbg[0], rbg[1], rbg[2]);
-        hover_color = new Color(rbg[0]+50, rbg[1]+50, rbg[2]+50);
-        new Color(0, 0, 0);
+        bg_color = new Color(rgb[0], rgb[1], rgb[2]);
+        hover_color = new Color(rgb[0]+50, rgb[1]+50, rgb[2]+50);
+        int avg = (rgb[0]+rgb[1]+rgb[2]) / 3;
+        border_color = avg > 255 / 4 ? bg_color.darker() : bg_color.brighter();
     }
 
     public void setTextColor(Color c) {
@@ -68,7 +69,7 @@ public class Button extends GUIElement {
         if (!enabled()) g.setColor(Color.gray);
         g.fillRect(dims[0], dims[1], dims[2], dims[3]);
         g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), dims[0], dims[1]);
-        g.setColor(bg_color.darker());
+        g.setColor(border_color);
         g.drawRect(dims[0], dims[1], dims[2]-1, dims[3]-1);
 
         //draw text if any

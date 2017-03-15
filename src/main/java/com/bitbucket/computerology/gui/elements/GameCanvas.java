@@ -55,6 +55,7 @@ public class GameCanvas extends GUIElement {
 
         if (c == 'm') GameScreen.DRAW_MAP = !GameScreen.DRAW_MAP;
         if (c == '`') GameScreen.DEBUG_MODE = !GameScreen.DEBUG_MODE;
+        if (c == 27) GameScreen.GUI.dialog(GameScreen.pause_menu); //escape key
 
     }
 

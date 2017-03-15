@@ -30,6 +30,8 @@ public class GameScreen extends BasicGameState {
     boolean initialized = false;
     Input input;
 
+    public static Panel pause_menu;
+
     public GameScreen(int state) {
 
     }
@@ -47,6 +49,46 @@ public class GameScreen extends BasicGameState {
         StatusBar status = new StatusBar();
         GUI.addComponent(new GameCanvas());
         GUI.addComponent(status);
+
+        pause_menu = new Panel();
+        pause_menu.setWidth(250);
+        pause_menu.setHeight(450);
+        pause_menu.setTitle("Paused");
+        pause_menu.setVisible(false);
+        GUI.addComponent(pause_menu);
+
+        Button b = new Button("Resume", Color.green, Color.white) {
+
+            @Override
+            public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                if (intersection) GUI.clearDialog();
+            }
+
+        };
+        b.setHeight(24);
+        b.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        b.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+        b.anchor(null, GUIElement.ANCHOR_TOP, 0, 10 + pause_menu.getHeaderHeight());
+        pause_menu.addComponent(b);
+
+        Button save = new Button("Save and quit", Color.black, Color.white) {
+
+            @Override
+            public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                if (intersection) {
+                    World.save();
+                    GUI.clearDialog();
+                    game.enterState(Assets.MAIN_MENU);
+                }
+            }
+
+        };
+        save.setHeight(24);
+        save.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        save.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+        save.anchor(b, GUIElement.ANCHOR_TOP, 0, 10 + pause_menu.getHeaderHeight());
+        pause_menu.addComponent(save);
+
 
         initialized = true;
     }
@@ -139,9 +181,6 @@ public class GameScreen extends BasicGameState {
 
         pollMouseScroll();
 
-        //TEMPORARY UNTIL I ADD A PAUSE MENU
-        if (gc.getInput().isKeyPressed(Input.KEY_ESCAPE)) sbg.enterState(Assets.MAIN_MENU);
-
     }
 
     public void pollMouseScroll() {
@@ -168,4 +207,5 @@ public class GameScreen extends BasicGameState {
     public void keyPressed(int key, char c) {
         GUI.applyKeyPress(c);
     }
+
 }

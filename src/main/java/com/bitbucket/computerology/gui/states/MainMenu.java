@@ -125,8 +125,14 @@ public class MainMenu extends BasicGameState {
                         public void onMouseRelease(int button, int x, int y, boolean intersection) {
                             if (!intersection) return;
                             world_create_menu.refresh();
+                            World.destroy();
                             World.newWorld(curr_save.getName());
-                            World.getWorld().generate();
+                            if (World.getWorld().isGenerated()) {
+                                World.load();
+                            } else {
+                                World.getWorld().generate();
+                                World.save();
+                            }
                             game.enterState(Assets.GAME_SCREEN);
                         }
                     };

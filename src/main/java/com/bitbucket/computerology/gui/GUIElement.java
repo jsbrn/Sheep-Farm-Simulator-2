@@ -163,7 +163,7 @@ public class GUIElement {
         }
         g.setColor(Color.red);
         int[] dims = getOnscreenDimensions();
-        g.drawRect(dims[0], dims[1], dims[2], dims[3]);
+        //g.drawRect(dims[0], dims[1], dims[2], dims[3]);
     }
 
     /*protected void setCanvasLocation(int[] loc) {
