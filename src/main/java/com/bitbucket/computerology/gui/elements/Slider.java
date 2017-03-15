@@ -12,7 +12,7 @@ import org.newdawn.slick.SlickException;
 
 public class Slider extends GUIElement {
 
-    private int min, max, incr;
+    private double min, max, incr;
     private double value;
     private Color color;
     private Image knob;
@@ -22,17 +22,22 @@ public class Slider extends GUIElement {
     private boolean dragging;
 
     public Slider() {
-        this.max = 10;
-        this.value = 5;
-        this.min = 0;
-        this.incr = 1;
-        this.color = Color.white;
-        this.setHeight(24);
+        this(5, 1, 10, 1, false);
+    }
+
+    public Slider(double val, double min, double max, double incr, boolean snap) {
         try {
             this.knob = new Image("images/gui/slider_knob.png", false, Image.FILTER_LINEAR);
         } catch (SlickException e) {
             e.printStackTrace();
         }
+        this.value = val;
+        this.min = min;
+        this.max = max;
+        this.incr = incr;
+        this.color = Color.white;
+        this.snap = snap;
+        this.setHeight(24);
     }
 
     @Override
@@ -73,27 +78,25 @@ public class Slider extends GUIElement {
         return value;
     }
 
-    public int getMax() {
+    public double getMax() {
         return max;
     }
 
-    public int getMin() {
-        return min;
-    }
+    public double getMin() { return min; }
 
-    public int getIncrement() {
+    public double getIncrement() {
         return incr;
     }
 
-    public void setValue(int value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
-    public void setMin(int min) {
+    public void setMin(double min) {
         this.min = min;
     }
 
-    public void setMax(int max) {
+    public void setMax(double max) {
         this.max = max;
     }
 

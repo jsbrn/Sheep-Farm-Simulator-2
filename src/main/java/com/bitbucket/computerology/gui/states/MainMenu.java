@@ -126,12 +126,7 @@ public class MainMenu extends BasicGameState {
                             if (!intersection) return;
                             world_create_menu.refresh();
                             World.newWorld(curr_save.getName());
-                            if (World.getWorld().isGenerated()) {
-                                World.getWorld().load();
-                            } else {
-                                World.getWorld().generate();
-                                World.save();
-                            }
+                            World.getWorld().generate();
                             game.enterState(Assets.GAME_SCREEN);
                         }
                     };
@@ -281,15 +276,47 @@ public class MainMenu extends BasicGameState {
         sizelabel.anchor(name_field, GUIElement.ANCHOR_TOP, 1, 10);
         p.addComponent(sizelabel);
 
-        final Slider slider = new Slider();
+        final Slider slider = new Slider(32, 8, 64, 8, true);
         slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
         slider.anchor(sizelabel, GUIElement.ANCHOR_TOP, 1, 10);
         slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
-        slider.setSnap(true);
-        slider.setMax(64);
-        slider.setMin(8);
-        slider.setIncrement(8);
         p.addComponent(slider);
+
+        Label grass = new Label("Grass");
+        grass.setStyle(Label.WHITE);
+        grass.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        grass.anchor(slider, GUIElement.ANCHOR_TOP, 1, 10);
+        p.addComponent(grass);
+
+        final Slider g_slider = new Slider(1, 0, 1, 1, false);
+        g_slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        g_slider.anchor(grass, GUIElement.ANCHOR_TOP, 1, 10);
+        g_slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+        p.addComponent(g_slider);
+
+        Label desert = new Label("Desert");
+        desert.setStyle(Label.WHITE);
+        desert.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        desert.anchor(g_slider, GUIElement.ANCHOR_TOP, 1, 10);
+        p.addComponent(desert);
+
+        final Slider d_slider = new Slider(0.35, 0, 1, 1, false);
+        d_slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        d_slider.anchor(desert, GUIElement.ANCHOR_TOP, 1, 10);
+        d_slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+        p.addComponent(d_slider);
+
+        Label tundra = new Label("Tundra");
+        tundra.setStyle(Label.WHITE);
+        tundra.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        tundra.anchor(d_slider, GUIElement.ANCHOR_TOP, 1, 10);
+        p.addComponent(tundra);
+
+        final Slider t_slider = new Slider(0.55, 0, 1, 1, false);
+        t_slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
+        t_slider.anchor(tundra, GUIElement.ANCHOR_TOP, 1, 10);
+        t_slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
+        p.addComponent(t_slider);
 
         Button create_btn = new Button("Create!", Color.black, Color.white) {
 
@@ -313,7 +340,10 @@ public class MainMenu extends BasicGameState {
                     if (!f.exists()) f.createNewFile();
                     fw = new FileWriter(f);
                     BufferedWriter bw = new BufferedWriter(fw);
-                    bw.write("size="+slider.getValue());
+                    bw.write("size="+slider.getValue()+"\n");
+                    bw.write("grass="+g_slider.getValue()+"\n");
+                    bw.write("desert="+d_slider.getValue()+"\n");
+                    bw.write("tundra="+t_slider.getValue()+"\n");
                     bw.close();
                 } catch (Exception e) {
                     e.printStackTrace();

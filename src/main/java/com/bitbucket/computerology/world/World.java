@@ -14,8 +14,6 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
-import org.newdawn.slick.geom.Polygon;
-import org.newdawn.slick.geom.Transform;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -584,13 +582,14 @@ public class World {
     }
 
     public void generate() {
-        double[] gen_settings = loadWorldSettings();
-        generateTerrain((int)gen_settings[0], 1, 0.095, 0.905, 0.1, 0.39);
+        double[] gen_settings = loadGeneratorSettings();
+        generateTerrain((int)gen_settings[0], 1, gen_settings[2], gen_settings[3], gen_settings[4]
+        , 0.02, 0.04, 8, 0.05);
         generateTradeRoutes();
         generateAround(getSpawn()[0], getSpawn()[1]);
     }
 
-    private static double[] loadWorldSettings() {
+    private static double[] loadGeneratorSettings() {
         double[] settings = new double[6];
         File f = new File(Assets.ROOT_DIR+"/saves/" +world.save_name + "/generator_settings.txt");
         if (!f.exists()) return settings;
@@ -602,6 +601,10 @@ public class World {
                 String line = br.readLine();
                 if (line == null) break;
                 if (line.indexOf("size=") == 0) settings[0] = Double.parseDouble(line.replace("size=", ""));
+
+                if (line.indexOf("grass=") == 0) settings[2] = Double.parseDouble(line.replace("grass=", ""));
+                if (line.indexOf("desert=") == 0) settings[3] = Double.parseDouble(line.replace("desert=", ""));
+                if (line.indexOf("tundra=") == 0) settings[4] = Double.parseDouble(line.replace("tundra=", ""));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -614,42 +617,22 @@ public class World {
         return new File(Assets.ROOT_DIR+"/saves/" +world.save_name+"/world.txt").exists();
     }
 
-    /**
-     * Generates a large section of terrain.
-     *
-     * @param size_sectors The width and height in sectors.
-     * @param scale        The scale of each landmass (input 0-1).
-     * @param sea_level    The height of the sea. (input 0-1).
-     * @param g_height     The height of the grass biome (same as sea level input).
-     * @param d_height
-     * @param t_height
-     */
-    public void generateTerrain(int size_sectors, double scale, double sea_level,
-                                double g_height, double d_height, double t_height) {
-        generateTerrain(size_sectors, scale, sea_level,
-                g_height, d_height, t_height,
-                0.058, 0.083, 8,
-                0.05,
-                false, true);
-    }
-
-    private void generateTerrain(int size_sectors, double scale, double sea_level,
+    private void generateTerrain(int size_sectors, double scale,
                                  double g_height, double d_height, double t_height,
                                  double forest_scale, double forest_height, int forest_passes,
-                                 double town_ratio,
-                                 boolean desert_near_tundra, boolean tundra_at_poles) {
+                                 double town_ratio) {
         System.out.println("Generating world of size "+size_sectors+"x"+size_sectors);
         this.biome_map = new byte[size_sectors * Sector.sizeChunks()][size_sectors * Sector.sizeChunks()];
         this.forest_map = new boolean[size_sectors * Sector.sizeChunks()][size_sectors * Sector.sizeChunks()];
         this.size_sectors = size_sectors;
         double[][] grass = SimplexNoise.generate(size_sectors * Sector.sizeChunks(),
-                size_sectors * Sector.sizeChunks(), 1 / (1000 * scale) / 2, (1 - (sea_level)), 4);
+                size_sectors * Sector.sizeChunks(), 1 / (1000 * scale) / 3, 1, 4);
         double[][] tundra = SimplexNoise.generate(size_sectors * Sector.sizeChunks(),
-                size_sectors * Sector.sizeChunks(), 1 / (1000 * scale) / 2, (1 - (sea_level)), 4);
+                size_sectors * Sector.sizeChunks(), 1 / (1000 * scale) / 3, 1, 4);
         double[][] desert = SimplexNoise.generate(size_sectors * Sector.sizeChunks(),
-                size_sectors * Sector.sizeChunks(), 1 / (1000 * scale) / 2, (1 - (sea_level)), 4);
+                size_sectors * Sector.sizeChunks(), 1 / (1000 * scale) / 3, 1, 4);
         double[][] forest = SimplexNoise.generate(size_sectors * Sector.sizeChunks(),
-                size_sectors * Sector.sizeChunks(), 1 / (1000 * forest_scale) / 2, (1 - (forest_height)), forest_passes);
+                size_sectors * Sector.sizeChunks(), 1 / (1000 * forest_scale) / 3, (1 - (forest_height)), forest_passes);
 
         double[][][] biome_distribution = new double[size_sectors][size_sectors][Chunk.BIOME_COUNT];
 
@@ -658,25 +641,20 @@ public class World {
             for (int j = 0; j < grass.length; j++) {
                 double max = MiscMath.max(grass[i][j],
                         MiscMath.max(tundra[i][j], desert[i][j]));
-                //extra rules beforehand
-                if (tundra_at_poles)
-                    tundra[i][j] *= ((float) Math.abs((biome_map[0].length / 2) - (j + (biome_map.length / 5))) / (float) biome_map[0].length);
-                if (!desert_near_tundra) desert[i][j] *= 1f - (tundra[i][j]);
-                //calculate which biome each chunk should be
+                //calculate which terrain each chunk should be
                 biome_map[i][j] = Chunk.WATER;
-                if (grass[i][j] > sea_level && max == grass[i][j] && grass[i][j] > 1 - g_height) {
+                if (max == grass[i][j] && grass[i][j] > 1 - g_height) {
                     biome_map[i][j] = Chunk.GRASS;
                 }
-                if (tundra[i][j] > sea_level && max == tundra[i][j] && tundra[i][j] > 1 - t_height) {
+                if (max == tundra[i][j] && tundra[i][j] > 1 - t_height) {
                     biome_map[i][j] = Chunk.SNOW;
                 }
-                if (desert[i][j] > sea_level && max == desert[i][j] && desert[i][j] > 1 - d_height) {
+                if (max == desert[i][j] && desert[i][j] > 1 - d_height) {
                     biome_map[i][j] = Chunk.SAND;
                 }
-                if (forest[i][j] <= forest_height && biome_map[i][j] == Chunk.GRASS) {
-                    {
-                        forest_map[i][j] = true;
-                    }
+                if (forest[i][j] <= forest_height &&
+                        (biome_map[i][j] == Chunk.GRASS || biome_map[i][j] == Chunk.SNOW)) {
+                    forest_map[i][j] = true;
                 }
                 int sx = i / Sector.sizeChunks();
                 int sy = j / Sector.sizeChunks();

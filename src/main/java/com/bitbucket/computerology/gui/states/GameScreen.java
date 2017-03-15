@@ -17,13 +17,14 @@ import org.lwjgl.opengl.Display;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.state.transition.FadeOutTransition;
+import org.newdawn.slick.state.transition.Transition;
 
 import java.util.ArrayList;
 
 public class GameScreen extends BasicGameState {
 
     public static GUI GUI;
-    public static MapCanvas MINI_MAP;
     public static boolean DEBUG_MODE = false, DRAW_MAP = false;
     static StateBasedGame game;
     boolean initialized = false;
@@ -137,6 +138,9 @@ public class GameScreen extends BasicGameState {
         Camera.update();
 
         pollMouseScroll();
+
+        //TEMPORARY UNTIL I ADD A PAUSE MENU
+        if (gc.getInput().isKeyPressed(Input.KEY_ESCAPE)) sbg.enterState(Assets.MAIN_MENU);
 
     }
 
