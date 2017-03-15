@@ -59,7 +59,10 @@ public class GUI {
      * @param e The element you wish to restrict input to.
      */
     public final void dialog(Panel e) {
-        if (!components.contains(e)) System.err.println(e+" cannot be dialogued: is not in "+this);
+        if (!components.contains(e)) {
+            System.err.println(e+" cannot be dialogued: is not in "+this);
+            return;
+        }
         focus = null;
         if (dialog == null) {
             dialog = e;

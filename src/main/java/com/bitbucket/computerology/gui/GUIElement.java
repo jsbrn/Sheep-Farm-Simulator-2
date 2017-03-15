@@ -56,14 +56,6 @@ public class GUIElement {
         gui = g;
     }
 
-    /**
-     * A function that can be overridden to refresh specific components in the element,
-     * like perhaps reloading a list of buttons to match a list of options
-     */
-    public void refresh() {
-        for (GUIElement g : components) g.refresh();
-    }
-
     public final boolean hasFocus() {
         if (getGUI() == null) return false;
         return this.equals(getGUI().getFocus());
