@@ -166,7 +166,7 @@ public class Chunk {
                 if (line.indexOf("y=") == 0) y = Byte.parseByte(line.replace("y=", ""));
                 if (line.indexOf("b=") == 0) biome = Byte.parseByte(line.replace("b=", ""));
                 if (line.indexOf("t=") == 0) terrain = Byte.parseByte(line.replace("t=", ""));
-                if (line.indexOf("r=") == 0) rot = Byte.parseByte(line.replace("t=", ""));
+                if (line.indexOf("r=") == 0) rot = Byte.parseByte(line.replace("r=", ""));
             }
         } catch (IOException ex) {
             Logger.getLogger(Sector.class.getName()).log(Level.SEVERE, null, ex);

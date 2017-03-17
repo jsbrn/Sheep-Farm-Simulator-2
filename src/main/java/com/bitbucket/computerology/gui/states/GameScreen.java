@@ -50,7 +50,14 @@ public class GameScreen extends BasicGameState {
         GUI.addComponent(new GameCanvas());
         GUI.addComponent(status);
 
-        pause_menu = new Panel();
+        pause_menu = new Panel() {
+
+            @Override
+            public void onVisible() {
+                grabFocus();
+            }
+
+        };
         pause_menu.setWidth(250);
         pause_menu.setHeight(450);
         pause_menu.setTitle("Paused");

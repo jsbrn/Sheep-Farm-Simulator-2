@@ -125,7 +125,6 @@ public class MainMenu extends BasicGameState {
                         public void onMouseRelease(int button, int x, int y, boolean intersection) {
                             if (!intersection) return;
                             world_create_menu.refresh();
-                            World.destroy();
                             World.newWorld(curr_save.getName());
                             if (World.getWorld().isGenerated()) {
                                 World.load();
@@ -282,7 +281,12 @@ public class MainMenu extends BasicGameState {
         sizelabel.anchor(name_field, GUIElement.ANCHOR_TOP, 1, 10);
         p.addComponent(sizelabel);
 
-        final Slider slider = new Slider(32, 8, 64, 8, true);
+        final Slider slider = new Slider(32, 8, 64, 8, true) {
+            @Override
+            public void onVisible() {
+                setValue(32);
+            }
+        };
         slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
         slider.anchor(sizelabel, GUIElement.ANCHOR_TOP, 1, 10);
         slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
@@ -294,7 +298,12 @@ public class MainMenu extends BasicGameState {
         grass.anchor(slider, GUIElement.ANCHOR_TOP, 1, 10);
         p.addComponent(grass);
 
-        final Slider g_slider = new Slider(1, 0, 1, 1, false);
+        final Slider g_slider = new Slider(1, 0, 1, 1, false) {
+            @Override
+            public void onVisible() {
+                setValue(1);
+            }
+        };
         g_slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
         g_slider.anchor(grass, GUIElement.ANCHOR_TOP, 1, 10);
         g_slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
@@ -306,7 +315,12 @@ public class MainMenu extends BasicGameState {
         desert.anchor(g_slider, GUIElement.ANCHOR_TOP, 1, 10);
         p.addComponent(desert);
 
-        final Slider d_slider = new Slider(0.35, 0, 1, 1, false);
+        final Slider d_slider = new Slider(0.5, 0, 1, 1, false) {
+            @Override
+            public void onVisible() {
+                setValue(0.5);
+            }
+        };
         d_slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
         d_slider.anchor(desert, GUIElement.ANCHOR_TOP, 1, 10);
         d_slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);
@@ -318,7 +332,12 @@ public class MainMenu extends BasicGameState {
         tundra.anchor(d_slider, GUIElement.ANCHOR_TOP, 1, 10);
         p.addComponent(tundra);
 
-        final Slider t_slider = new Slider(0.55, 0, 1, 1, false);
+        final Slider t_slider = new Slider(0.5, 0, 1, 1, false) {
+            @Override
+            public void onVisible() {
+                setValue(0.5);
+            }
+        };
         t_slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
         t_slider.anchor(tundra, GUIElement.ANCHOR_TOP, 1, 10);
         t_slider.anchor(null, GUIElement.ANCHOR_RIGHT, 1, -10);

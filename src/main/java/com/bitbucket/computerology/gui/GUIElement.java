@@ -61,6 +61,9 @@ public class GUIElement {
         return this.equals(getGUI().getFocus());
     }
 
+    //TODO: Replace this function with something
+    public void refresh() {}
+
     public final void grabFocus() {
         if (getGUI() == null) return;
         getGUI().setFocus(this);

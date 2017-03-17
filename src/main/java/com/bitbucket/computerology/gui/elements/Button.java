@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class Button extends GUIElement {
 
     private static int GRAD = 35; //gradient magnitude
-    private Image icon;
+    private Image background_img, hover_img;
     private String text;
     private Color bg_color, hover_color, text_color, border_color;
 
@@ -30,9 +30,12 @@ public class Button extends GUIElement {
         this.text_color = t;
     }
 
-    public void setIcon(String icon_url) {
+    public void setBackgroundImage(String bg_url, String hov_url) {
         try {
-            icon = new Image(icon_url, false, Image.FILTER_LINEAR);
+            background_img = new Image(bg_url, false, Image.FILTER_LINEAR);
+            hover_img = new Image(hov_url, false, Image.FILTER_LINEAR);
+            setWidth(background_img.getWidth());
+            setHeight(background_img.getHeight());
         } catch (SlickException ex) {
             Logger.getLogger(Button.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -65,27 +68,33 @@ public class Button extends GUIElement {
         
         int[] dims = getOnscreenDimensions();
 
-        g.setColor(mouseHovering() ? hover_color : bg_color);
-        if (!enabled()) g.setColor(Color.gray);
-        g.fillRect(dims[0], dims[1], dims[2], dims[3]);
-        g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), dims[0], dims[1]);
-        g.setColor(border_color);
-        g.drawRect(dims[0], dims[1], dims[2]-1, dims[3]-1);
+        if (background_img == null) {
 
-        //draw text if any
-        if (text.length() > 0) {
-            g.setFont(Assets.getFont(12));
-            int str_x = dims[2] / 2 - Assets.getFont(12).getWidth(text) / 2;
-            int str_y = dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
-            if (icon != null) {
-                str_x = 6 + icon.getHeight();
-                str_y = dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+            g.setColor(mouseHovering() ? hover_color : bg_color);
+            if (!enabled()) g.setColor(Color.gray);
+            g.fillRect(dims[0], dims[1], dims[2], dims[3]);
+            g.drawImage(Assets.BLACK_GRADIENT.getScaledCopy(dims[2], dims[3]), dims[0], dims[1]);
+            g.setColor(border_color);
+            g.drawRect(dims[0], dims[1], dims[2] - 1, dims[3] - 1);
+
+            //draw text if any
+            if (text.length() > 0) {
+                g.setFont(Assets.getFont(12));
+                int str_x = dims[2] / 2 - Assets.getFont(12).getWidth(text) / 2;
+                int str_y = dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+                if (background_img != null) {
+                    str_x = 6 + background_img.getHeight();
+                    str_y = dims[3] / 2 - Assets.getFont(12).getHeight(text) / 2 - 1;
+                }
+                g.setColor(Color.gray.darker());
+                g.drawString(text, dims[0] + str_x + 1, dims[1] + str_y + 1);
+                //text color depends on enabled state of button
+                g.setColor(enabled() ? text_color : Color.darkGray);
+                g.drawString(text, dims[0] + str_x, dims[1] + str_y);
             }
-            g.setColor(Color.gray.darker());
-            g.drawString(text, dims[0] + str_x + 1, dims[1] + str_y + 1);
-            //text color depends on enabled state of button
-            g.setColor(enabled() ? text_color : Color.darkGray);
-            g.drawString(text, dims[0] + str_x, dims[1] + str_y);
+
+        } else {
+            //draw background image
         }
 
         super.draw(g);
