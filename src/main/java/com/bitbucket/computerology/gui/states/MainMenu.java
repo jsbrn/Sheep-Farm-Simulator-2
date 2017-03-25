@@ -5,6 +5,7 @@ import com.bitbucket.computerology.gui.GUIElement;
 import com.bitbucket.computerology.gui.elements.*;
 import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.misc.MiscMath;
+import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
@@ -128,11 +129,20 @@ public class MainMenu extends BasicGameState {
                             World.newWorld(curr_save.getName());
                             if (World.getWorld().isGenerated()) {
                                 World.load();
+                                game.enterState(Assets.GAME_SCREEN);
+                                Camera.setX(World.getWorld().getSpawn()[0]);
+                                Camera.setY(World.getWorld().getSpawn()[1]);
                             } else {
-                                World.getWorld().generate();
-                                World.save();
+                                if (World.getWorld().generate()) {
+                                    World.save();
+                                    game.enterState(Assets.GAME_SCREEN);
+                                    Camera.setX(World.getWorld().getSpawn()[0]);
+                                    Camera.setY(World.getWorld().getSpawn()[1]);
+                                } else {
+                                    GUI.showMessage("Error", new String[]{"What a failure!",
+                                            "Looks like a spawn point could not be found."});
+                                }
                             }
-                            game.enterState(Assets.GAME_SCREEN);
                         }
                     };
                     play.setWidth(48);
@@ -348,21 +358,24 @@ public class MainMenu extends BasicGameState {
             @Override
             public void onMouseRelease(int button, int x, int y, boolean intersection) {
                 if (!intersection) return;
-                saveWorldSettings();
-                GUI.clearDialog();
-                world_select_menu.refresh();
+                if (saveWorldSettings()) {
+                    GUI.clearDialog();
+                    world_select_menu.refresh();
+                } else {
+                    GUI.showMessage("Failed to create save file", new String[]{"You have entered an invalid folder name."});
+                }
             }
 
-            public void saveWorldSettings() {
-                if (name_field.getText().length() <= 0) return;
+            public boolean saveWorldSettings() {
+                if (name_field.getText().length() <= 0) return false;
                 File f = new File(Assets.ROOT_DIR + "/saves/"+name_field.getText());
-                if (f.exists()) return;
-                f.mkdir();
+                if (f.exists()) return false;
+                if (!f.mkdir()) return false;
                 f = new File(Assets.ROOT_DIR + "/saves/"+name_field.getText()+"/generator_settings.txt");
                 FileWriter fw;
                 System.out.println("Saving to file " + f.getAbsoluteFile().getAbsolutePath());
                 try {
-                    if (!f.exists()) f.createNewFile();
+                    if (!f.exists()) { if (!f.createNewFile()) return false; }
                     fw = new FileWriter(f);
                     BufferedWriter bw = new BufferedWriter(fw);
                     bw.write("size="+slider.getValue()+"\n");
@@ -372,7 +385,9 @@ public class MainMenu extends BasicGameState {
                     bw.close();
                 } catch (Exception e) {
                     e.printStackTrace();
+                    return false;
                 }
+                return true;
             }
 
         };

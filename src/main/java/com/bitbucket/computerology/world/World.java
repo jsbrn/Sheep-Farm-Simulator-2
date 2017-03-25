@@ -581,12 +581,13 @@ public class World {
         return s;
     }
 
-    public void generate() {
+    public boolean generate() {
         double[] gen_settings = loadGeneratorSettings();
-        generateTerrain((int)gen_settings[0], 1, gen_settings[2], gen_settings[3], gen_settings[4]
-        , 0.02, 0.04, 8, 0.05);
+        if (!generate((int)gen_settings[0], 1, gen_settings[2], gen_settings[3], gen_settings[4]
+        , 0.02, 0.04, 8, 0.05)) return false;
         generateTradeRoutes();
         generateAround(getSpawn()[0], getSpawn()[1]);
+        return true;
     }
 
     private static double[] loadGeneratorSettings() {
@@ -617,10 +618,10 @@ public class World {
         return new File(Assets.ROOT_DIR+"/saves/" +world.save_name+"/world.txt").exists();
     }
 
-    private void generateTerrain(int size_sectors, double scale,
-                                 double g_height, double d_height, double t_height,
-                                 double forest_scale, double forest_height, int forest_passes,
-                                 double town_ratio) {
+    private boolean generate(int size_sectors, double scale,
+                             double g_height, double d_height, double t_height,
+                             double forest_scale, double forest_height, int forest_passes,
+                             double town_ratio) {
         System.out.println("Generating world of size "+size_sectors+"x"+size_sectors);
         this.biome_map = new byte[size_sectors * Sector.sizeChunks()][size_sectors * Sector.sizeChunks()];
         this.forest_map = new boolean[size_sectors * Sector.sizeChunks()][size_sectors * Sector.sizeChunks()];
@@ -668,6 +669,7 @@ public class World {
         boolean[][] empty_sector_map = createEmptySectorMap(biome_distribution);
         boolean[][] town_map = createTownMap(empty_sector_map, town_ratio);
         road_map = createRoadMap(empty_sector_map, town_map);
+        return findSpawn(empty_sector_map, town_map);
     }
 
     private boolean[][] createEmptySectorMap(double biome_distribution[][][]) {
@@ -705,8 +707,7 @@ public class World {
 
         //use the town ratio to determine the number of towns
         int tcount = (int) (ratio * (float) valid_locations.size());
-        spawn = new int[]{-1, -1};
-        boolean chosen_spawn = false;
+
         while (tcount > 0) {
             if (valid_locations.isEmpty()) break;
             int random = Math.abs(rng.nextInt()) % valid_locations.size();
@@ -720,16 +721,6 @@ public class World {
                 Town t = new Town(sc[0], sc[1]);
                 towns.add(t);
                 valid_locations.remove(chosen);
-                if (!chosen_spawn && chosen[0] > 0) { //place the starting sector next to the first town
-                    if (empty_sector_map[chosen[0]][chosen[1]]) {
-                        //check if the biome is grass
-                        if (biome_map[(chosen[0] - 1) * Sector.sizeChunks()][chosen[1] * Sector.sizeChunks()] == Chunk.GRASS) {
-                            spawn = new int[]{sc[0] - 1, sc[1]};
-                            chosen_spawn = true;
-                            System.out.println("Sector " + spawn[0] + ", " + spawn[1] + " is the spawn region!");
-                        }
-                    }
-                }
                 tcount--;
             }
         }
@@ -792,12 +783,34 @@ public class World {
         return map;
     }
 
+    /**
+     * Loops through each town, then each nearby sector
+     * @param empty_sector_map
+     * @return
+     */
+    public boolean findSpawn(boolean empty_sector_map[][], boolean town_map[][]) {
+        for (int x = 0; x < empty_sector_map.length; x++) {
+            for (int y = 0; y < empty_sector_map.length; y++) {
+                //if sector is empty, not water, not a town, and has a road in the top left corner, then it is a valid spawn
+                if (empty_sector_map[x][y]
+                        && biome_map[x][y] != Chunk.WATER
+                        && !town_map[x][y]
+                        && !road_map[x * Sector.sizeChunks()][y * Sector.sizeChunks()]) {
+                    spawn = new int[]{x, y};
+                    return true;
+                }
+            }
+        }
+        spawn = null;
+        return false;
+    }
+
     public byte[][] getBiomeMap() {
         return biome_map;
     }
 
     /**
-     * Creates a proper road segment on the road map. Two tiles wide and of the specified length.
+     * Creates a proper road segment on the road map. Two tiles wide.
      * Facing upwards (dir = 0), the origin road tile is at map[x, y] and the second road tile is to the left of it.
      *
      * @param x      The x coordinate on the road map.
@@ -809,7 +822,6 @@ public class World {
         int oy = dir == 1 ? -1 : (dir == 3 ? 1 : 0);
         int incr_y = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
         int incr_x = dir == 1 ? 1 : (dir == 3 ? -1 : 0);
-        int rot1 = dir, rot2 = dir + 2;
         for (int i = 0; i < (Sector.sizeChunks() + 2); i++) {
 
             if (x > -1 && x < map.length
@@ -851,7 +863,8 @@ public class World {
     public int[] getSpawn() {
         return spawn == null ?
                 new int[]{0, 0} :
-                new int[]{spawn[0] * Sector.sizePixels(), spawn[1] * Sector.sizePixels()};
+                new int[]{(int)((spawn[0]+0.5) * Sector.sizePixels()),
+                        ((int)(spawn[1]+0.5) * Sector.sizePixels())};
     }
 
     /**
@@ -868,35 +881,39 @@ public class World {
     /**
      * Initializes the sectors in a radius around the specified sector coordinate.
      * Imports terrain data for each from the maps in World. Once they are created and initialized,
-     * they can be saved and loaded as usual.
+     * they can be saved and loaded as usual (the entire map is not kept in memory all at once upon creation!).
      *
-     * @param sector_x
-     * @param sector_y
-     * @param r
+     * @param x The sector X coordinate.
+     * @param y The sector Y coordinate.
+     * @param r The radius.
      */
-    private void initializeSectors(int sector_x, int sector_y, int r) {
+    private void initializeSectors(int x, int y, int r) {
         for (int h = -r; h != r + 1; h++) {
             for (int w = -r; w != r + 1; w++) {
-                Sector s = getSector(sector_x + w, sector_y + h);
-                if (s == null) {
-                    if (validSector(sector_x + w, sector_y + h)) {
-                        s = createSector(sector_x + w, sector_y + h);
-                        s.importBiomes(biome_map);
-                        s.importRoads(road_map);
-                        Town t = getTown(sector_x + w, sector_y + h);
-                        if (t != null) t.generate();
-                        s.importForest(forest_map);
-                    }
-                }
+                initializeSector(x + w, y + h);
             }
         }
     }
 
-    private boolean validSector(int x, int y) {
-        x += size_sectors / 2;
-        y += size_sectors / 2;
-        return x >= 0 && x < size_sectors
-                && y >= 0 && y < size_sectors;
+    private void initializeSector(int x, int y) {
+        Sector s = getSector(x, y);
+        if (s == null) {
+            if (validSector(x, y)) {
+                s = createSector(x, y);
+                s.importBiomes(biome_map);
+                s.importRoads(road_map);
+                Town t = getTown(x, y);
+                if (t != null) t.generate();
+                s.importForest(forest_map);
+            }
+        }
+    }
+
+    private boolean validSector(int sector_x, int sector_y) {
+        sector_x += size_sectors / 2;
+        sector_y += size_sectors / 2;
+        return sector_x >= 0 && sector_x < size_sectors
+                && sector_y >= 0 && sector_y < size_sectors;
     }
 
     public int seed() {

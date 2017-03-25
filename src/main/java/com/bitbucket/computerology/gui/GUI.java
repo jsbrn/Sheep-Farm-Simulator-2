@@ -1,5 +1,7 @@
 package com.bitbucket.computerology.gui;
 
+import com.bitbucket.computerology.gui.elements.Button;
+import com.bitbucket.computerology.gui.elements.Label;
 import com.bitbucket.computerology.gui.elements.Panel;
 import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.misc.Window;
@@ -15,7 +17,8 @@ import java.util.ArrayList;
 public class GUI {
 
     private ArrayList<GUIElement> components;
-    private GUIElement focus, dialog;
+    private GUIElement focus;
+    private Panel dialog;
 
     float dialog_alpha = 0;
 
@@ -49,6 +52,47 @@ public class GUI {
     public final void setFocus(GUIElement g) {
         System.out.println("Setting focus to "+g);
         focus = g;
+    }
+
+    public final void showMessage(String title, String message[]) {
+        Panel panel = new Panel();
+        panel.setTitle(title);
+        panel.setVisible(false);
+
+        final Panel old_dialog = dialog;
+
+        int width = 0, height = panel.getHeaderHeight() + 56;
+        for (int i = 0; i < message.length; i++) {
+            Label l = new Label(message[i]);
+            l.anchor(panel, GUIElement.ANCHOR_TOP, 0, panel.getHeaderHeight() + 10 + (i * 20));
+            l.anchor(panel, GUIElement.ANCHOR_LEFT, 0, 10);
+            panel.addComponent(l);
+            int w = l.getOnscreenDimensions()[2] + 20;
+            if (w > width) width = w;
+            height += 20;
+        }
+
+        Button button = new Button("OK", Color.black, Color.white) {
+
+            @Override
+            public void onMouseRelease(int button, int x, int y, boolean intersection) {
+                if (intersection) {
+                    clearDialog();
+                    dialog(old_dialog);
+                }
+            }
+
+        };
+        button.anchor(panel, GUIElement.ANCHOR_MID_X, 0.5, 0);
+        button.anchor(panel, GUIElement.ANCHOR_BOTTOM, 1, -10);
+        button.anchor(panel, GUIElement.ANCHOR_TOP, 1, -34);
+        button.setHeight(24);
+        panel.addComponent(button);
+
+        panel.setWidth(width); panel.setHeight(height);
+        addComponent(panel);
+        clearDialog();
+        dialog(panel);
     }
 
     /**
