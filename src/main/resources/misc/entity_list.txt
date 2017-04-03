@@ -1,5 +1,6 @@
 e
 id=Tree
+soft=true
 c
 id=Position
 
@@ -20,10 +21,13 @@ h
 12 -12 12 12
 12 12 -12 12
 -12 12 -12 -12
+---
+---
 /h
 /e
 e
 id=House 1
+soft=true
 c
 id=Position
 
@@ -48,10 +52,13 @@ h
 64 -64 64 64
 64 64 -64 64
 -64 64 -64 -64
+---
+---
 /h
 /e
 e
 id=Factory 1
+soft=true
 c
 id=Position
 
@@ -76,10 +83,13 @@ h
 128 -124 128 124
 128 124 -128 124
 -128 124 -128 -124
+---
+---
 /h
 /e
 e
 id=Supermarket 1
+soft=true
 c
 id=Position
 
@@ -104,10 +114,13 @@ h
 80 -80 80 80
 80 80 -80 80
 -80 80 -80 -80
+---
+---
 /h
 /e
 e
 id=barn_3x4
+soft=true
 c
 id=Position
 
@@ -152,10 +165,13 @@ h
 43 59 43 -61
 43 -61 14 -61
 14 -61 14 -65
+---
+---
 /h
 /e
 e
 id=fence_9x6
+soft=true
 c
 id=Position
 
@@ -187,5 +203,34 @@ h
 144 96 145 -96
 145 -96 145 -98
 145 -98 -146 -99
+---
+---
+/h
+/e
+e
+id=Cactus
+soft=true
+c
+id=Position
+
+/c
+c
+id=Texture
+texture=cactus.png
+/c
+c
+id=Hitbox
+
+/c
+s
+id=Render
+/s
+h
+---
+-8 -8 8 -8
+8 -8 8 8
+8 8 -8 8
+-8 8 -8 -8
+---
 /h
 /e

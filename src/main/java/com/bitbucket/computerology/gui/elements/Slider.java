@@ -115,7 +115,7 @@ public class Slider extends GUIElement {
 
         g.setColor(color);
 
-        double x = MiscMath.clamp(((value / max) * dims[2]), 12, dims[2] - 10);
+        double x = MiscMath.clamp((((value-min) / (max-min)) * dims[2]), 12, dims[2] - 10);
         g.fillOval(dims[0] + (int)x - 10,
                 dims[1] + (dims[3]/2) - 10, 20, 20);
         g.drawImage(knob, dims[0] + (int)x - 12,

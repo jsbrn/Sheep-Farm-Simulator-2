@@ -83,11 +83,11 @@ public class Entity {
     }
 
     public final boolean intersects(double x, double y, int width, int height) {
-        return hitbox == null ? false : hitbox.intersects(x, y, width, height);
+        return hitbox == null ? false : hitbox.intersects(x, y, width, height, Hitbox.COLLISION_BOX);
     }
 
     public final boolean intersects(double x, double y) {
-        return hitbox == null ? false : hitbox.intersects(x, y);
+        return hitbox == null ? false : hitbox.intersects(x, y, Hitbox.COLLISION_BOX);
     }
 
     /**
@@ -169,11 +169,11 @@ public class Entity {
     }
 
     public final int getWidth() {
-        return hitbox == null ? 0 : hitbox.getWidth();
+        return hitbox == null ? 0 : hitbox.getWidth(Hitbox.COLLISION_BOX);
     }
 
     public final int getHeight() {
-        return hitbox == null ? 0 : hitbox.getHeight();
+        return hitbox == null ? 0 : hitbox.getHeight(Hitbox.COLLISION_BOX);
     }
 
     public final String getType() {

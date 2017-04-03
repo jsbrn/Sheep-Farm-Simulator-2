@@ -128,16 +128,16 @@ public class MainMenu extends BasicGameState {
                             world_create_menu.refresh();
                             World.newWorld(curr_save.getName());
                             if (World.getWorld().isGenerated()) {
-                                World.load();
+                                World.getWorld().load();
                                 game.enterState(Assets.GAME_SCREEN);
                                 Camera.setX(World.getWorld().getSpawn()[0]);
                                 Camera.setY(World.getWorld().getSpawn()[1]);
                             } else {
                                 if (World.getWorld().generate()) {
-                                    World.save();
-                                    game.enterState(Assets.GAME_SCREEN);
                                     Camera.setX(World.getWorld().getSpawn()[0]);
                                     Camera.setY(World.getWorld().getSpawn()[1]);
+                                    World.getWorld().save();
+                                    game.enterState(Assets.GAME_SCREEN);
                                 } else {
                                     GUI.showMessage("Error", new String[]{"What a failure!",
                                             "Looks like a spawn point could not be found."});
@@ -291,10 +291,10 @@ public class MainMenu extends BasicGameState {
         sizelabel.anchor(name_field, GUIElement.ANCHOR_TOP, 1, 10);
         p.addComponent(sizelabel);
 
-        final Slider slider = new Slider(32, 8, 64, 8, true) {
+        final Slider slider = new Slider(32, 24, 64, 8, true) {
             @Override
             public void onVisible() {
-                setValue(32);
+                setValue(24);
             }
         };
         slider.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);

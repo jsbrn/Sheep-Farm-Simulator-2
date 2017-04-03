@@ -53,7 +53,7 @@ public class Movement extends ComponentSystem {
                 i++;
                 dist += 4;
                 for (Entity e : entities) {
-                    hitbox.offset(incr_x * i, incr_y * i);
+                    hitbox.offset(incr_x * i, incr_y * i, Hitbox.COLLISION_BOX);
                     if (e.intersects(p)) {
                         i--;
                         stop = true;

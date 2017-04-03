@@ -71,15 +71,17 @@ public class EntityList {
                 if (line.equals("h")) {
                     Component c = e.getComponent("Hitbox");
                     Hitbox h = c != null ? ((Hitbox) c) : null;
+                    int h_index = 0;
                     while (h != null) {
                         line = br.readLine();
                         if (line == null) break;
                         if (line.equals("/h")) break;
+                        if (line.equals("---")) { h_index++; continue; }
                         ArrayList<String> l = MiscString.parseString(line.replace(" ", "\n"));
                         h.addLine(Integer.parseInt(l.get(0))
                                 , Integer.parseInt(l.get(1))
                                 , Integer.parseInt(l.get(2))
-                                , Integer.parseInt(l.get(3)));
+                                , Integer.parseInt(l.get(3)), h_index);
                     }
                 }
             }

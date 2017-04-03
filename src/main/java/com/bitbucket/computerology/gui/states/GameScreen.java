@@ -83,7 +83,7 @@ public class GameScreen extends BasicGameState {
             @Override
             public void onMouseRelease(int button, int x, int y, boolean intersection) {
                 if (intersection) {
-                    World.save();
+                    World.getWorld().save();
                     GUI.clearDialog();
                     game.enterState(Assets.MAIN_MENU);
                 }

@@ -26,7 +26,7 @@ public class World {
 
     private static World world;
 
-    private Image map_texture;
+    //biome_map is a 2D array that contains terrain data for every chunk
     private byte[][] biome_map;
     private int[] spawn;
     private boolean[][] forest_map, road_map;
@@ -44,6 +44,7 @@ public class World {
     private ArrayList<Entity> active_entities, moving_entities, render_entities;
     private ArrayList<Town> towns;
 
+    private Image map_texture;
     private ArrayList<int[]> queued_map_updates;
 
     private String save_name;
@@ -67,7 +68,7 @@ public class World {
         world.save_name = save_name;
     }
 
-    public static void save() {
+    public void save() {
         File f = new File(Assets.ROOT_DIR+"/saves/" +world.save_name+ "/world.txt");
         FileWriter fw;
         System.out.println("Saving to file " + f.getAbsoluteFile().getAbsolutePath());
@@ -99,11 +100,11 @@ public class World {
     /**
      * Sets the world instance to null.
      */
-    public static void destroy() {
+    public void destroy() {
         world = null;
     }
 
-    public static void load() {
+    public void load() {
         File f = new File(Assets.ROOT_DIR+"/saves/" +world.save_name + "/world.txt");
         if (!f.exists()) return;
         FileReader fr;
@@ -138,7 +139,7 @@ public class World {
     private void init() {
         this.rng = new Random(seed);
         this.sectors = new ArrayList<Sector>();
-        this.sectors.ensureCapacity(5000); //preallocate array to 5000 sectors
+        this.sectors.ensureCapacity(4096); //preallocate array to 5000 sectors
         this.player = new Player();
         this.time = 0;
         this.event_handlers = new ArrayList<EventHandler>();
@@ -460,10 +461,6 @@ public class World {
         return player;
     }
 
-    public ArrayList<Sector> sectors() {
-        return sectors;
-    }
-
     public void draw(Graphics g) {
         drawTerrain(false, g);
         //drawTerrain(true, g);
@@ -590,7 +587,7 @@ public class World {
         return true;
     }
 
-    private static double[] loadGeneratorSettings() {
+    private double[] loadGeneratorSettings() {
         double[] settings = new double[6];
         File f = new File(Assets.ROOT_DIR+"/saves/" +world.save_name + "/generator_settings.txt");
         if (!f.exists()) return settings;
@@ -654,7 +651,8 @@ public class World {
                     biome_map[i][j] = Chunk.SAND;
                 }
                 if (forest[i][j] <= forest_height &&
-                        (biome_map[i][j] == Chunk.GRASS || biome_map[i][j] == Chunk.SNOW)) {
+                        (biome_map[i][j] == Chunk.GRASS || biome_map[i][j] == Chunk.SNOW
+                        || biome_map[i][j] == Chunk.SAND)) {
                     forest_map[i][j] = true;
                 }
                 int sx = i / Sector.sizeChunks();
@@ -793,10 +791,10 @@ public class World {
             for (int y = 0; y < empty_sector_map.length; y++) {
                 //if sector is empty, not water, not a town, and has a road in the top left corner, then it is a valid spawn
                 if (empty_sector_map[x][y]
-                        && biome_map[x][y] != Chunk.WATER
+                        && biome_map[x * Sector.sizeChunks()][y * Sector.sizeChunks()] != Chunk.WATER
                         && !town_map[x][y]
                         && !road_map[x * Sector.sizeChunks()][y * Sector.sizeChunks()]) {
-                    spawn = new int[]{x, y};
+                    spawn = new int[]{x - (size_sectors/2), y - (size_sectors/2)};
                     return true;
                 }
             }
@@ -864,7 +862,7 @@ public class World {
         return spawn == null ?
                 new int[]{0, 0} :
                 new int[]{(int)((spawn[0]+0.5) * Sector.sizePixels()),
-                        ((int)(spawn[1]+0.5) * Sector.sizePixels())};
+                        ((int)((spawn[1]+0.5) * Sector.sizePixels()))};
     }
 
     /**
