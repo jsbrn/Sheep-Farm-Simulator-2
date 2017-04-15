@@ -146,7 +146,7 @@ public class Sector {
                 boolean spawn = map[mc[0] + i][mc[1] + j];
                 if (spawn) {
                     int terrain = getChunk(i, j).getTerrain();
-                    if (terrain != Chunk.GRASS || terrain != Chunk.SNOW || terrain != Chunk.SAND) continue;
+                    if (terrain != Chunk.GRASS && terrain != Chunk.SNOW && terrain != Chunk.SAND) continue;
                     Entity tree = Entity.create(terrain == Chunk.GRASS || terrain == Chunk.SNOW ? "Tree" : "Cactus");
                     int wc[] = MiscMath.getWorldCoordsFromMap(mc[0] + i, mc[1] + j);
                     tree.setWorldX(wc[0] + (Chunk.sizePixels() / 2) + (world.rng().nextInt() % 8));

@@ -89,7 +89,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
         <version>2.4</version>
         <executions>
             <execution>
-                <phase>initialize</phase>
+                <phase>install</phase>
                 <goals>
                     <goal>install-file</goal>
                 </goals>
