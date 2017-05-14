@@ -57,7 +57,7 @@ public class Sector {
 
     /**
      * Compares the sector's x and y coordinates (like -2, 5) to the given coordinates,
-     * for use in a sorted list of sectors.
+     * for use from a sorted list of sectors.
      *
      * @param x Sector x coordinate to compare to.
      * @param y Sector y coordinate to compare to.
@@ -135,7 +135,7 @@ public class Sector {
     }
 
     public void importForest(boolean[][] map) {
-        //don't import trees in towns
+        //don't import trees from towns
         //they can handle their own tree gen
         if (isTownSector()) return;
         if (filled) return;
@@ -145,7 +145,7 @@ public class Sector {
             for (int j = 0; j < sizeChunks(); j++) {
                 boolean spawn = map[mc[0] + i][mc[1] + j];
                 if (spawn) {
-                    int terrain = getChunk(i, j).getTerrain();
+                    int terrain = getChunk(i, j).getTopLayer();
                     if (terrain != Chunk.GRASS && terrain != Chunk.SNOW && terrain != Chunk.SAND) continue;
                     Entity tree = Entity.create(terrain == Chunk.GRASS || terrain == Chunk.SNOW ? "Tree" : "Cactus");
                     int wc[] = MiscMath.getWorldCoordsFromMap(mc[0] + i, mc[1] + j);

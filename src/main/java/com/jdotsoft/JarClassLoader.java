@@ -49,19 +49,19 @@ import java.util.jar.Manifest;
  * the top JAR and from JARs inside top JAR. The loading process looks
  * through JARs hierarchy and allows their tree structure, i.e. nested JARs.
  * <p>
- * The top JAR and nested JARs are included in the classpath and searched
+ * The top JAR and nested JARs are included from the classpath and searched
  * for the class or resource to load. The nested JARs could be located
- * in any directories or subdirectories in a parent JAR.
+ * from any directories or subdirectories from a parent JAR.
  * <p>
- * All directories or subdirectories in the top JAR and nested JARs are
- * included in the library path and searched for a native library.
- * For example, the library "Native.dll" could be in the JAR root directory
- * as "Native.dll" or in any directory as "lib/Native.dll"
+ * All directories or subdirectories from the top JAR and nested JARs are
+ * included from the library path and searched for a native library.
+ * For example, the library "Native.dll" could be from the JAR root directory
+ * as "Native.dll" or from any directory as "lib/Native.dll"
  * or "abc/xyz/Native.dll".
  * <p>
  * This class delegates class loading to the parent class loader and
  * successfully loads classes, native libraries and resources when it works
- * not in a JAR environment.
+ * not from a JAR environment.
  * <p>
  * Create a launcher class to start your class
  * <code>com.mycompany.MyApp main()</code> method to start your application
@@ -82,13 +82,13 @@ import java.util.jar.Manifest;
  * </pre>
  * </code>
  * <p>
- * An application could be started in two different environments:
+ * An application could be started from two different environments:
  * <br/>
  * 1. Application is started from an exploded JAR with dependent resources
- * locations defined in a classpath.
+ * locations defined from a classpath.
  * Command line to start the application could point to the main class e.g.
  * <code>MyApp.main()</code> or to the <code>MyAppLauncher.main()</code>
- * class (see example above). The application behavior in both cases
+ * class (see example above). The application behavior from both cases
  * is identical. Application started with <code>MyApp.main()</code>
  * uses system class loader and resources loaded from a file system.
  * Application started with <code>MyAppLauncher.main()</code>
@@ -144,7 +144,7 @@ import java.util.jar.Manifest;
  * it as an application.
  * <p>
  * <p>
- * Use VM parameters in the command line for logging settings (examples):
+ * Use VM parameters from the command line for logging settings (examples):
  * <ul>
  * <li><code>-DJarClassLoader.logger=[filename]</code> for logging into the file.
  * The default is console.</li>
@@ -158,16 +158,16 @@ import java.util.jar.Manifest;
  * <p>
  * Known issues: some temporary files created by class loader are not deleted
  * on application exit because JVM does not close handles to them.
- * See details in {@link #shutdown()}.
+ * See details from {@link #shutdown()}.
  * <p>
  * See also discussion "How load library from jar file?"
  * http://discuss.develop.com/archives/wa.exe?A2=ind0302&L=advanced-java&D=0&P=4549
  * Unfortunately, the native method java.lang.ClassLoader$NativeLibrary.unload()
- * is package accessed in a package accessed inner class.
+ * is package accessed from a package accessed inner class.
  * Moreover, it's called from finalizer. This does not allow releasing
  * the native library handle and delete the temporary library file.
  * Option to explore: use JNI function UnregisterNatives(). See also
- * native code in ...\jdk\src\share\native\java\lang\ClassLoader.class
+ * native code from ...\jdk\src\share\native\java\lang\ClassLoader.class
  *
  * @version $Revision: 1.38 $
  */
@@ -180,14 +180,14 @@ public class JarClassLoader extends ClassLoader {
 
     /**
      * VM parameter key to define log level.
-     * Valid levels are defined in {@link LogLevel}.
+     * Valid levels are defined from {@link LogLevel}.
      * Default value is {@link LogLevel#OFF}.
      */
     public static final String KEY_LOGGER_LEVEL = "JarClassLoader.logger.level";
 
     /**
      * VM parameter key to define log area.
-     * Valid areas are defined in {@link LogArea}.
+     * Valid areas are defined from {@link LogArea}.
      * Default value is {@link LogArea#ALL}. Multiple areas could be specified
      * with ',' delimiter (no spaces!).
      */
@@ -198,7 +198,7 @@ public class JarClassLoader extends ClassLoader {
      * JarClassLoader extracts all JARs and native libraries into temporary files
      * and makes the best attempt to clean these files on exit.
      * <p>
-     * The sub directory is created in the directory defined in a system
+     * The sub directory is created from the directory defined from a system
      * property "java.io.tmpdir". Verify the content of this directory
      * periodically and empty it if required. Temporary files could accumulate
      * there if application was killed.
@@ -275,7 +275,7 @@ public class JarClassLoader extends ClassLoader {
         }
         if ("file".equals(protocol)) {
             // Protocol 'file' - application launched from exploded dir or JAR
-            // Decoding required for 'space char' in URL:
+            // Decoding required for 'space char' from URL:
             //    URL.getFile() returns "/C:/my%20dir/MyApp.jar" for "/C:/my dir/MyApp.jar"
             try {
                 sUrlTopJar = URLDecoder.decode(urlTopJar.getFile(), "UTF-8");
@@ -346,7 +346,7 @@ public class JarClassLoader extends ClassLoader {
             try {
                 logLevel = LogLevel.valueOf(sLogLevel);
             } catch (Exception e) {
-                logError(LogArea.CONFIG, "Not valid parameter in %s=%s", KEY_LOGGER_LEVEL, sLogLevel);
+                logError(LogArea.CONFIG, "Not valid parameter from %s=%s", KEY_LOGGER_LEVEL, sLogLevel);
             }
         }
 
@@ -359,7 +359,7 @@ public class JarClassLoader extends ClassLoader {
                     hsLogArea.add(LogArea.valueOf(t));
                 }
             } catch (Exception e) {
-                logError(LogArea.CONFIG, "Not valid parameter in %s=%s", KEY_LOGGER_AREA, sLogArea);
+                logError(LogArea.CONFIG, "Not valid parameter from %s=%s", KEY_LOGGER_AREA, sLogArea);
             }
         }
         if (hsLogArea.size() == 1 && hsLogArea.contains(LogArea.CONFIG)) {
@@ -371,12 +371,12 @@ public class JarClassLoader extends ClassLoader {
 
     /**
      * Using temp files (one per inner JAR/DLL) solves many issues:
-     * 1. There are no ways to load JAR defined in a JarEntry directly
+     * 1. There are no ways to load JAR defined from a JarEntry directly
      * into the JarFile object (see also #6 below).
      * 2. Cannot use memory-mapped files because they are using
      * nio channels, which are not supported by JarFile ctor.
      * 3. JarFile object keeps opened JAR files handlers for fast access.
-     * 4. Deep resource in a jar-in-jar does not have well defined URL.
+     * 4. Deep resource from a jar-from-jar does not have well defined URL.
      * Making temp file with JAR solves this problem.
      * 5. Similar issues with native libraries:
      * <code>ClassLoader.findLibrary()</code> accepts ONLY string with
@@ -508,11 +508,11 @@ public class JarClassLoader extends ClassLoader {
                 // Example: sName is "Native.dll"
                 String sEntry = je.getName(); // "Native.dll" or "abc/xyz/Native.dll"
                 // sName "Native.dll" could be found, for example
-                //   - in the path: abc/Native.dll/xyz/my.dll <-- do not load this one!
-                //   - in the partial name: abc/aNative.dll   <-- do not load this one!
+                //   - from the path: abc/Native.dll/xyz/my.dll <-- do not load this one!
+                //   - from the partial name: abc/aNative.dll   <-- do not load this one!
                 String[] token = sEntry.split("/"); // the last token is library name
                 if (token.length > 0 && token[token.length - 1].equals(sName)) {
-                    logInfo(LogArea.NATIVE, "Loading native library '%s' found as '%s' in JAR %s",
+                    logInfo(LogArea.NATIVE, "Loading native library '%s' found as '%s' from JAR %s",
                             sLib, sEntry, jarFileInfo.simpleName);
                     return new JarEntryInfo(jarFileInfo, je);
                 }
@@ -522,7 +522,7 @@ public class JarClassLoader extends ClassLoader {
     } // findJarNativeEntry()
 
     /**
-     * Loads class from a JAR and searches for all jar-in-jar.
+     * Loads class from a JAR and searches for all jar-from-jar.
      *
      * @param sClassName class to load.
      * @return Loaded class.
@@ -591,7 +591,7 @@ public class JarClassLoader extends ClassLoader {
      * JVM does not close handles to native libraries files or JARs with
      * resources loaded as getResourceAsStream(). Temp files are not deleted
      * even if they are marked deleteOnExit(). They also fail to delete explicitly.
-     * Workaround is to preserve list with temp files in configuration file
+     * Workaround is to preserve list with temp files from configuration file
      * "[user.home]/.JarClassLoader" and delete them on next application run.
      * <p>
      * See http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4171239
@@ -621,7 +621,7 @@ public class JarClassLoader extends ClassLoader {
     } // shutdown()
 
     /**
-     * Deletes temporary files listed in the file.
+     * Deletes temporary files listed from the file.
      * The method is called on shutdown().
      *
      * @param fileCfg file with temporary files list.
@@ -644,7 +644,7 @@ public class JarClassLoader extends ClassLoader {
                     hsDeleteOnExit.add(file);
                 }
             }
-            logDebug(LogArea.CONFIG, "Deleted %d old temp files listed in %s",
+            logDebug(LogArea.CONFIG, "Deleted %d old temp files listed from %s",
                     count, fileCfg.getAbsolutePath());
         } catch (IOException e) {
             // Ignore. This file may not exist.
@@ -709,13 +709,13 @@ public class JarClassLoader extends ClassLoader {
      * Returns the name of the jar file main class, or null if
      * no "Main-Class" manifest attributes was defined.
      *
-     * @return Main class declared in JAR's manifest.
+     * @return Main class declared from JAR's manifest.
      */
     public String getManifestMainClass() {
         Attributes attr = null;
         if (isLaunchedFromJar()) {
             try {
-                // The first element in array is the top level JAR
+                // The first element from array is the top level JAR
                 Manifest m = lstJarFile.get(0).jarFile.getManifest();
                 attr = m.getMainAttributes();
             } catch (IOException e) {
@@ -727,8 +727,8 @@ public class JarClassLoader extends ClassLoader {
     /**
      * Invokes main() method on class with provided parameters.
      *
-     * @param sClass class name in form "MyClass" for default package
-     *               or "com.abc.MyClass" for class in some package
+     * @param sClass class name from form "MyClass" for default package
+     *               or "com.abc.MyClass" for class from some package
      * @param args   arguments for the main() method or null.
      * @throws Throwable wrapper for many exceptions thrown while
      *                   <p>(1) main() method lookup:
@@ -760,7 +760,7 @@ public class JarClassLoader extends ClassLoader {
         }
         if (method == null || !bValidModifiers || !bValidVoid) {
             throw new NoSuchMethodException(
-                    "The main() method in class \"" + sClass + "\" not found.");
+                    "The main() method from class \"" + sClass + "\" not found.");
         }
 
         // Invoke method.
@@ -776,8 +776,8 @@ public class JarClassLoader extends ClassLoader {
      * Call this method to initialize an applet from your launcher class
      * <code>MyAppletLauncher.init()</code> method.
      *
-     * @param sClass       class name in form "MyClass" for default package
-     *                     or "com.abc.MyClass" for class in some package
+     * @param sClass       class name from form "MyClass" for default package
+     *                     or "com.abc.MyClass" for class from some package
      * @param appletParent parent applet from a launcher.
      * @throws Throwable wrapper for many exceptions thrown while applet
      *                   instantiation and calling init() method.
@@ -852,7 +852,7 @@ public class JarClassLoader extends ClassLoader {
     }
 
     /**
-     * Class loader JavaDoc encourages overriding findClass(String) in derived
+     * Class loader JavaDoc encourages overriding findClass(String) from derived
      * class rather than overriding this method. This does not work for
      * loading classes from a JAR. Default implementation of loadClass() is
      * able to load a class from a JAR without calling findClass().
@@ -864,14 +864,14 @@ public class JarClassLoader extends ClassLoader {
         // Each thread must have THIS class loader set as a context class loader.
         // This is required to prevent failure finding a class or resource from
         // external JAR requested by a common class loaded from rt.jar.
-        // The best example is external LnF, explained in steps:
+        // The best example is external LnF, explained from steps:
         // 1. Application requests 'javax.swing.JOptionPane'.
         // 2. THIS class loader passes request to system default class loader
         // to load the class from rt.jar.
         // 3. The class 'javax.swing.JOptionPane' is loaded by system default class
         // loader.
         // 4. The class 'javax.swing.JOptionPane' is requesting 'UIDefaults.getUI()'
-        // for component, which resides in external LnF JAR.
+        // for component, which resides from external LnF JAR.
         // 5. The class loader which is used to load the requested component is
         // current thread context class loader if it is set, otherwise the parent
         // thread context class loader, or the default system class loader
@@ -880,10 +880,10 @@ public class JarClassLoader extends ClassLoader {
         // thread context class loader is not set. The default system class loader is
         //   - sun.misc.Launcher$AppClassLoader - run from file system or JAR
         //   - com.sun.jnlp.JNLPClassLoader     - run from JNLP
-        // System class loaders cannot find requested component in external
+        // System class loaders cannot find requested component from external
         // JAR and throw exception.
         //
-        // Setting thread context class loader for the top thread in invokeMain()
+        // Setting thread context class loader for the top thread from invokeMain()
         // method is sufficient for most cases. It fails for new threads created
         // not from the main thread.
         //
@@ -908,22 +908,22 @@ public class JarClassLoader extends ClassLoader {
                     return c;
                 } catch (JarClassLoaderException e) {
                     if (e.getCause() == null) {
-                        logDebug(LogArea.CLASS, "Not found %s in JAR by %s: %s",
+                        logDebug(LogArea.CLASS, "Not found %s from JAR by %s: %s",
                                 sClassName, getClass().getName(), e.getMessage());
                     } else {
-                        logDebug(LogArea.CLASS, "Error loading %s in JAR by %s: %s",
+                        logDebug(LogArea.CLASS, "Error loading %s from JAR by %s: %s",
                                 sClassName, getClass().getName(), e.getCause());
                     }
                     // keep looking...
                 }
             }
             // Step 2. Load by parent (usually system) class loader.
-            // Call findSystemClass() AFTER attempt to find in a JAR.
-            // If it called BEFORE it will load class-in-jar using
+            // Call findSystemClass() AFTER attempt to find from a JAR.
+            // If it called BEFORE it will load class-from-jar using
             // SystemClassLoader and "infect" it with SystemClassLoader.
             // The SystemClassLoader will be used to load all dependent
             // classes. SystemClassLoader will fail to load a class from
-            // jar-in-jar and to load dll-in-jar.
+            // jar-from-jar and to load dll-from-jar.
             try {
                 // No need to call findLoadedClass(sClassName) because it's called inside:
                 ClassLoader cl = getParent();
@@ -1019,7 +1019,7 @@ public class JarClassLoader extends ClassLoader {
      * for reuse.
      *
      * @param sClassName class to load.
-     * @throws IllegalArgumentException If package name duplicates an existing package either in this
+     * @throws IllegalArgumentException If package name duplicates an existing package either from this
      *                                  class loader or one of its ancestors.
      */
     private void definePackage(String sClassName, JarEntryInfo inf)
@@ -1213,7 +1213,7 @@ public class JarClassLoader extends ClassLoader {
             this.jarEntry = jarEntry;
         }
 
-        URL getURL() { // used in findResource() and findResources()
+        URL getURL() { // used from findResource() and findResources()
             try {
                 return new URL("jar:file:" + jarFileInfo.jarFile.getName() + "!/" + jarEntry);
             } catch (MalformedURLException e) {
@@ -1221,7 +1221,7 @@ public class JarClassLoader extends ClassLoader {
             }
         }
 
-        String getName() { // used in createTempFile() and loadJar()
+        String getName() { // used from createTempFile() and loadJar()
             return jarEntry.getName().replace('/', '_');
         }
 

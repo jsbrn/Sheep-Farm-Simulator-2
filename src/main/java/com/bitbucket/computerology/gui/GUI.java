@@ -32,7 +32,7 @@ public class GUI {
     }
 
     /**
-     * Gets the list of components in this GUI instance.
+     * Gets the list of components from this GUI instance.
      *
      * @return An ArrayList of GUIElement instances.
      */
@@ -104,7 +104,7 @@ public class GUI {
      */
     public final void dialog(Panel e) {
         if (!components.contains(e)) {
-            System.err.println(e+" cannot be dialogued: is not in "+this);
+            System.err.println(e+" cannot be dialogued: is not from "+this);
             return;
         }
         focus = null;

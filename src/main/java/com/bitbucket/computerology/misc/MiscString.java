@@ -11,7 +11,7 @@ public class MiscString {
      * to check the actual on-screen width of the String with the given font.
      *
      * @param text  The text to wrap.
-     * @param width The maximum line width in pixels.
+     * @param width The maximum line width from pixels.
      * @return An array of Strings.
      */
     public static String[] wrap(String text, int width, org.newdawn.slick.Font font) {
@@ -51,7 +51,7 @@ public class MiscString {
             }
         }
 
-        // handle any extra chars in current word
+        // handle any extra chars from current word
         if (word.length() > 0) {
             if (font.getWidth(line.toString())
                     + font.getWidth(word.toString()) > width) {

@@ -19,9 +19,10 @@ import java.util.logging.Logger;
 
 public class Chunk {
 
-    public static byte BIOME_COUNT = 6,
-            GRASS = 0, SAND = 1, WATER = 2, SNOW = 3, ROAD_INTERSECTION = 4, ROAD_STRAIGHT = 5;
-    public static Color[] COLORS = {Color.green, Color.yellow, Color.blue, Color.white,
+    public static byte BIOME_COUNT = 7,
+            NULL = 0, GRASS = 1, SAND = 2, WATER = 3, SNOW = 4, ROAD_INTERSECTION = 5, ROAD_STRAIGHT = 6;
+    public static Color[] COLORS = {Color.black, Color.green, Color.yellow,
+            Color.blue.brighter(), Color.white,
             Color.gray.darker(), Color.gray.darker()};
     public ArrayList<Entity> entities;
     private byte biome, terrain, x, y, rot;
@@ -79,7 +80,7 @@ public class Chunk {
      * 5 6 7<br>
      *
      * @param diag Whether or not to include chunks diagonal to the parent.
-     * @return A Chunk[] array. Elements can be null if no chunk was found in the slot.
+     * @return A Chunk[] array. Elements can be null if no chunk was found from the slot.
      */
     public Chunk[] getAdjacentChunks(boolean diag) {
         Chunk d[] = new Chunk[]{null, null, null, null, null, null, null, null};
@@ -94,7 +95,7 @@ public class Chunk {
                 //else, s is the sector at (parent x + s_x, parent y + s_y)
                 s = (s_x + w == parent.getSectorCoords()[0] && s_y + h == parent.getSectorCoords()[1] ? parent :
                         World.getWorld().getSector(parent.getSectorCoords()[0] + s_x, parent.getSectorCoords()[1] + s_y));
-                //the Ith element in d is the chunk (cx, cy) in s, where (cx, cy) is the chunk coordinates relative
+                //the Ith element from d is the chunk (cx, cy) from s, where (cx, cy) is the chunk coordinates relative
                 //to this chunk's parent sector's origin, mod Sector.SIZE (which right now is 32)
                 d[i] = (s != null ? s.getChunk((x + w + Sector.sizeChunks()) % Sector.sizeChunks(),
                         (y + h + Sector.sizeChunks()) % Sector.sizeChunks()) : null);
@@ -109,33 +110,22 @@ public class Chunk {
         return parent;
     }
 
+    public int getTopLayer() { return getTerrain() == 0 ? getBiome() : getTerrain(); }
+
     public int getTerrain() {
-        return (terrain > -1 && terrain < BIOME_COUNT) ? terrain : getBiome();
+        return (terrain > -1 && terrain < BIOME_COUNT) ? terrain : 0;
     }
 
-    public void setTerrain(int terrain) {
-        int old = this.terrain;
-        this.terrain = (byte) ((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
-        if (old != this.terrain) {
-            int mc[] = MiscMath.getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1],
-                    x, y);
-            World.getWorld().updateMapTexture(mc[0], mc[1], 1, 1);
-        }
+    public void setTerrain(byte terrain) {
+        this.terrain = ((terrain > -1 && terrain < BIOME_COUNT) ? terrain : 0);
     }
 
     public int getBiome() {
         return biome;
     }
 
-    public void setBiome(int biome) {
-        int old = this.biome;
-        this.biome = (byte) ((biome > -1 && biome < Chunk.BIOME_COUNT) ? biome : -1);
-        this.terrain = (byte) ((terrain > -1 && terrain < BIOME_COUNT) ? terrain : -1);
-        if (old != this.biome) {
-            int mc[] = MiscMath.getMapCoords(parent.getSectorCoords()[0], parent.getSectorCoords()[1],
-                    x, y);
-            World.getWorld().updateMapTexture(mc[0], mc[1], 1, 1);
-        }
+    public void setBiome(byte biome) {
+        this.biome = ((biome > -1 && biome < BIOME_COUNT) ? biome : 0);
     }
 
     public int[] offsets() {
@@ -190,10 +180,10 @@ public class Chunk {
 
     public void draw(boolean corners, Graphics g) {
 
-        if (getTerrain() < 0 || getTerrain() >= Chunk.BIOME_COUNT) return;
+        if (getTopLayer() < 0 || getTopLayer() >= Chunk.BIOME_COUNT) return;
         Image img = Assets.getTerrainSprite(corners);
 
-        int src_x = Chunk.onScreenSize() * getTerrain();
+        int src_x = Chunk.onScreenSize() * getTopLayer();
 
         int r = (rot * Chunk.onScreenSize());
         int rx = onScreenCoords()[0];
@@ -203,19 +193,19 @@ public class Chunk {
             int draw[] = {-1, -1, -1, -1};
             Chunk[] adj = getAdjacentChunks(false);
             if (adj[1] != null && adj[3] != null) {
-                if (adj[1].getTerrain() == adj[3].getTerrain()) draw[0] = adj[1].getTerrain();
+                if (adj[1].getTopLayer() == adj[3].getTopLayer()) draw[0] = adj[1].getTopLayer();
             }
             if (adj[1] != null && adj[4] != null) {
-                if (adj[1].getTerrain() == adj[4].getTerrain()) draw[1] = adj[1].getTerrain();
+                if (adj[1].getTopLayer() == adj[4].getTopLayer()) draw[1] = adj[1].getTopLayer();
             }
             if (adj[4] != null && adj[6] != null) {
-                if (adj[4].getTerrain() == adj[6].getTerrain()) draw[2] = adj[4].getTerrain();
+                if (adj[4].getTopLayer() == adj[6].getTopLayer()) draw[2] = adj[4].getTopLayer();
             }
             if (adj[6] != null && adj[3] != null) {
-                if (adj[6].getTerrain() == adj[3].getTerrain()) draw[3] = adj[6].getTerrain();
+                if (adj[6].getTopLayer() == adj[3].getTopLayer()) draw[3] = adj[6].getTopLayer();
             }
             for (int i = 0; i < 4; i++) {
-                if (draw[i] > -1 && draw[i] < Chunk.BIOME_COUNT && draw[i] != getTerrain()) {
+                if (draw[i] > -1 && draw[i] < Chunk.BIOME_COUNT && draw[i] != getTopLayer()) {
                     src_x = Chunk.onScreenSize() * draw[i];
                     r = (i * Chunk.onScreenSize());
                     img.drawEmbedded(rx, ry, rx + Chunk.onScreenSize(), ry + Chunk.onScreenSize(),

@@ -6,6 +6,7 @@ import com.bitbucket.computerology.misc.MiscMath;
 import com.bitbucket.computerology.world.Camera;
 import com.bitbucket.computerology.world.World;
 import com.bitbucket.computerology.world.entities.Entity;
+import com.bitbucket.computerology.world.terrain.Chunk;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.newdawn.slick.Color;
@@ -38,15 +39,19 @@ public class GameCanvas extends GUIElement {
 
     @Override
     public void onMousePress(int button, int x, int y) {
-        dragging = true;
+
+        double[] wc = MiscMath.getWorldCoords(x, y);
+
+        if (button == 0) dragging = true;
         last_x = x;
         last_y = y;
         grabFocus();
         if (button == 2) {
             if (Camera.getTarget() != null) Camera.setTarget(null);
-            double[] wc = MiscMath.getWorldCoords(x, y);
             Entity e = World.getWorld().getEntity(wc[0], wc[1]);
             if (e != null) Camera.setTarget(e);
+        } else if (button == 1) {
+            World.getWorld().placeBlueprint("Starter Farm", (int)wc[0], (int)wc[1], true, Chunk.SNOW, Chunk.NULL);
         }
     }
 

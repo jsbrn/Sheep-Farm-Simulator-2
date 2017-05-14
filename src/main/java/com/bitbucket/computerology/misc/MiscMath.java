@@ -11,10 +11,10 @@ public class MiscMath {
     public static int DELTA_TIME = 1;
 
     /**
-     * Calculate the amount to add per frame to reach a certain value in a certain amount of time.
+     * Calculate the amount to add per frame to reach a certain value from a certain amount of time.
      * Accounts for delta time and entity update schedules.
      *
-     * @param amount_to_add         The amount to add in the time specified.
+     * @param amount_to_add         The amount to add from the time specified.
      * @param per_x_seconds         The time specified.
      * @return The amount to add per frame.
      */
@@ -30,15 +30,15 @@ public class MiscMath {
 
     /**
      * Performs the same function as MiscMath.getConstant, however, the second parameter specifies the
-     * number of in-game minutes that will pass before the amount to add is reached. Divides the second
-     * parametre by 1.6, because each in-game minute takes roughly 0.625 seconds.
+     * number of from-game minutes that will pass before the amount to add is reached. Divides the second
+     * parameter by 1.6, because each from-game minute takes roughly 0.625 seconds.
      *
      * @param amount_to_add         The amount to add.
-     * @param per_ingame_minutes    The number of in-game minutes it should take to add.
+     * @param per_ingame_minutes    The number of from-game minutes it should take to add.
      * @return The amount to add per frame.
      */
     public static double get24HourConstant(double amount_to_add, double per_ingame_minutes) {
-        //divides the second parameter by 1.6 because each minute in game takes 1/1.6 seconds in real life
+        //divides the second parameter by 1.6 because each minute from game takes 1/1.6 seconds from real life
         return MiscMath.getConstant(amount_to_add, per_ingame_minutes / 1.6);
     }
 
@@ -58,7 +58,7 @@ public class MiscMath {
     /**
      * Finds the angle between (x, y) and (x2, y2) with 0 degrees being a vertical line.
      *
-     * @return A double representing the angle in degrees.
+     * @return A double representing the angle from degrees.
      */
     public static double angleBetween(double x1, double y1, double x2, double y2) {
         //slope formula = (Y2 - Y1) / (X2 - X1)
@@ -249,7 +249,7 @@ public class MiscMath {
      *
      * @param offset_x The x coord.
      * @param offset_y The y coord.
-     * @param rotation The angle, in degrees.
+     * @param rotation The angle, from degrees.
      * @return
      */
     public static int[] getRotatedOffset(int offset_x, int offset_y, double rotation) {
@@ -269,8 +269,8 @@ public class MiscMath {
     }
 
     public static int[] getOnscreenCoords(double world_x, double world_y) {
-        return new int[]{(int) ((world_x - Camera.getX()) * Camera.getZoom()) + (Display.getWidth() / 2),
-                (int) ((world_y - Camera.getY()) * Camera.getZoom()) + (Display.getHeight() / 2)};
+        return new int[]{(int) round((world_x - Camera.getX()) * Camera.getZoom(), 1) + (Display.getWidth() / 2),
+                (int) round((world_y - Camera.getY()) * Camera.getZoom(), 1) + (Display.getHeight() / 2)};
     }
 
     public static int[] getSectorCoords(double world_x, double world_y) {

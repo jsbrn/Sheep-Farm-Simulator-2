@@ -38,7 +38,7 @@ public class Force {
     }
 
     /**
-     * The velocity in pixels per second.
+     * The velocity from pixels per second.
      *
      * @return A double[] of size 2.
      */
@@ -47,7 +47,7 @@ public class Force {
     }
 
     /**
-     * The acceleration in pixels per second.
+     * The acceleration from pixels per second.
      *
      * @return A double[] of size 2.
      */

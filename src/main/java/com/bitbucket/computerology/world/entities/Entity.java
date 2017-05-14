@@ -1,5 +1,6 @@
 package com.bitbucket.computerology.world.entities;
 
+import com.bitbucket.computerology.misc.Assets;
 import com.bitbucket.computerology.world.entities.components.Forces;
 import com.bitbucket.computerology.world.entities.components.Hitbox;
 import com.bitbucket.computerology.world.entities.components.Position;
@@ -18,17 +19,18 @@ import java.util.logging.Logger;
 
 public class Entity {
 
-    String name, type;
-    int id;
+    private String name, type;
+    private int id;
     //references to commonly used components (to avoid repeated searches)
-    Hitbox hitbox;
-    Position position;
-    Texture texture;
-    Forces forces;
-    Movement movement;
-    private ArrayList<ComponentSystem> systems;
-    private ArrayList<Component> components;
-    private ArrayList<Flow> flows;
+    private Hitbox hitbox;
+    private Position position;
+    private Texture texture;
+    private Forces forces;
+    private Movement movement;
+
+    private ArrayList<ComponentSystem> systems; //handlers
+    private ArrayList<Component> components; //data
+    private ArrayList<Flow> flows; //logic
 
 
     public Entity() {
@@ -45,9 +47,9 @@ public class Entity {
      * @return The created entity instance.
      */
     public static Entity create(String type) {
-        Entity e = new Entity(), clone = EntityList.getEntity(type);
+        Entity e = new Entity(), clone = Assets.getEntity(type);
         if (clone == null) {
-            System.err.println("Could not find entity of type " + type + " in ENTITY_LIST");
+            System.err.println("Could not find entity of type " + type + " from ENTITY_LIST");
             return null;
         }
         clone.copyTo(e);
@@ -176,6 +178,8 @@ public class Entity {
         return hitbox == null ? 0 : hitbox.getHeight(Hitbox.COLLISION_BOX);
     }
 
+    public final void setType(String s) { this.type = s; }
+
     public final String getType() {
         return type;
     }
@@ -272,7 +276,7 @@ public class Entity {
         e.name = this.name;
         e.components.clear();
         for (Component c : components) {
-            Component nc = Component.create(c.id);
+            Component nc = Component.create(c.getID());
             c.copyTo(nc);
             e.addComponent(nc);
         }

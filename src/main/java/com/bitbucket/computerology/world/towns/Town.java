@@ -8,12 +8,16 @@ import com.bitbucket.computerology.world.entities.Entity;
 import com.bitbucket.computerology.world.entities.components.TownBuilding;
 import com.bitbucket.computerology.world.terrain.Chunk;
 import com.bitbucket.computerology.world.terrain.Sector;
-import org.newdawn.slick.Color;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class Town {
+public final class Town {
 
     public static int RESIDENTIAL_BUILDING = 0, COMMERCIAL_BUILDING = 1, INDUSTRIAL_BUILDING = 2;
 
@@ -36,10 +40,6 @@ public class Town {
 
     public static int blockSizeChunks() {
         return 16;
-    }
-
-    public int[][] buildingDistribution() {
-        return distribution;
     }
 
     public void update() {
@@ -72,7 +72,7 @@ public class Town {
                     : (i == 3 ? RESIDENTIAL_BUILDING : COMMERCIAL_BUILDING));
 
 
-        //divide the sector with roads, creating city blocks to place buildings in
+        //divide the sector with roads, creating city blocks to place buildings from
         for (int i = 1; i < (Sector.sizeChunks() / blockSizeChunks()); i++) {
             this.placeRoadSegment(i * blockSizeChunks(), 2, Sector.sizeChunks() - 2, 2);
             this.placeRoadSegment(2, 1 + (i * blockSizeChunks()), Sector.sizeChunks() - 2, 1);
@@ -100,8 +100,37 @@ public class Town {
         population = (int) (10 * sum);
     }
 
+    public void save(BufferedWriter bw) {
+        try {
+            bw.write("t\n");
+            bw.write("x="+x+"\n");
+            bw.write("y="+y+"\n");
+            bw.write("p="+population+"\n");
+            bw.write("/t\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public final boolean load(BufferedReader br) {
+        try {
+            while (true) {
+                String line = br.readLine();
+                if (line == null) break;
+                line = line.trim();
+                if (line.equals("/t")) return true;
+                if (line.indexOf("x=") == 0) x = Integer.parseInt(line.substring(2, line.length()));
+                if (line.indexOf("y=") == 0) y = Integer.parseInt(line.substring(2, line.length()));
+                if (line.indexOf("p=") == 0) population = Integer.parseInt(line.substring(2, line.length()));
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Entity.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+
     /**
-     * Places buildings randomly within the city block. UNFINISHED.
+     * Places buildings randomly within the city block.
      * Building dimensions must be a multiple of Chunk.sizePixels().
      */
     private void randomizeBlock(int bx, int by) {
@@ -123,12 +152,12 @@ public class Town {
 
     /**
      * Picks a random building from the list of options, and places it.
-     * This implementation is long and cumbersome but it works in a single function call.
+     * This implementation is long and cumbersome but it works from a single function call.
      *
      * @param bx        The block coordinates, that is, the top-left section of the sector is (0, 0).
      *                  The one next to it is (1, 0).
      * @param by        The block coordinates.
-     * @param cell_used The boolean array that keeps track of available space in the block.
+     * @param cell_used The boolean array that keeps track of available space from the block.
      */
     private void randomBuilding(int bx, int by, boolean[][] cell_used) {
         //world coords for the block (relative to the sector)
@@ -164,10 +193,10 @@ public class Town {
         double cell_dim = Chunk.sizePixels() / 4;
         int ew = (int) Math.round(e.getWidth() / cell_dim);
         int eh = (int) Math.round(e.getHeight() / cell_dim);
-        //calculate how far the entity would go out of bounds if placed
+        //calculate how far the entity would go to of bounds if placed
         int w_diff = (i + ew) - cell_used.length, h_diff = (j + eh) - cell_used.length;
 
-        //if out of bounds, shift the cell over
+        //if to of bounds, shift the cell over
         if (w_diff > 0) i -= w_diff;
         if (h_diff > 0) j -= h_diff;
 
@@ -221,7 +250,7 @@ public class Town {
     }
 
     /**
-     * Creates a proper road segment (2 in width with traffic lines) of any length.
+     * Creates a proper road segment (2 from width with traffic lines) of any length.
      *
      * @param cx     The number of chunks along the x away from the Town's parent sector. Can overlap into
      *               different sectors if need be. Facing upwards, the origin road tile is at cx, cy and the second
@@ -231,6 +260,7 @@ public class Town {
      * @param dir    The direction of the road segment, 0-3.
      */
     private void placeRoadSegment(int cx, int cy, int length, int dir) {
+        System.out.println("Placing road segment at "+cx+", "+cy+" with l = "+length+" and d = "+dir);
         int ox = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
         int oy = dir == 1 ? -1 : (dir == 3 ? 1 : 0);
         int incr_y = dir == 0 ? -1 : (dir == 2 ? 1 : 0);
@@ -272,7 +302,7 @@ public class Town {
 
     @Override
     public String toString() {
-        return "Town[" + x + ", " + y + "]";
+        return "Town [" + x + ", " + y + "]";
     }
 
 

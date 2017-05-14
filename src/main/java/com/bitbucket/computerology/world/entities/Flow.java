@@ -4,20 +4,24 @@ import java.util.ArrayList;
 
 public class Flow {
 
-    public String id;
-    public boolean run; //run on entity creation
-    ArrayList<Block> blocks;
-    Entity parent_object;
+    private String name;
+    private ArrayList<Block> blocks;
+    private Entity parent;
+
+    private Block current;
 
     public Flow() {
         this.blocks = new ArrayList<Block>();
-        this.run = false;
-        this.id = "";
-        this.parent_object = null;
+        this.name = "";
+        this.parent = null;
+    }
+
+    public void update() {
+        if (current != null) current.update();
     }
 
     public String getID() {
-        return id;
+        return name;
     }
 
     public Block getBlock(int index) {
@@ -33,7 +37,14 @@ public class Flow {
     }
 
     public void addBlock(Block b) {
-        if (blocks.contains(b) == false) blocks.add(b);
+        if (blocks.contains(b) == false) {
+            blocks.add(b);
+            b.setParent(this);
+        }
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Block getBlockByID(int id) {
@@ -50,17 +61,14 @@ public class Flow {
     }
 
     public void setParent(Entity o) {
-        parent_object = o;
+        parent = o;
     }
 
-    /**
-     * Copies the contents of this flow to flow F.
-     *
-     * @param f The flow, stupid.
-     */
+    public void setCurrent(Block b) { current = b; }
+
     public void copyTo(Flow f) {
-        f.parent_object = parent_object;
-        f.id = id;
+        f.parent = parent;
+        f.name = name;
         f.blocks.clear();
         for (Block b : blocks) {
             Block new_b = new Block();

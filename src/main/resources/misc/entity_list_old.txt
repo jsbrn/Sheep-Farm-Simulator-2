@@ -1,0 +1,236 @@
+e
+id=Tree
+soft=true
+c
+id=Position
+
+/c
+c
+id=Hitbox
+
+/c
+c
+id=Texture
+texture=tree.png
+/c
+s
+id=Render
+/s
+h
+-12 -12 12 -12
+12 -12 12 12
+12 12 -12 12
+-12 12 -12 -12
+---
+---
+/h
+/e
+e
+id=House 1
+soft=true
+c
+id=Position
+
+/c
+c
+id=Hitbox
+
+/c
+c
+id=Texture
+texture=house1.png
+/c
+c
+id=TownBuilding
+name=Residential
+/c
+s
+id=Render
+/s
+h
+-64 -64 64 -64
+64 -64 64 64
+64 64 -64 64
+-64 64 -64 -64
+---
+---
+/h
+/e
+e
+id=Factory 1
+soft=true
+c
+id=Position
+
+/c
+c
+id=Texture
+texture=factory1.png
+/c
+c
+id=Hitbox
+
+/c
+c
+id=TownBuilding
+name=Industrial
+/c
+s
+id=Render
+/s
+h
+-128 -124 128 -124
+128 -124 128 124
+128 124 -128 124
+-128 124 -128 -124
+---
+---
+/h
+/e
+e
+id=Supermarket 1
+soft=true
+c
+id=Position
+
+/c
+c
+id=Texture
+texture=supermarket1.png
+/c
+c
+id=Hitbox
+
+/c
+c
+id=TownBuilding
+name=Commercial
+/c
+s
+id=Render
+/s
+h
+-80 -80 80 -80
+80 -80 80 80
+80 80 -80 80
+-80 80 -80 -80
+---
+---
+/h
+/e
+e
+id=barn_3x4
+soft=true
+c
+id=Position
+
+/c
+c
+id=Texture
+barn.png
+/c
+c
+id=Hitbox
+
+/c
+s
+id=Render
+/s
+h
+-47 -63 -15 -64
+-15 -64 -16 -59
+-16 -59 -44 -58
+-44 -58 -44 -38
+-44 -38 -16 -37
+-16 -37 -15 -31
+-15 -31 -43 -31
+-43 -31 -44 -5
+-44 -5 -14 -5
+-14 -5 -15 -1
+-15 -1 -45 0
+-45 0 -45 27
+-45 27 -17 27
+-17 27 -17 33
+-17 33 -44 33
+-44 33 -45 60
+-45 60 -15 59
+-15 59 -16 66
+-16 66 -48 65
+-48 65 -48 -63
+13 -65 49 -66
+49 -66 48 63
+48 63 15 65
+15 65 15 58
+15 58 43 59
+43 59 43 -61
+43 -61 14 -61
+14 -61 14 -65
+---
+---
+/h
+/e
+e
+id=fence_9x6
+soft=true
+c
+id=Position
+
+/c
+c
+id=Texture
+
+/c
+c
+id=Hitbox
+
+/c
+s
+id=Render
+/s
+h
+-145 -97 -146 94
+-146 94 -19 95
+-19 95 -16 92
+-16 92 -18 90
+-18 90 -141 92
+-141 92 -141 -92
+-141 -92 137 -92
+137 -92 138 90
+138 90 14 90
+14 90 13 95
+13 95 15 97
+15 97 144 96
+144 96 145 -96
+145 -96 145 -98
+145 -98 -146 -99
+---
+---
+/h
+/e
+e
+id=Cactus
+soft=true
+c
+id=Position
+
+/c
+c
+id=Texture
+texture=cactus.png
+/c
+c
+id=Hitbox
+
+/c
+s
+id=Render
+/s
+h
+---
+-8 -8 8 -8
+8 -8 8 8
+8 8 -8 8
+-8 8 -8 -8
+---
+/h
+/e

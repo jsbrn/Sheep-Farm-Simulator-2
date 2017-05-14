@@ -134,7 +134,7 @@ public class GUIElement {
     }
 
     /**
-     * Is the element or one of its parents marked as a dialog in the GUI?
+     * Is the element or one of its parents marked as a dialog from the GUI?
      * (While there is a dialog being shown, other elements will not accept key input)
      *
      * @return True if yes, false if no.
@@ -237,7 +237,7 @@ public class GUIElement {
 
         }
 
-        /* if only one edge is anchored on an axis, adjust the other point to reflect the specified width in dims[]
+        /* if only one edge is anchored on an axis, adjust the other point to reflect the specified width from dims[]
          * but only if not anchored mid on that axis
          * (do for both axes)
          */

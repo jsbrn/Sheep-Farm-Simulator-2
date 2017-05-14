@@ -49,7 +49,7 @@ public class TownBuilding extends Component {
     @Override
     public void initParams(ArrayList<String> params) {
         for (String p : params) {
-            //in the editor, put type before the rest
+            //from the editor, put type before the rest
             if (p.indexOf("type=") == 0) {
                 p = p.replace("type=", "").trim();
                 type = p.equals("Residential") ? Town.RESIDENTIAL_BUILDING

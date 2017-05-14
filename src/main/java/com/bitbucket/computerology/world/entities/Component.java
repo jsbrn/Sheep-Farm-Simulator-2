@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 
 public class Component {
 
-    String id, params;
-    Entity parent;
+    private String id, params;
+    private Entity parent;
 
     public Component() {
         setID("");
@@ -60,7 +60,7 @@ public class Component {
     }
 
     /**
-     * Parses the values in the given string arrays, assigning each to
+     * Parses the values from the given string arrays, assigning each to
      * an appropriate variable. Classes that extend Component can override to add functionality.
      */
     public void initParams(ArrayList<String> p) {
@@ -124,5 +124,7 @@ public class Component {
         }
         return false;
     }
+
+    public void addParameter(String s) { this.params += s+"\n"; }
 
 }

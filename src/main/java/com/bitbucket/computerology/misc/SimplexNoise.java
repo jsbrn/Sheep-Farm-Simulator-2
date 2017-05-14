@@ -10,7 +10,7 @@ import java.util.Random;
  *
  * @see <a href = >http://webstaff.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf</a>
  */
-public class SimplexNoise {  // Simplex noise in 2D
+public class SimplexNoise {  // Simplex noise from 2D
     private static final double F2 = 0.5 * (Math.sqrt(3.0) - 1.0);
     private static final double G2 = (3.0 - Math.sqrt(3.0)) / 6.0;
     private static Grad grad3[] = {new Grad(1, 1), new Grad(-1, 1), new Grad(1, -1), new Grad(-1, -1),
@@ -104,11 +104,11 @@ public class SimplexNoise {  // Simplex noise in 2D
             i1 = 0;
             j1 = 1;
         }
-        double x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords
+        double x1 = x0 - i1 + G2; // Offsets for middle corner from (x,y) unskewed coords
         double y1 = y0 - j1 + G2;
-        double x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner in (x,y) unskewed coords
+        double x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner from (x,y) unskewed coords
         double y2 = y0 - 1.0 + 2.0 * G2;
-        // Work out the hashed gradient indices of the three simplex corners
+        // Work to the hashed gradient indices of the three simplex corners
         int ii = i & 255;
         int jj = j & 255;
         int gi0 = permMod12[ii + perm[jj]];
@@ -134,7 +134,7 @@ public class SimplexNoise {  // Simplex noise in 2D
             n2 = t2 * t2 * dot(grad3[gi2], x2, y2);
         }
         // Add contributions from each corner to get the final noise value.
-        // The result is scaled to return values in the interval [-1,1].
+        // The result is scaled to return values from the interval [-1,1].
         return 70.0 * (n0 + n1 + n2);
     }
 

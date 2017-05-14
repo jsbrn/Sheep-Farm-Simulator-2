@@ -96,6 +96,36 @@ public class GameScreen extends BasicGameState {
         save.anchor(b, GUIElement.ANCHOR_TOP, 0, 10 + pause_menu.getHeaderHeight());
         pause_menu.addComponent(save);
 
+        final Panel town_gui = new Panel();
+        town_gui.setWidth(200);
+        town_gui.setHeight(400);
+        town_gui.setTitle("Towns");
+        town_gui.setDraggable(true);
+        GUI.addComponent(town_gui);
+
+        Button refresh = new Button("Refresh", Color.black, Color.white) {
+
+            public void onMouseClick(int button, int x, int y, int click_count) {
+                town_gui.getComponents().clear();
+                town_gui.addComponent(this);
+                if (button == 0) {
+                    for (int i = 0; i < World.getWorld().townCount(); i++) {
+                        Town t = World.getWorld().getTown(i);
+                        Label l = new Label(t.toString());
+                        l.anchor(this, GUIElement.ANCHOR_LEFT, 0, 10);
+                        l.anchor(this, GUIElement.ANCHOR_TOP, 1, 10 + (20*i));
+                        town_gui.addComponent(l);
+                    }
+                }
+            }
+
+        };
+        refresh.anchor(town_gui, GUIElement.ANCHOR_LEFT, 0, 10);
+        refresh.anchor(town_gui, GUIElement.ANCHOR_TOP, 0, town_gui.getHeaderHeight() + 10);
+        town_gui.addComponent(refresh);
+        refresh.setWidth(200);
+        refresh.setHeight(24);
+
 
         initialized = true;
     }
@@ -115,7 +145,7 @@ public class GameScreen extends BasicGameState {
 
         if (DEBUG_MODE) {
             g.setColor(Color.white);
-            g.setFont(Assets.getFont(8));
+            g.setFont(Assets.getFont(12));
 
             g.drawString("Entities: " + World.getWorld().activeEntityCount() + "A, " + World.getWorld().movableEntityCount() + "M", 5, 32);
             g.drawString("Sectors: " + World.getWorld().sectorCount(), 5, 42);
@@ -138,7 +168,7 @@ public class GameScreen extends BasicGameState {
             g.drawString("Entity at mouse: " + (en != null ? en.toString() : "null"), 5, 132);
 
             if (c != null) {
-                g.drawString("Entities in chunk: ", x + 20, y);
+                g.drawString("Entities from chunk: ", x + 20, y);
                 int i = 0;
                 for (Entity e : c.entities) {
                     g.drawString("  - " + e.toString(), x + 20, y + 10 + (i * 10));

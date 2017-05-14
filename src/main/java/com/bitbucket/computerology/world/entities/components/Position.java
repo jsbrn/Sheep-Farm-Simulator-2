@@ -71,7 +71,7 @@ public class Position extends Component {
     }
 
     /**
-     * Sets the entity's rotation, in degrees.
+     * Sets the entity's rotation, from degrees.
      * Refreshes the entity hitbox.
      */
     public void setRotation(int r) {

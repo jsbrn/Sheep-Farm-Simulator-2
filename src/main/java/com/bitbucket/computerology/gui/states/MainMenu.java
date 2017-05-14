@@ -115,6 +115,7 @@ public class MainMenu extends BasicGameState {
                     l.addComponent(le);
 
                     Label label = new Label();
+                    label.setFontSize(16);
                     label.setText(curr_save.getName());
                     label.anchor(null, GUIElement.ANCHOR_MID_Y, 0.5, 0);
                     label.anchor(null, GUIElement.ANCHOR_LEFT, 0, 10);
@@ -130,17 +131,18 @@ public class MainMenu extends BasicGameState {
                             if (World.getWorld().isGenerated()) {
                                 World.getWorld().load();
                                 game.enterState(Assets.GAME_SCREEN);
-                                Camera.setX(World.getWorld().getSpawn()[0]);
-                                Camera.setY(World.getWorld().getSpawn()[1]);
                             } else {
                                 if (World.getWorld().generate()) {
                                     Camera.setX(World.getWorld().getSpawn()[0]);
                                     Camera.setY(World.getWorld().getSpawn()[1]);
+                                    Camera.setZoom(2);
                                     World.getWorld().save();
                                     game.enterState(Assets.GAME_SCREEN);
                                 } else {
-                                    GUI.showMessage("Error", new String[]{"What a failure!",
-                                            "Looks like a spawn point could not be found."});
+                                    GUI.showMessage("Whoops!", new String[]{
+                                            "Looks like a spawn point could not be found.",
+                                            "This happens sometimes. Just create a new ",
+                                            "world and try again."});
                                 }
                             }
                         }
@@ -273,7 +275,6 @@ public class MainMenu extends BasicGameState {
         final TextField name_field = new TextField() {
             @Override
             public void onVisible() {
-            System.out.println("Now visible!!!!");
             clearText();
             grabFocus();
             }
