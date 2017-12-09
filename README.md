@@ -2,11 +2,15 @@
 
 On a whim I decided to start fresh and redo the original project, Sheep Farm Simulator, to run extremely well and not crash every 30 seconds. Also completely revamping the game mechanics and making it fun for once.
 
-### What is this repository for? ###
+Right now, I've got a couple other projects on my plate, so I've put this one on hold. It's a tech demo of what I learned doing it, basically.
 
-* Holding my source code until I am ready to release.
+### What makes this project cool? ###
 
-### How do I get set up? ###
+1. This project features large-scale terrain generation using a procedural algorithm. It uses simplex noise to scatter the world with overlapping biomes. See [https://github.com/jsbrn/Sheep-Farm-Simulator-2/tree/master/src/main/java/com/bitbucket/computerology/world/terrain](terrain).
+
+2. I wrote a custom GUI framework to use in the game. I think it looks pretty nice, visually, but what I am most proud of is the ability to anchor components to each other and add subcomponents to panels. All of it can be done in a fairly straightforward way, making it easy and quick to make some pretty complex menu systems. See [https://github.com/jsbrn/Sheep-Farm-Simulator-2/tree/master/src/main/java/com/bitbucket/computerology/gui](gui).
+
+### How do I try it? ###
 
 1. Pull the project, and import into your favorite IDE (I recommend IntelliJ IDEA).
 
@@ -20,6 +24,6 @@ On a whim I decided to start fresh and redo the original project, Sheep Farm Sim
 
 This game has the following requirements:
 
-1. Java 6 minimum (hopefully)
-2. LWJGL 2.9.3
-3. Slick2D (unidentified version, included in project; see above)
+1. Java 6+
+2. LWJGL 2.9.3 (via Maven)
+3. Slick2D (unidentified version, included in repo for convenience)
