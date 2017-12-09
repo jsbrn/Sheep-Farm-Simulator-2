@@ -6,9 +6,9 @@ Right now, I've got a couple other projects on my plate, so I've put this one on
 
 ### What makes this project cool? ###
 
-1. This project features large-scale terrain generation using a procedural algorithm. It uses simplex noise to scatter the world with overlapping biomes. See [https://github.com/jsbrn/Sheep-Farm-Simulator-2/tree/master/src/main/java/com/bitbucket/computerology/world/terrain](terrain).
+1. This project features large-scale terrain generation using a procedural algorithm. It uses simplex noise to scatter the world with overlapping biomes. See `com/bitbucket/computerology/world/terrain`.
 
-2. I wrote a custom GUI framework to use in the game. I think it looks pretty nice, visually, but what I am most proud of is the ability to anchor components to each other and add subcomponents to panels. All of it can be done in a fairly straightforward way, making it easy and quick to make some pretty complex menu systems. See [https://github.com/jsbrn/Sheep-Farm-Simulator-2/tree/master/src/main/java/com/bitbucket/computerology/gui](gui).
+2. I wrote a custom GUI framework to use in the game. I think it looks pretty nice, visually, but what I am most proud of is the ability to anchor components to each other and add subcomponents to panels. All of it can be done in a fairly straightforward way, making it easy and quick to make some pretty complex menu systems. See `com/bitbucket/computerology/gui`.
 
 ### How do I try it? ###
 
