@@ -41,8 +41,7 @@ public class Assets {
         System.out.println("Loading block_list...");
         block_list = new ArrayList<Block>();
 
-        Block b = new Block("move", Block.CONDITIONAL_BLOCK, Block.NO_OUTPUT,
-                new String[][]{{"", "x", "number"}, {"", "y", "number"}});
+        Block b = new Block("move", Block.CONDITIONAL_BLOCK, Block.NO_OUTPUT);
         block_list.add(b);
 
         System.out.println("Successfully loaded " + block_list.size() + " flowchart blocks!");

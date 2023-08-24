@@ -8,9 +8,11 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
 <packaging>jar</packaging>
 <version>0.0.1-alpha</version>
 <name>sheep-farm-simulator-2.0</name>
-<properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+    </properties>
 
 <dependencies>
 
@@ -37,6 +39,8 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
         <groupId>org.slick2d</groupId>
         <artifactId>slick2d-core</artifactId>
         <version>0.0.1-UNKNOWN</version>
+        <scope>system</scope>
+        <systemPath>${project.basedir}/lib/slick.jar</systemPath>
     </dependency>
 
 </dependencies>
